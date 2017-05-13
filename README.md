@@ -49,7 +49,7 @@ possible.
 
 Multiline comments should be balanced in all cases. This means if divided
 vertically in half, there should be the same number of comment-only lines and
-comment+text lines in a comment. See  for details. For example:
+comment+text lines in a comment. See https://lkml.org/lkml/2016/7/8/625 for details. For example:
 
 ```c
 /* This
