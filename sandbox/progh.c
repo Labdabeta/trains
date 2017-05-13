@@ -1,0 +1,7 @@
+/*
+ * progh.c
+*/
+
+void hello(){
+
+}
