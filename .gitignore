@@ -1,0 +1,14 @@
+# Editor Files
+*.swp
+*.swo
+
+# Mac things
+.DS_Store
+
+# Intermediate Files
+*.map
+*.o
+*.elf
+*.bin
+*.pdf
+
