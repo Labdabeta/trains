@@ -17,7 +17,7 @@ void hello(){
   while(!cbpeak(&out, &c)){
     if(!( *flags2 & TXFF_MASK )){
       *data2 = c;
-      cbpop(&m_out);
+      cbpop(&out);
     }
   }
 }

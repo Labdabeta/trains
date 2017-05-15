@@ -5,9 +5,9 @@
 #include <ts7200.h>
 #include <progh.h>
 
-#define magic 0x00218000;
+#define magic 0x00218000
 
-extern void thread_start();
+extern void task_start();
 
 void setflags() {
  vint *tctrl = (int *) ( TIMER3_BASE + CRTL_OFFSET );
@@ -22,15 +22,24 @@ void setflags() {
  *vasd |= 0x68;
 }
 
+int isdigit(char c){
+ return c >= '0' && c <= '9';
+}
+
+int isspace(char c){
+ return c == ' ' || c == '\n' || c == '\r' || c == '\t';
+}
+
 void run(void (*taskcode) (), unsigned int stack){
-  thread_start();
+  task_start();
 }
 
 int main(){
   setflags();
-  run(&hello, magic + 0x00100000);
+  run ( hello , magic + 0x00100000);
   vint *flags2 = (int *)( UART2_BASE + UART_FLAG_OFFSET );
   vint *data2 = (int *)( UART2_BASE + UART_DATA_OFFSET );
   while(*flags2 & TXFF_MASK);
   *data2 = 'Y';
+	return 0;
 }
