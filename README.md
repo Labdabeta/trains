@@ -96,3 +96,11 @@ important than having pretty code in the module definitions.
 
 While code internal to a module can be self documenting, as we are not working
 in Ada, we must use comments to describe the interfaces of our modules.
+
+## Git Etiquette
+
+This project uses a development branch for active development. In addition users
+shall work on their own branches making frequent small commits before pushing a
+single coherent commit with a message body to the development branch. When a
+deadline looms, or a major version is completed, the development branch will be
+merged back onto the master branch.
