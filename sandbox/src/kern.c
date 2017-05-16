@@ -4,10 +4,10 @@
 
 #include <ts7200.h>
 #include <progh.h>
+#include <task.h>
+#include <cbuff.h>
 
-#define magic 0x00218000
-
-extern void task_start();
+extern void asm_write_ksp(vint* ksp);
 
 void setflags() {
  vint *tctrl = (int *) ( TIMER3_BASE + CRTL_OFFSET );
@@ -22,24 +22,35 @@ void setflags() {
  *vasd |= 0x68;
 }
 
-int isdigit(char c){
- return c >= '0' && c <= '9';
-}
-
-int isspace(char c){
- return c == ' ' || c == '\n' || c == '\r' || c == '\t';
-}
-
-void run(void (*taskcode) (), unsigned int stack){
-  task_start();
-}
-
 int main(){
+	vint kersp;
+	asm_write_ksp(&kersp);
+	/*asm volatile(
+		".extern ker_sp\n\t"
+		"adr %1, ker_sp\n\t"
+		"str %0, %1"
+		:
+		:"r" (&kersp), "r" (0)
+	);*/
   setflags();
-  run ( hello , magic + 0x00100000);
-  vint *flags2 = (int *)( UART2_BASE + UART_FLAG_OFFSET );
-  vint *data2 = (int *)( UART2_BASE + UART_DATA_OFFSET );
-  while(*flags2 & TXFF_MASK);
-  *data2 = 'Y';
-	return 0;
+  cbuff out;
+  cbinit(&out);
+  cbputstr(&out, "Kernell startup\r\n");
+  bwout(&out);
+
+  TD mytask;
+
+  //Causes a casche miss to install en estaz trap frame on the user stack
+  activate(&mytask, hello + magic);
+
+  int i;
+  for(i = 0; i < 3; i++){
+    cbputstr(&out, "Entering task\r\n");
+    bwout(&out);
+
+    enter(&mytask);
+    
+    cbputstr(&out, "Left task\r\n");
+    bwout(&out);
+  }
 }

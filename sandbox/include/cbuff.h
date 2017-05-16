@@ -24,6 +24,7 @@ int cbread(cbuff *buff, char *c);
 void flushcb(cbuff *b1, cbuff *b2);
 void cbaoti(cbuff *buff, int *index);
 void cbputdig(cbuff* buff, int n, unsigned int val);
+void bwout(cbuff* buff);
 void cbputr(cbuff* buff, unsigned int reg);
 void cbputstr(cbuff* buff, char *str);
 void cbputw(cbuff* buff, int n, char fc, char *bf );

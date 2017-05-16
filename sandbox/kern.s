@@ -58,133 +58,98 @@ setflags:
 	.word	-2138243064
 	.word	-2138308600
 	.size	setflags, .-setflags
+	.section	.rodata
 	.align	2
-	.global	isdigit
-	.type	isdigit, %function
-isdigit:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
-	mov	ip, sp
-	stmfd	sp!, {fp, ip, lr, pc}
-	sub	fp, ip, #4
-	sub	sp, sp, #8
-	mov	r3, r0
-	strb	r3, [fp, #-16]
-	ldrb	r3, [fp, #-16]	@ zero_extendqisi2
-	cmp	r3, #47
-	bls	.L6
-	ldrb	r3, [fp, #-16]	@ zero_extendqisi2
-	cmp	r3, #57
-	bhi	.L6
-	mov	r3, #1
-	str	r3, [fp, #-20]
-	b	.L9
-.L6:
-	mov	r3, #0
-	str	r3, [fp, #-20]
-.L9:
-	ldr	r3, [fp, #-20]
-	mov	r0, r3
-	sub	sp, fp, #12
-	ldmfd	sp, {fp, sp, pc}
-	.size	isdigit, .-isdigit
+.LC0:
+	.ascii	"Kernell startup\015\012\000"
 	.align	2
-	.global	isspace
-	.type	isspace, %function
-isspace:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
-	mov	ip, sp
-	stmfd	sp!, {fp, ip, lr, pc}
-	sub	fp, ip, #4
-	sub	sp, sp, #8
-	mov	r3, r0
-	strb	r3, [fp, #-16]
-	ldrb	r3, [fp, #-16]	@ zero_extendqisi2
-	cmp	r3, #32
-	beq	.L12
-	ldrb	r3, [fp, #-16]	@ zero_extendqisi2
-	cmp	r3, #10
-	beq	.L12
-	ldrb	r3, [fp, #-16]	@ zero_extendqisi2
-	cmp	r3, #13
-	beq	.L12
-	ldrb	r3, [fp, #-16]	@ zero_extendqisi2
-	cmp	r3, #9
-	bne	.L16
-.L12:
-	mov	r3, #1
-	str	r3, [fp, #-20]
-	b	.L17
-.L16:
-	mov	r3, #0
-	str	r3, [fp, #-20]
-.L17:
-	ldr	r3, [fp, #-20]
-	mov	r0, r3
-	sub	sp, fp, #12
-	ldmfd	sp, {fp, sp, pc}
-	.size	isspace, .-isspace
+.LC1:
+	.ascii	"Entering task\015\012\000"
 	.align	2
-	.global	run
-	.type	run, %function
-run:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
-	mov	ip, sp
-	stmfd	sp!, {fp, ip, lr, pc}
-	sub	fp, ip, #4
-	sub	sp, sp, #8
-	str	r0, [fp, #-16]
-	str	r1, [fp, #-20]
-	bl	task_start(PLT)
-	sub	sp, fp, #12
-	ldmfd	sp, {fp, sp, pc}
-	.size	run, .-run
+.LC2:
+	.ascii	"Left task\015\012\000"
+	.text
 	.align	2
 	.global	main
 	.type	main, %function
 main:
-	@ args = 0, pretend = 0, frame = 8
+	@ args = 0, pretend = 0, frame = 1060
 	@ frame_needed = 1, uses_anonymous_args = 0
 	mov	ip, sp
 	stmfd	sp!, {sl, fp, ip, lr, pc}
 	sub	fp, ip, #4
-	sub	sp, sp, #8
-	ldr	sl, .L26
-.L25:
+	sub	sp, sp, #1056
+	sub	sp, sp, #4
+	ldr	sl, .L11
+.L10:
 	add	sl, pc, sl
+	sub	r3, fp, #24
+	mov	r0, r3
+	bl	asm_write_ksp(PLT)
 	bl	setflags(PLT)
-	ldr	r3, .L26+4
+	sub	r3, fp, #1056
+	mov	r0, r3
+	bl	cbinit(PLT)
+	sub	r3, fp, #1056
+	mov	r0, r3
+	ldr	r3, .L11+4
+	add	r3, sl, r3
+	mov	r1, r3
+	bl	cbputstr(PLT)
+	sub	r3, fp, #1056
+	mov	r0, r3
+	bl	bwout(PLT)
+	ldr	r3, .L11+8
 	ldr	r3, [sl, r3]
+	mov	r2, #2195456
+	add	r2, r3, r2
+	sub	r3, fp, #1072
+	sub	r3, r3, #4
 	mov	r0, r3
-	mov	r1, #3244032
-	bl	run(PLT)
-	ldr	r3, .L26+8
-	str	r3, [fp, #-24]
-	ldr	r3, .L26+12
-	str	r3, [fp, #-20]
-.L22:
-	ldr	r3, [fp, #-24]
-	ldr	r3, [r3, #0]
-	mov	r3, r3, lsr #5
-	and	r3, r3, #1
-	and	r3, r3, #255
-	cmp	r3, #0
-	bne	.L22
-	ldr	r2, [fp, #-20]
-	mov	r3, #89
-	str	r3, [r2, #0]
+	mov	r1, r2
+	bl	activate(PLT)
 	mov	r3, #0
+	str	r3, [fp, #-20]
+	b	.L6
+.L7:
+	sub	r3, fp, #1056
 	mov	r0, r3
+	ldr	r3, .L11+12
+	add	r3, sl, r3
+	mov	r1, r3
+	bl	cbputstr(PLT)
+	sub	r3, fp, #1056
+	mov	r0, r3
+	bl	bwout(PLT)
+	sub	r3, fp, #1072
+	sub	r3, r3, #4
+	mov	r0, r3
+	bl	enter(PLT)
+	sub	r3, fp, #1056
+	mov	r0, r3
+	ldr	r3, .L11+16
+	add	r3, sl, r3
+	mov	r1, r3
+	bl	cbputstr(PLT)
+	sub	r3, fp, #1056
+	mov	r0, r3
+	bl	bwout(PLT)
+	ldr	r3, [fp, #-20]
+	add	r3, r3, #1
+	str	r3, [fp, #-20]
+.L6:
+	ldr	r3, [fp, #-20]
+	cmp	r3, #2
+	ble	.L7
 	sub	sp, fp, #16
 	ldmfd	sp, {sl, fp, sp, pc}
-.L27:
+.L12:
 	.align	2
-.L26:
-	.word	_GLOBAL_OFFSET_TABLE_-(.L25+8)
+.L11:
+	.word	_GLOBAL_OFFSET_TABLE_-(.L10+8)
+	.word	.LC0(GOTOFF)
 	.word	hello(GOT)
-	.word	-2138243048
-	.word	-2138243072
+	.word	.LC1(GOTOFF)
+	.word	.LC2(GOTOFF)
 	.size	main, .-main
 	.ident	"GCC: (GNU) 4.0.2"

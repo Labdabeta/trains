@@ -9,7 +9,7 @@ src = $(wildcard src/*.c)
 asm = $(src:.c=.s) switch.s
 obj = $(asm:.s=.o)
 
-all: $(obj,D) switch.o kern.elf
+all: $(obj,D) context.o kern.elf
 
 cbuff.s: src/cbuff.c
 	$(XCC) -S $(CFLAGS) src/cbuff.c
@@ -23,14 +23,11 @@ stdlib.s: src/stdlib.c
 stdlib.o: stdlib.s
 	$(AS) $(ASFLAGS) -o stdlib.o stdlib.s
 
-kern.s: src/kern.c
+kern.s: src/kern.c src/switch.s
 	$(XCC) -S $(CFLAGS) src/kern.c
 
 kern.o: kern.s
 	$(AS) $(ASFLAGS) -o kern.o kern.s
-
-switch.o: src/switch.s
-	$(AS) $(ASFLAGS) -o switch.o src/switch.s
 
 progh.s: src/progh.c
 	$(XCC) -S $(CFLAGS) src/progh.c
@@ -38,8 +35,17 @@ progh.s: src/progh.c
 progh.o: progh.s
 	$(AS) $(ASFLAGS) -o progh.o progh.s
 
-kern.elf: kern.o cbuff.o stdlib.o switch.o progh.o
-	$(LD) $(LDFLAGS) -o kern.elf kern.o switch.o cbuff.o stdlib.o progh.o -lgcc
+task.s: src/task.c
+	$(XCC) -S $(CFLAGS) src/task.c
+
+task.o: task.s
+	$(AS) $(ASFLAGS) -o task.o task.s
+
+context.o: src/context_switch.s
+	$(AS) $(ASFLAGS) -o context.o src/context_switch.s
+
+kern.elf: kern.o cbuff.o stdlib.o progh.o task.o context.o
+	$(LD) $(LDFLAGS) -o kern.elf kern.o task.o context.o cbuff.o stdlib.o progh.o -lgcc
 	cp kern.elf /u/cs452/tftp/ARM/tkolomat/
 
 clean:
