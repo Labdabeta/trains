@@ -20,4 +20,5 @@ void hello(){
       cbpop(&out);
     }
   }
+  while(1);
 }

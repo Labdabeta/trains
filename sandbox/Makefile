@@ -23,14 +23,11 @@ stdlib.s: src/stdlib.c
 stdlib.o: stdlib.s
 	$(AS) $(ASFLAGS) -o stdlib.o stdlib.s
 
-kern.s: src/kern.c
+kern.s: src/kern.c src/switch.s
 	$(XCC) -S $(CFLAGS) src/kern.c
 
 kern.o: kern.s
 	$(AS) $(ASFLAGS) -o kern.o kern.s
-
-switch.o: src/switch.s
-	$(AS) $(ASFLAGS) -o switch.o src/switch.s
 
 progh.s: src/progh.c
 	$(XCC) -S $(CFLAGS) src/progh.c
@@ -39,7 +36,7 @@ progh.o: progh.s
 	$(AS) $(ASFLAGS) -o progh.o progh.s
 
 kern.elf: kern.o cbuff.o stdlib.o switch.o progh.o
-	$(LD) $(LDFLAGS) -o kern.elf kern.o switch.o cbuff.o stdlib.o progh.o -lgcc
+	$(LD) $(LDFLAGS) -o kern.elf kern.o cbuff.o stdlib.o progh.o -lgcc
 	cp kern.elf /u/cs452/tftp/ARM/tkolomat/
 
 clean:

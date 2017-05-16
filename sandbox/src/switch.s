@@ -1,8 +1,6 @@
-.global task_start
-task_start:
-  stmfd r13!, {r4-r9}
-  str r13, [r1]
-  sub r1, r1, #4
-  mov r13, r1
-  blx r0
-  ldr r13, [r13]
+"str sp, [%1]\n"
+"sub %1, %1, #4\n"
+"mov sp, %1\n"
+"mov lr, pc\n"
+"add lr, lr, #12\n"
+"mov pc, %0\n"

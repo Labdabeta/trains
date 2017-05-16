@@ -137,7 +137,15 @@ run:
 	sub	sp, sp, #8
 	str	r0, [fp, #-16]
 	str	r1, [fp, #-20]
-	bl	task_start(PLT)
+	ldr	r2, [fp, #-16]
+	ldr	r3, [fp, #-20]
+	str sp, [r3]
+sub r3, r3, #4
+mov sp, r3
+mov lr, pc
+add lr, lr, #12
+mov pc, r2
+
 	sub	sp, fp, #12
 	ldmfd	sp, {fp, sp, pc}
 	.size	run, .-run
@@ -145,46 +153,27 @@ run:
 	.global	main
 	.type	main, %function
 main:
-	@ args = 0, pretend = 0, frame = 8
+	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
 	mov	ip, sp
 	stmfd	sp!, {sl, fp, ip, lr, pc}
 	sub	fp, ip, #4
-	sub	sp, sp, #8
-	ldr	sl, .L26
-.L25:
+	ldr	sl, .L24
+.L23:
 	add	sl, pc, sl
 	bl	setflags(PLT)
-	ldr	r3, .L26+4
+	ldr	r3, .L24+4
 	ldr	r3, [sl, r3]
+	mov	r2, #2195456
+	add	r3, r3, r2
 	mov	r0, r3
 	mov	r1, #3244032
 	bl	run(PLT)
-	ldr	r3, .L26+8
-	str	r3, [fp, #-24]
-	ldr	r3, .L26+12
-	str	r3, [fp, #-20]
-.L22:
-	ldr	r3, [fp, #-24]
-	ldr	r3, [r3, #0]
-	mov	r3, r3, lsr #5
-	and	r3, r3, #1
-	and	r3, r3, #255
-	cmp	r3, #0
-	bne	.L22
-	ldr	r2, [fp, #-20]
-	mov	r3, #89
-	str	r3, [r2, #0]
-	mov	r3, #0
-	mov	r0, r3
-	sub	sp, fp, #16
 	ldmfd	sp, {sl, fp, sp, pc}
-.L27:
+.L25:
 	.align	2
-.L26:
-	.word	_GLOBAL_OFFSET_TABLE_-(.L25+8)
+.L24:
+	.word	_GLOBAL_OFFSET_TABLE_-(.L23+8)
 	.word	hello(GOT)
-	.word	-2138243048
-	.word	-2138243072
 	.size	main, .-main
 	.ident	"GCC: (GNU) 4.0.2"

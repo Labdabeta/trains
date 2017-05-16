@@ -64,8 +64,8 @@ hello:
 	mov	r3, r0
 	cmp	r3, #0
 	beq	.L3
-	sub	sp, fp, #16
-	ldmfd	sp, {sl, fp, sp, pc}
+.L5:
+	b	.L5
 .L10:
 	.align	2
 .L9:

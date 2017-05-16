@@ -31,15 +31,21 @@ int isspace(char c){
 }
 
 void run(void (*taskcode) (), unsigned int stack){
-  task_start();
+  asm(
+    #include "switch.s"
+    :
+    :"r" (taskcode), "r" (stack)
+  );
 }
 
 int main(){
   setflags();
-  run ( hello , magic + 0x00100000);
+  run ( hello + magic , magic + 0x00100000);
+#if 0
   vint *flags2 = (int *)( UART2_BASE + UART_FLAG_OFFSET );
   vint *data2 = (int *)( UART2_BASE + UART_DATA_OFFSET );
   while(*flags2 & TXFF_MASK);
   *data2 = 'Y';
 	return 0;
+#endif
 }
