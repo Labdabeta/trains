@@ -1,21 +1,24 @@
 #ifndef TASK_H
 #define TASK_H
 
-typedef struct Context {
-  void *sp;
-} C;
+#define magic 0x00218000
+
+typedef unsigned int uint;
 
 typedef struct TaskDescriptor {
   int tid;
   int parent;
   int priority;
-
-  struct Context *data;
+  uint CPSR;
+  uint* sp;
 } TD;
-void activate(TD *td);
-inline void enter(TD *td);
 
-void trap(int code);
+void activate(TD *td, void (*entry) ());
+void enter(TD *td);
+
+extern inline void asm_enter(uint *sp, uint CPSR);
+
+//void trap(int code);
 
 /* static void exit(void) */
 

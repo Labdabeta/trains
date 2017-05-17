@@ -3,6 +3,7 @@
 */
 
 #include <cbuff.h>
+#include <ts7200.h>
 
 #define add1(ind) ((ind) = ((ind) + 1) % CBUFF_SIZE)
 #define c_ buff->contents
@@ -21,9 +22,13 @@ typedef char *va_list;
 #define va_arg(ap, t)	\
 (((ap) = (ap) + __va_argsiz(t)), *((t*) (void*) ((ap) - __va_argsiz(t))))
 
-//These need to be defined in the enviroment that they are used
-int isdigit(char c);
-int isspace(char c);
+int isdigit(char c){
+ return c >= '0' && c <= '9';
+}
+
+int isspace(char c){
+ return c == ' ' || c == '\n' || c == '\r' || c == '\t';
+}
 
 void cbinit(cbuff* buff){
   b_ = e_ = 0;
@@ -110,6 +115,18 @@ void cbputdig(cbuff* buff, int n, unsigned int val) {
     cbwrite(buff, '0'+(val / divisor));
     val %= divisor;
     divisor /= 10;
+  }
+}
+
+void bwout(cbuff* buff){
+  vint *flags2 = (int *)( UART2_BASE + UART_FLAG_OFFSET );
+  vint *data2 = (int *)( UART2_BASE + UART_DATA_OFFSET );
+  char c;
+  while(!cbpeak(&buff, &c)){
+    if(!( *flags2 & TXFF_MASK )){
+      *data2 = c;
+      cbpop(&buff);
+    }
   }
 }
 
