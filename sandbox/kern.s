@@ -141,6 +141,8 @@ main:
 	ldr	r3, [fp, #-20]
 	cmp	r3, #2
 	ble	.L7
+	mov	r3, #0
+	mov	r0, r3
 	sub	sp, fp, #16
 	ldmfd	sp, {sl, fp, sp, pc}
 .L12:

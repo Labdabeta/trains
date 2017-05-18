@@ -122,10 +122,10 @@ void bwout(cbuff* buff){
   vint *flags2 = (int *)( UART2_BASE + UART_FLAG_OFFSET );
   vint *data2 = (int *)( UART2_BASE + UART_DATA_OFFSET );
   char c;
-  while(!cbpeak(&buff, &c)){
+  while(!cbpeak(buff, &c)){
     if(!( *flags2 & TXFF_MASK )){
       *data2 = c;
-      cbpop(&buff);
+      cbpop(buff);
     }
   }
 }

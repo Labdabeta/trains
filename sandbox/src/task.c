@@ -1,7 +1,7 @@
 #include <task.h>
 
 typedef struct State {
-  int registers[16]; // indexed backwards as 15 - r
+  int registers[11]; // r4-r12, lr, pc
 } State;
 
 static void exit(){
@@ -10,21 +10,13 @@ static void exit(){
 
 void activate(TD *td, void (*entry) ()){
   State *frame = (State*) (magic + 0x00100000);
-  td->sp = magic + 0x00100000 + sizeof(State);
-  frame->registers[15] = entry; // PC
-  frame->registers[14] = (int) (exit + magic); // LR
-  frame->registers[13] = &frame; // SP
-  frame->registers[11] = &frame; // FP
-  td->CPSR = 16;
+  td->sp = (uint*) (magic + 0x00100000 + sizeof(State) - 0x4);
+  frame->registers[10] = (int) entry; // PC
+  frame->registers[9] = (int) (exit + magic); // LR
+  frame->registers[7] = (int) frame; // FP
+  td->CPSR = 0xd0;
 }
 
 void enter(TD *td){
-  asm_enter(td->sp, td->CPSR);
-#if 0
-  asm(
-    #include "switch.s"
-    :
-    :"r" (taskcode), "r" (stack)
-  );
-#endif
+  td->sp = asm_enter(td->sp, td->CPSR);
 }

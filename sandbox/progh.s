@@ -31,6 +31,7 @@ hello:
 	mov	r1, r2
 	mov	r2, ip
 	bl	memcpy(PLT)
+.L2:
 	sub	r2, fp, #1040
 	sub	r2, r2, #8
 	sub	r3, fp, #1056
@@ -42,7 +43,6 @@ hello:
 	sub	r3, r3, #8
 	mov	r0, r3
 	bl	bwout(PLT)
-.L2:
 	b	.L2
 .L6:
 	.align	2

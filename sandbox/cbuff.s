@@ -535,15 +535,13 @@ bwout:
 	mov	r2, r3
 	ldr	r3, [fp, #-16]
 	str	r2, [r3, #0]
-	sub	r3, fp, #28
-	mov	r0, r3
+	ldr	r0, [fp, #-28]
 	bl	cbpop(PLT)
 .L73:
 .L78:
-	sub	r3, fp, #28
-	sub	r2, fp, #21
-	mov	r0, r3
-	mov	r1, r2
+	sub	r3, fp, #21
+	ldr	r0, [fp, #-28]
+	mov	r1, r3
 	bl	cbpeak(PLT)
 	mov	r3, r0
 	cmp	r3, #0

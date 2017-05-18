@@ -30,23 +30,21 @@ activate:
 	ldr	r2, [fp, #-24]
 	ldr	r3, .L6+4
 	str	r3, [r2, #16]
-	ldr	r2, [fp, #-20]
-	ldr	r3, [fp, #-28]
-	str	r3, [r2, #60]
-	ldr	r1, [fp, #-20]
+	ldr	r2, [fp, #-28]
+	ldr	r3, [fp, #-20]
+	str	r2, [r3, #40]
 	ldr	r3, .L6+8
 	ldr	r3, [sl, r3]
 	mov	r2, #2195456
 	add	r3, r3, r2
-	str	r3, [r1, #56]
+	mov	r2, r3
+	ldr	r3, [fp, #-20]
+	str	r2, [r3, #36]
 	ldr	r2, [fp, #-20]
-	sub	r3, fp, #20
-	str	r3, [r2, #52]
-	ldr	r2, [fp, #-20]
-	sub	r3, fp, #20
-	str	r3, [r2, #44]
+	ldr	r3, [fp, #-20]
+	str	r2, [r3, #28]
 	ldr	r2, [fp, #-24]
-	mov	r3, #16
+	mov	r3, #208
 	str	r3, [r2, #12]
 	sub	sp, fp, #16
 	ldmfd	sp, {sl, fp, sp, pc}
@@ -54,7 +52,7 @@ activate:
 	.align	2
 .L6:
 	.word	_GLOBAL_OFFSET_TABLE_-(.L5+8)
-	.word	3244096
+	.word	3244072
 	.word	exit(GOT)
 	.size	activate, .-activate
 	.align	2
@@ -75,6 +73,9 @@ enter:
 	mov	r0, r2
 	mov	r1, r3
 	bl	asm_enter(PLT)
+	mov	r2, r0
+	ldr	r3, [fp, #-16]
+	str	r2, [r3, #16]
 	ldmfd	sp, {r3, fp, sp, pc}
 	.size	enter, .-enter
 	.ident	"GCC: (GNU) 4.0.2"

@@ -16,7 +16,7 @@ typedef struct TaskDescriptor {
 void activate(TD *td, void (*entry) ());
 void enter(TD *td);
 
-extern inline void asm_enter(uint *sp, uint CPSR);
+extern uint* asm_enter(uint *sp, uint CPSR);
 
 //void trap(int code);
 

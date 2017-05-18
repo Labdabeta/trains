@@ -49,8 +49,9 @@ int main(){
     bwout(&out);
 
     enter(&mytask);
-    
+
     cbputstr(&out, "Left task\r\n");
     bwout(&out);
   }
+  return 0;
 }

@@ -10,7 +10,11 @@ void hello(){
   cbuff out;
   cbinit(&out);
   char str[] = "Hello world!\r\n";
-  cbputstr(&out, str);
-  bwout(&out);
-  while(1);
+  while(1){
+    cbputstr(&out, str);
+    bwout(&out);
+    /*asm volatile(
+      "swi 0"
+    );*/
+  }
 }

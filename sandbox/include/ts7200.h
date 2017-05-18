@@ -5,6 +5,8 @@
  *
  */
 
+#ifndef TS7200
+#define TS7200
 typedef volatile int vint;
 
 #define	TIMER1_BASE	0x80810000
@@ -82,3 +84,5 @@ typedef volatile int vint;
 #define UART_HDLCAM_OFFSET	0x214
 #define UART_HDLCRIB_OFFSET	0x218
 #define UART_HDLCSTS_OFFSET	0x21c
+
+#endif
