@@ -9,9 +9,8 @@ static void exit(){
 }
 
 void activate(TD *td, void (*entry) ()){
-  State *frame = (State*) (magic + 0x00100004);
-  td->data = magic + 0x00100000;
-  td->data->sp = magic + 0x00100000 + sizeof(State); //Closed stack convention
+  State *frame = (State*) (magic + 0x00100000);
+  td->sp = magic + 0x00100000 + sizeof(State);
   frame->registers[15] = entry; // PC
   frame->registers[14] = (int) (exit + magic); // LR
   frame->registers[13] = &frame; // SP
