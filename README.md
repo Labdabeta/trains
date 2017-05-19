@@ -144,3 +144,13 @@ shall work on their own branches making frequent small commits before pushing a
 single coherent commit with a message body to the development branch. When a
 deadline looms, or a major version is completed, the development branch will be
 merged back onto the master branch.
+
+Typical workflow:
+
+```bash
+git checkout dev-relevant
+# Do work here...
+git rebase dev-stable
+git push
+# Now create a merge request on the website
+```
