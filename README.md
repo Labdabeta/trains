@@ -11,9 +11,15 @@ only expanded tab characters.
 
 Only UNIX style end of lines will be used in this project.
 
+The maximum line length shall be 80 characters. Any line longer should be broken
+up and thoroughly rethought.
+
 ### Braces
 
-Predominantly K&R style. Only top level functions have braces on new lines.
+We use Linux Kernel brace style. This is predominantly the K&R style, however
+top level functions have braces on new lines. Basically it boils down to things
+that can be nested have the brace on the same line, while things that cannot get
+the brace on a new line.
 
 Example source:
 
@@ -79,6 +85,31 @@ set to be pedantic.
 Header guards are to be used instead of `#pragma once` to allow for
 header/source splitting during testing if necessary.
 
+### Naming
+
+Variable names should be terse in all logical code in order to fit the most
+logical operation on one screen. However any global symbol shall have a full
+descriptive name such that its contents can be understood without a comment.
+
+Constants should always be in FULL\_UPPERCASE.
+
+### Typedefs
+
+If a struct's members are to be directly accessed, then it should be passed
+transparently as a `struct StructType`. However if the struct is to be used
+opaquely, then it should be passed as a `ST` typedef.
+
+### Functions
+
+A function shall be at most 7-20-10. That means a maximum of 7 lines of variable
+declarations and precondition checks, 20 lines of body code, and 10 lines of
+cleanup code. A maximum of 7 local variables is enforced (relating to the
+short-term memory limit of the human brains working on the project). Helper
+functions should not be avoided, as they can be easily optimized by the
+compiler.
+
+The goto fail idiom is encouraged to help clean code.
+
 ### General Guidelines
 
  - Readibility shall be placed above all else.
@@ -96,6 +127,15 @@ important than having pretty code in the module definitions.
 
 While code internal to a module can be self documenting, as we are not working
 in Ada, we must use comments to describe the interfaces of our modules.
+
+ - The linux kernel has experience.
+
+When wondering about what works and what doesn't feel free to consult the linux
+kernel's styleguide:
+https://www.kernel.org/doc/html/v4.10/process/coding-style.html
+
+The developers of the linux kernel have much more experience than anybody on
+this team.
 
 ## Git Etiquette
 
