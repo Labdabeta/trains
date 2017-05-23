@@ -1,8 +1,10 @@
-extern void asm_write_kernel_stack(volatile int *kernel_sp);
+extern void asm_SetupTrap(volatile int *kernel_sp);
 
 int main(int argc, char *argv[])
 {
 	volatile int kernel_sp;
 
-	asm_write_kernel_stack(&kernel_sp);
+	asm_SetupTrap(&kernel_sp);
+
+	return 0;
 }
