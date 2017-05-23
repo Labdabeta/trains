@@ -1,4 +1,5 @@
 #include "scheduler.h"
+#include "task.h"
 
 void initScheduler(struct RunQueue *state)
 {

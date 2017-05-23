@@ -12,7 +12,7 @@ typedef struct TaskDescriptor {
 	int tid;
 	int priority;
 	int cpsr;
-	struct TaskData *data;
+	struct TaskFrame *data;
 	struct TaskDescriptor *next;
 	struct TaskDescriptor *parent;
 } *TD_ptr;

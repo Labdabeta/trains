@@ -24,10 +24,10 @@ CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -ansi -DEXIT_SUCCESS=0 -DEXIT_FAILURE=
 ASFLAGS=-mcpu=arm920t -mapcs-32
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 
-TARGETS=kernel.elf kernel.s
-SOURCES=$(wildcard *.c)
+TARGETS=kernel.elf
+SOURCES=$(shell find src -name '*.c')
 MODULES=$(filder-out main.c,$(SOURCES))
-OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
+OBJECTS=$(patsubst %.c,%.o,$(SOURCES)) src/kernel/context_switch.o
 HEADERS=$(patsubst %.c,%.h,$(MODULES))
 
 default: debug
@@ -39,7 +39,7 @@ all: debug prod report
 debug:$(TARGETS)
 prod:$(TARGETS)
 
-%.s: %.c $(HEADERS)
+%.s: %.c
 	$(CC) $(CFLAGS) $< -S -o $@
 
 %.o: %.s
@@ -69,4 +69,5 @@ clean:
 	-@find -name '*.aux' -delete
 	-@find -name '*.log' -delete
 
-
+print-%:
+	@echo $* = $($*)
