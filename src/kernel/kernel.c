@@ -5,11 +5,12 @@
 
 #define ever ;;
 
-extern void asm_SetupTrap(struct KernelData *kernel_sp);
+//extern void asm_SetupTrap(struct KernelData *kernel_sp);
+extern void asm_SetupTrap(int *kernel_sp);
 
 void fn(void) {
-	debugio_putstr("What?\n");
-	callSystemInterrupt(0,0,0,0,0,0);
+	debugio_putstr("What?\n\r");
+	callSystemInterrupt(0,0,0,0,0,5);
 }
 
 int newTID(struct KernelData *data, int size)
@@ -37,9 +38,9 @@ int main(int argc, char *argv[])
 
 	asm_SetupTrap(&data.argv[4]);
 
-	activateTask(&data.tasks[2], fn + (int)(&CODE_BASE));
+	activateTask(&data.tasks[1], fn + (int)(&CODE_BASE));
 
-	enterTask(&data.tasks[2]);
+	enterTask(&data.tasks[1]);
 
 	debugio_putstr("Goodbye\n");
 

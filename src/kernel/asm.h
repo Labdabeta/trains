@@ -7,7 +7,7 @@
 #define SAVE_STACK() ASM ("mov r8, sp" ::: "r8", "lr")
 #define RESTORE_STACK() ASM ("mov sp, r8" ::: "lr")
 #define SWI() ASM ("swi 0" ::: "lr")
-#define RET() ASM ("bx lr" ::: "lr")
+#define RET() do { ASM ("bx lr" ::: "lr"); register int __retval asm ("r0"); ASM("":"=r"(__retval)); return __retval; } while (0)
 
 #if 0 /* Some examples */
 #define SET_SPSR(new_spsr) ASM ("msr spsr, %0" :: "irm" (new_spsr))

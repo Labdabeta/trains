@@ -59,6 +59,8 @@ void setupTaskArray(struct TaskDescriptor *ta)
         ta[i].next = 0;
         ta[i].parent = 0;
 		ta[i].rval = 0;
+		ta[i].sp = 0; /* computed later. */
+		ta[i].data = 0; /* computed later. */
     }
 }
 
@@ -66,6 +68,7 @@ void activateTask(struct TaskDescriptor *td, void (*entry)())
 {
 	td->cpsr = 0xd0; /* mode set */
 	td->sp = ((int)td->stack) + sizeof(struct TaskFrame) - WORD_SIZE;
+	td->data = (struct TaskFrame*)td->stack;
 
 	td->data->lr = 0; /* TODO: assign exit syscall address */
 	td->data->pc = (int)entry;
@@ -75,7 +78,7 @@ extern void asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
 
 void enterTask(struct TaskDescriptor *td) {
 	asm_EnterTask((struct TaskFrame*)td->sp, td->cpsr, td->rval);
-	__asm(
+	asm (
 		"str r1, [%0]"
 		: /* TODO: use outputs to write cpsr instead */
 		: "r" (& td->cpsr)

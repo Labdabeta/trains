@@ -33,7 +33,7 @@ asm_EnterTask:
 	eor r3, r3, #12
 	msr cpsr_c, r3
 
-	mov r0, r2 @ Return the value
+	@mov r0, r2 @ Return the value
 	movs pc, lr @ return and enact mode switch
 
 @ int asm_EnterKernel(void)
@@ -64,6 +64,6 @@ asm_EnterKernel:
 	msr cpsr_c, r2
 
 	ldr r1, arg_pointer
-	@stmed r1!, {r4-r8}
+	stmed r1!, {r4-r8}
 	mrs r1, spsr @ return spsr in r1
 	ldmfd sp!, {r4-r12, pc} @ Restore registers (lr->pc)
