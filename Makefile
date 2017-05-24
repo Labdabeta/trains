@@ -43,7 +43,7 @@ small:$(TARGETS)
 	$(LD) $(LDFLAGS) -Map $*.map -o $@ $^ $(CLIBS)
 
 push:
-	scp kernel.elf laburke@linux.student.cs.uwaterloo.ca:/u/cs452/tftp/ARM/laburke/kernel.elf
+	./push_kernel.sh
 
 report:
 	echo --- TODO

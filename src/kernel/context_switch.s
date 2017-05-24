@@ -12,33 +12,10 @@ asm_SetupTrap:
 arg_pointer:
 	.word 0
 
-@ void asm_EnterTask(int *sp, int usr_cpsr)
-@ Enters a userspace task.
+@ void asm_EnterTask(int *sp, int usr_cpsr, int return_value)
+@ Enters a userspace task and returns the specified value.
 .global asm_EnterTask
 asm_EnterTask:
-	msr spsr, r1 @ Set spsr to usr_cpsr
-	stmfd sp!, {r4-r12, lr} @ Save registers
-	ldmfd r0!, {lr} @ Load old pc (top value of user stack)
-
-	@ Switch mode to system
-	mrs r3, cpsr
-	orr r3, r3, #12
-	msr cpsr_c, r3
-
-	mov sp, r0 @ Restore user stack pointer
-	ldmfd sp!, {r4-r12, lr} @ Restore registers to the user stack
-
-	@ Switch back to user mode
-	mrs r3, cpsr
-	eor r3, r3, #12
-	msr cpsr_c, r3
-
-	movs pc, lr @ return and enact mode switch
-
-@ void asm_EnterTaskReturn(int *sp, int usr_cpsr, int return_value)
-@ Enters a userspace task and returns the specified value.
-.global asm_EnterTaskReturn
-asm_EnterTaskReturn:
 	msr spsr, r1 @ Set spsr to usr_cpsr
 	stmfd sp!, {r4-r12, lr} @ Save registers
 	ldmfd r0!, {lr} @ Load old pc (top value of user stack)
@@ -79,10 +56,14 @@ asm_EnterKernel:
 
 	mov r0, sp @ Return user sp
 
+	ldmfd r1!, {r4-r8} @ Load system arguments
+
 	@ Switch mode to user
 	mrs r2, cpsr
 	eor r2, r2, #12
 	msr cpsr_c, r2
 
+	ldr r1, arg_pointer
+	@stmed r1!, {r4-r8}
 	mrs r1, spsr @ return spsr in r1
 	ldmfd sp!, {r4-r12, pc} @ Restore registers (lr->pc)

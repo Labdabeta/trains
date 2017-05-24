@@ -62,7 +62,7 @@ void setupTaskArray(struct TaskDescriptor *ta)
     }
 }
 
-void loadTask(struct TaskDescriptor *td, void (*entry)())
+void activateTask(struct TaskDescriptor *td, void (*entry)())
 {
 	td->cpsr = 0xd0; /* mode set */
 	td->sp = ((int)td->stack) + sizeof(struct TaskFrame) - WORD_SIZE;
@@ -73,11 +73,11 @@ void loadTask(struct TaskDescriptor *td, void (*entry)())
 
 extern void asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
 
-void enter(struct TaskDescriptor *td) {
+void enterTask(struct TaskDescriptor *td) {
 	asm_EnterTask((struct TaskFrame*)td->sp, td->cpsr, td->rval);
 	__asm(
 		"str r1, [%0]"
-		:
+		: /* TODO: use outputs to write cpsr instead */
 		: "r" (& td->cpsr)
 	);
 }

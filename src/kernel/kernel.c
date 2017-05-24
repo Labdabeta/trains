@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
 
 	debugio_putstr("Hello\n");
 
-	asm_SetupTrap(&data);
+	asm_SetupTrap(&data.argv[4]);
 
-	loadTask(&data.tasks[2], fn + (int)(&CODE_BASE));
+	activateTask(&data.tasks[2], fn + (int)(&CODE_BASE));
 
-	enter(&data.tasks[2]);
+	enterTask(&data.tasks[2]);
 
 	debugio_putstr("Goodbye\n");
 

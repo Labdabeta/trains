@@ -58,7 +58,7 @@ void setupTaskArray(struct TaskDescriptor *ta);
  * \param[in,out] td           The task descriptor of the task to load.
  * \param[in] entry            The entry point of the task.
  */
-void loadTask(struct TaskDescriptor *td, void (*entry)());
+void activateTask(struct TaskDescriptor *td, void (*entry)());
 
 /** Re-enters a task.
  *
@@ -67,7 +67,7 @@ void loadTask(struct TaskDescriptor *td, void (*entry)());
  *
  * \param[in] td               The task to transfer control to.
  */
-void enter(struct TaskDescriptor *td);
+void enterTask(struct TaskDescriptor *td);
 
 #endif /* TASK_H */
 
