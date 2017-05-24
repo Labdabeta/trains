@@ -2,16 +2,13 @@
 #include "linker.h"
 #include "debugio.h"
 #include "interface.h"
+#include "syscall.h"
+#include "tasks/tasks.h"
 
 #define ever ;;
 
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
-extern void asm_SetupTrap(int *kernel_sp);
-
-void fn(void) {
-	debugio_putstr("What?\n\r");
-	callSystemInterrupt(0,0,0,0,0,5);
-}
+extern void asm_SetupTrap(SyscallCode *kernel_sp);
 
 int newTID(struct KernelData *data, int size)
 {
@@ -28,21 +25,27 @@ int newTID(struct KernelData *data, int size)
 int main(int argc, char *argv[])
 {
 	struct KernelData data;
+	struct TaskDescriptor *active;
 
 	init_debugio();
+    initScheduler(&data.scheduler);
 
 	setupTaskArray(data.tasks);
-	data.tasks[0].stack = data.tasks;
+	data.tasks[0].stack = &data;
 
-	debugio_putstr("Hello\n");
+	asm_SetupTrap(&data.fn);
 
-	asm_SetupTrap(&data.argv[4]);
+	/* Load first task. */
+	data.tasks[1].priority = 0; /* real-time priority */
 
-	activateTask(&data.tasks[1], fn + (int)(&CODE_BASE));
+	activateTask(&data.tasks[1], fn_ptr(main_task));
+	scheduleTask(&data.scheduler, &data.tasks[1]);
 
-	enterTask(&data.tasks[1]);
+    while ((active = reschedule(&data.scheduler))) {
+		enterTask(active);
 
-	debugio_putstr("Goodbye\n");
+		active->rval = handleSyscall(&data, active);
+	}
 
 	return 0;
 }

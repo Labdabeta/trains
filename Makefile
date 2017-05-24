@@ -11,8 +11,8 @@ CLIBS=-lgcc
 LDSCRIPT=load.ld
 CPU=-mcpu=arm920t
 
-prod:CFLAGS+=-O2
-small:CFLAGS+=-Os
+prod:CFLAGS+=-O2 -Werror
+small:CFLAGS+=-Os -Werror
 debug:CFLAGS+=-g -DDEBUG_MODE
 
 CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -nostdlib -Isrc -Isrc/kernel/ -Isrc/util/

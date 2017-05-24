@@ -1,18 +1,14 @@
 #include "interface.h"
 #include "asm.h"
 
-__attribute__((naked)) int callSystemInterrupt(int arg0, int arg1, int arg2, int arg3, int arg4, int code)
+__attribute__((naked)) int callSystemInterrupt(int arg0, int arg1, int arg2, int code)
 {
 	/* Terrible code -O0, great code -O2! */
-	SAVE_STACK();
-	PUSH(arg4);
-	PUSH(arg3);
+	PUSH(code);
 	PUSH(arg2);
 	PUSH(arg1);
 	PUSH(arg0);
-	PUSH(code);
 	SWI();
-	RESTORE_STACK();
 	RET();
 }
 

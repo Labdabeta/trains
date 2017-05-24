@@ -22,16 +22,23 @@
 #define SIZE_TINY 4
 
 struct TaskFrame {
-	int r4; int r5; int r6; int r7;
-	int r8; int r9; int r10; int r11;
-	int fp; int lr; int pc;
+	int pc;
+	int lr;
+	int fp;
+	int r11;
+	int r10;
+	int r9;
+	int r8;
+	int r7;
+	int r6;
+	int r5;
+	int r4;
 };
 
 typedef struct TaskDescriptor {
 	int tid;
 	int priority; /* -1 = zombied */
 	int cpsr;
-	int sp;
 	int rval; /* return value */
 	void *stack; /* The top of memory of the stack */
 	struct TaskFrame *data;

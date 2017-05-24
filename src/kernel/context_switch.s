@@ -1,6 +1,7 @@
 @ Comment starter required as per: https://stackoverflow.com/questions/15663280/gnu-assembler-comments
 @ void asm_SetupTrap(struct SyscallArgs *args)
 @ Writes the swi handler to the trap table
+@ Pass the address where stack pushes will write args then fn
 .global asm_SetupTrap
 asm_SetupTrap:
 	str r0, arg_pointer @ Save the argument in the arg pointer
@@ -33,7 +34,7 @@ asm_EnterTask:
 	eor r3, r3, #12
 	msr cpsr_c, r3
 
-	@mov r0, r2 @ Return the value
+	mov r0, r2 @ Return the value
 	movs pc, lr @ return and enact mode switch
 
 @ int asm_EnterKernel(void)
@@ -56,7 +57,7 @@ asm_EnterKernel:
 
 	mov r0, sp @ Return user sp
 
-	ldmfd r1!, {r4-r8} @ Load system arguments
+	ldmfd r1!, {r4-r7} @ Load system arguments
 
 	@ Switch mode to user
 	mrs r2, cpsr
@@ -64,6 +65,6 @@ asm_EnterKernel:
 	msr cpsr_c, r2
 
 	ldr r1, arg_pointer
-	stmed r1!, {r4-r8}
+	stmed r1!, {r4-r7}
 	mrs r1, spsr @ return spsr in r1
 	ldmfd sp!, {r4-r12, pc} @ Restore registers (lr->pc)

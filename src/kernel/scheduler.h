@@ -17,7 +17,7 @@
  * Note: the queues are actually stacks.
  */
 struct RunQueue {
-	struct TaskDescriptor *active; /* The active queue */
+    /* exhausted[0] is the active stack */
 	struct TaskDescriptor *exhausted[NUM_PRIORITIES]; /* The exhausted queues */
 };
 

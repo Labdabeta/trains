@@ -3,12 +3,13 @@
 
 #include "task.h"
 #include "scheduler.h"
+#include "handlers.h"
 
 /* NOTE: This is *BIG* */
 struct KernelData {
 	/* Syscall info */
-	int argv[5];
-	int fn;
+	int argv[3];
+	SyscallCode fn;
 
 	/* Task objects and counts */
 	struct TaskDescriptor tasks[NUM_SUPPORTED_TASKS];
