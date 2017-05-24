@@ -1,12 +1,16 @@
 @ Comment starter required as per: https://stackoverflow.com/questions/15663280/gnu-assembler-comments
-@ void asm_SetupTrap(void)
+@ void asm_SetupTrap(struct SyscallArgs *args)
 @ Writes the swi handler to the trap table
 .global asm_SetupTrap
 asm_SetupTrap:
+	str r0, arg_pointer @ Save the argument in the arg pointer
 	adr r0, asm_EnterKernel @ Save the swi callback in r0
 	mov r1, #0x28 @ The trap table location
 	str r0, [r1] @ Save the callback in the trap table
 	mov pc, lr @ return
+
+arg_pointer:
+	.word 0
 
 @ void asm_EnterTask(int *sp, int usr_cpsr)
 @ Enters a userspace task.
@@ -69,6 +73,7 @@ asm_EnterKernel:
 	orr r2, r2, #12
 	msr cpsr_c, r2
 
+	mov r1, sp
 	stmfd sp!, {r4-r12, lr} @ Save registers
 	stmfd sp!, {r3} @ Save r3 last
 

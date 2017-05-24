@@ -15,6 +15,8 @@ SECTIONS
 	/* Start at 0x100000 */
 	. = 0x100000;
 
+	CODE_BASE = . ;
+
 	/* Initialized data. */
 	data : {
 		_DataStart = . ; /* Save start of data */
@@ -40,10 +42,16 @@ SECTIONS
 		*(.glue_7t)
 		*(.rodata.str1.4)
 	} >ram /* Put it in ram */
+
+	_TopOfProgram = . ;
 }
 
 
 /* TIPS:
  * file-glob(.section) puts all files that meet the glob's .section sections
  * here.
+ *
+ * . is the 'current address.
+ *
+ * variables created here can be used as addresses in code!
  */

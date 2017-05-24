@@ -17,6 +17,7 @@ void scheduleTask(struct RunQueue *state, struct TaskDescriptor *task)
 
 struct TaskDescriptor *reschedule(struct RunQueue *state)
 {
+	// TODO: if active task returned is dead, don't reschedule it
 	int iterations = 32; /* How many iterations of queue updating can we still do? */
 
 	while (iterations --> 0) {
@@ -26,6 +27,8 @@ struct TaskDescriptor *reschedule(struct RunQueue *state)
 
 			ret->next = state->exhausted[ret->priority];
 			state->exhausted[ret->priority] = ret;
+
+			if (ret->priority < 0) return reschedule(state);
 			return ret;
 		} else {
 			/* Need a new active array. */

@@ -1,4 +1,4 @@
-.PHONY: clean default all debug prod qemu run-qemu push report
+.PHONY: clean default all debug prod push report small
 .SUFFIXES:
 
 CC=res/bin/gcc --prefix=res/4.0.2/
@@ -12,15 +12,10 @@ LDSCRIPT=load.ld
 CPU=-mcpu=arm920t
 
 prod:CFLAGS+=-O2
+small:CFLAGS+=-Os
 debug:CFLAGS+=-g -DDEBUG_MODE
-qemu:CFLAGS+=-DQEMU
-qemu:CC=arm-none-eabi-gcc
-qemu:AS=arm-none-eabi-as
-qemu:LD=arm-none-eabi-ld
-qemu:CLIBS=
-qemu:LDSCRIPT=qemu.ld
 
-CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -ansi -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int"
+CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -nostdlib -Isrc -Isrc/kernel/ -Isrc/util/
 ASFLAGS=-mcpu=arm920t -mapcs-32
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 
@@ -32,12 +27,11 @@ HEADERS=$(patsubst %.c,%.h,$(MODULES))
 
 default: debug
 
-qemu: kernel.bin
-
 all: debug prod report
 
 debug:$(TARGETS)
 prod:$(TARGETS)
+small:$(TARGETS)
 
 %.s: %.c
 	$(CC) $(CFLAGS) $< -S -o $@
@@ -48,14 +42,8 @@ prod:$(TARGETS)
 %.elf: $(OBJECTS)
 	$(LD) $(LDFLAGS) -Map $*.map -o $@ $^ $(CLIBS)
 
-%.bin: %.elf
-	arm-none-eabi-objcopy -O binary $< $@
-
-run-qemu:
-	qemu-system-arm -M versatilepb -m 32M -nographic -nodefaults -kernel kernel.bin
-
 push:
-	scp kernel.elf laburke@linux.student.csuwaterloo.ca:/u/cs452/tftp/ARM/laburke/kernel.elf
+	scp kernel.elf laburke@linux.student.cs.uwaterloo.ca:/u/cs452/tftp/ARM/laburke/kernel.elf
 
 report:
 	echo --- TODO
