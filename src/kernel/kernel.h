@@ -13,12 +13,21 @@ struct KernelData {
 
 	/* Task objects and counts */
 	struct TaskDescriptor tasks[NUM_SUPPORTED_TASKS];
-	int num_tasks[5];
 
 	/* Scheduler */
 	struct RunQueue scheduler;
 };
 
+/** Returns a new unused task id.
+ *
+ * This function returns a new unused task id of the desired size.
+ * If it cannot find one it will return -1.
+ *
+ * \param[in] data             The kernel stack pointer.
+ * \param[in] size             The desired size.
+ *
+ * \return The new tid or -1 if none were found.
+ */
 int newTID(struct KernelData *data, int size);
 
 #endif /* KERNEL_H */

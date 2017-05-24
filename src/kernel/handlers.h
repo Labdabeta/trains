@@ -7,7 +7,8 @@ struct TaskDescriptor;
 typedef enum SyscallCode {
     CODE_EXIT = 0,
     CODE_MY_ID,
-    CODE_PARENT_ID
+    CODE_PARENT_ID,
+    CODE_CREATE
 } SyscallCode;
 
 int handleSyscall(struct KernelData *data, struct TaskDescriptor *active);

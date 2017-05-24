@@ -8,3 +8,18 @@ void Exit(void)
 {
     (void)callSystemInterrupt(0,0,0,CODE_EXIT);
 }
+
+int Create(int priority, void (*code)(), TaskSize size)
+{
+    return callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
+}
+
+int MyTid(void)
+{
+    return callSystemInterrupt(0,0,0,CODE_MY_ID);
+}
+
+int MyParentTid(void)
+{
+    return callSystemInterrupt(0,0,0,CODE_PARENT_ID);
+}
