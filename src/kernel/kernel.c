@@ -1,34 +1,27 @@
-#include "task.h"
-#include "scheduler.h"
+#include "kernel.h"
 #include "linker.h"
 #include "debugio.h"
 #include "interface.h"
 
 #define ever ;;
 
-/* NOTE: This is *BIG* */
-struct KernelData {
-	/* Syscall info */
-	int argv[5];
-	int fn;
-
-	/* Task objects and counts */
-	struct TaskDescriptor tasks[NUM_SUPPORTED_TASKS];
-	int num_giant;
-	int num_big;
-	int num_normal;
-	int num_small;
-	int num_tiny;
-
-	/* Scheduler */
-	struct RunQueue scheduler;
-};
-
 extern void asm_SetupTrap(struct KernelData *kernel_sp);
 
 void fn(void) {
 	debugio_putstr("What?\n");
 	callSystemInterrupt(0,0,0,0,0,0);
+}
+
+int newTID(struct KernelData *data, int size)
+{
+	switch (size) {
+		case 0: return data->num_tasks[0] + GIANT_TASK_INITIAL_IDX;
+		case 1: return data->num_tasks[1] + BIG_TASK_INITIAL_IDX;
+		case 2: return data->num_tasks[2] + NORMAL_TASK_INITIAL_IDX;
+		case 3: return data->num_tasks[3] + SMALL_TASK_INITIAL_IDX;
+		case 4: return data->num_tasks[4] + TINY_TASK_INITIAL_IDX;
+	}
+	return -1;
 }
 
 int main(int argc, char *argv[])

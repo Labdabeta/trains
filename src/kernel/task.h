@@ -15,6 +15,12 @@
 #define SMALL_TASK_INITIAL_IDX 42
 #define TINY_TASK_INITIAL_IDX 70
 
+#define SIZE_GIANT 0
+#define SIZE_BIG 1
+#define SIZE_NORMAL 2
+#define SIZE_SMALL 3
+#define SIZE_TINY 4
+
 struct TaskFrame {
 	int r4; int r5; int r6; int r7;
 	int r8; int r9; int r10; int r11;

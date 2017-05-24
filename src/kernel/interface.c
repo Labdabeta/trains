@@ -12,6 +12,10 @@ __attribute__((naked)) int callSystemInterrupt(int arg0, int arg1, int arg2, int
 	PUSH(code);
 	SWI();
 	RET();
-}
 
+	/* This is a fancy nop with optimization on. (disables warning) */
+	register int retval __asm__ ("r0");
+    ASM("":"=r"(retval));
+	return retval;
+}
 
