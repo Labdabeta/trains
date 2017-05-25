@@ -68,3 +68,15 @@ asm_EnterKernel:
 	stmed r1!, {r4-r7}
 	mrs r1, spsr @ return spsr in r1
 	ldmfd sp!, {r4-r12, pc} @ Restore registers (lr->pc)
+
+# int asm_callSystemInterrupt(int a, int b, int c, int code)
+# Returns in r0 after swi
+.global asm_callSystemInterrupt
+asm_callSystemInterrupt:
+	stmdb sp!, {r3}
+	stmdb sp!, {r2}
+	stmdb sp!, {r1}
+	stmdb sp!, {r0}
+	swi 0
+	add sp, sp, #20
+	bx lr
