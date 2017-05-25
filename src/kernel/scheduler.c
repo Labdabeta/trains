@@ -11,8 +11,8 @@ void initScheduler(struct RunQueue *state)
 
 void scheduleTask(struct RunQueue *state, struct TaskDescriptor *task)
 {
-	task->next = state->exhausted[0];
-	state->exhausted[0] = task;
+	task->next = state->exhausted[task->priority];
+	state->exhausted[task->priority] = task;
 }
 
 struct TaskDescriptor *reschedule(struct RunQueue *state)

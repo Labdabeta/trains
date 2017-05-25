@@ -1,4 +1,4 @@
-.PHONY: clean default all debug prod push report small
+.PHONY: clean default all debug prod push report small prodebug
 .SUFFIXES:
 
 CC=res/bin/gcc --prefix=res/4.0.2/
@@ -12,6 +12,7 @@ LDSCRIPT=load.ld
 CPU=-mcpu=arm920t
 
 prod:CFLAGS+=-O2 -Werror
+prodebug:CFLAGS+=-O2
 small:CFLAGS+=-Os -Werror
 debug:CFLAGS+=-g -DDEBUG_MODE
 
@@ -31,6 +32,7 @@ all: debug prod report
 
 debug:$(TARGETS)
 prod:$(TARGETS)
+prodebug:$(TARGETS)
 small:$(TARGETS)
 
 %.s: %.c

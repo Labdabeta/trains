@@ -6,7 +6,7 @@
 #define PUSH(value) ASM ("stmfd sp!, {%0}" :: "r"(value) : "lr")
 #define SAVE_STACK() ASM ("mov r8, sp" ::: "r8", "lr")
 #define RESTORE_STACK() ASM ("mov sp, r8" ::: "lr")
-#define SWI() ASM ("swi 0" ::: "lr")
+#define SWI() ASM ("swi 0" ::: "r0", "r1", "r2", "r3", "lr")
 #define RET() do { ASM ("bx lr" ::: "lr"); register int __retval asm ("r0"); ASM("":"=r"(__retval)); return __retval; } while (0)
 
 #if 0 /* Some examples */

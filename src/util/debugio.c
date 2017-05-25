@@ -52,3 +52,23 @@ void debugio_putint_hex(int x)
 {
 	debugio_putint_base(x,16);
 }
+
+void debugio_dump_registers(void)
+{
+    DEBUG_DUMP_REG("r0");
+    DEBUG_DUMP_REG("r1");
+    DEBUG_DUMP_REG("r2");
+    DEBUG_DUMP_REG("r3");
+    DEBUG_DUMP_REG("r4");
+    DEBUG_DUMP_REG("r5");
+    DEBUG_DUMP_REG("r6");
+    DEBUG_DUMP_REG("r7");
+    DEBUG_DUMP_REG("r8");
+    DEBUG_DUMP_REG("r9");
+    DEBUG_DUMP_REG("sl");
+    DEBUG_DUMP_REG("fp");
+    DEBUG_DUMP_REG("ip");
+    DEBUG_DUMP_REG("sp");
+    DEBUG_DUMP_REG("lr");
+    DEBUG_DUMP_REG("pc");
+}

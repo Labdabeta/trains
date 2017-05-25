@@ -17,4 +17,6 @@ int MyTid(void);
 
 int MyParentTid(void);
 
+void Pass(void);
+
 #endif /* SYSCALL_H */

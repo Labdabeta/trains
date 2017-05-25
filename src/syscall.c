@@ -23,3 +23,8 @@ int MyParentTid(void)
 {
     return callSystemInterrupt(0,0,0,CODE_PARENT_ID);
 }
+
+void Pass(void)
+{
+    (void)callSystemInterrupt(0,0,0,CODE_PASS);
+}

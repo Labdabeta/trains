@@ -8,7 +8,8 @@ typedef enum SyscallCode {
     CODE_EXIT = 0,
     CODE_MY_ID,
     CODE_PARENT_ID,
-    CODE_CREATE
+    CODE_CREATE,
+    CODE_PASS
 } SyscallCode;
 
 int handleSyscall(struct KernelData *data, struct TaskDescriptor *active);
