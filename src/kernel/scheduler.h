@@ -45,8 +45,34 @@ void scheduleTask(struct RunQueue *state, struct TaskDescriptor *task);
  *
  * Returns NULL if no tasks are left to be scheduled.
  *
+ * \param[in,out] state        The state of the scheduler.
+ *
  * \return The next task in line, which should be given a chance to execute.
  */
 struct TaskDescriptor *reschedule(struct RunQueue *state);
+
+/** Block a task
+ *
+ * This will add a task to the blocked list. It will only unblock when
+ * explicitly told to do so.
+ *
+ * How blocking works: A blocked task is given negative priority. When scheduled
+ * it will be removed from any of the priority queues, making it unschedulable.
+ * Once unblocked the priority becomes positive again and it will be added to
+ * the appropriate stack.
+ *
+ * \param[in] state            The state of the scheduler.
+ * \param[in] task             The task to block.
+ */
+void blockTask(struct RunQueue *state, struct TaskDescriptor *task);
+
+/** Unblock the given task
+ *
+ * This will reschedule the given blocked task.
+ *
+ * \param[in,out] state        The state of the scheduler.
+ * \param[in] task             The task to unblock.
+ */
+void unblockTask(struct RunQueue *state, struct TaskDescriptor *task);
 
 #endif /* SCHEDULER_H */

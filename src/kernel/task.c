@@ -105,6 +105,12 @@ void setupTaskArray(struct TaskDescriptor *ta)
         ta[i].parent = 0;
 		ta[i].rval = 0;
 		ta[i].data = 0; /* computed later. */
+        ta[i].state = STATE_ZOMBIE;
+        ta[i].recvQueueHead = 0;
+        ta[i].recvQueueTail = 0;
+        ta[i].nextRecv = 0;
+        ta[i].buf[0] = 0;
+        ta[i].buf[1] = 0;
     }
 }
 

@@ -16,7 +16,7 @@ prodebug:CFLAGS+=-O2
 small:CFLAGS+=-Os -Werror
 debug:CFLAGS+=-g -DDEBUG_MODE
 
-CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -nostdlib -Isrc -Isrc/kernel/ -Isrc/util/
+CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/
 ASFLAGS=-mcpu=arm920t -mapcs-32
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 

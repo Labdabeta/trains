@@ -5,8 +5,6 @@
 #include "syscall.h"
 #include "tasks/tasks.h"
 
-#define ever ;;
-
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
 extern void asm_SetupTrap(SyscallCode *kernel_sp);
 

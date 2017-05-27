@@ -1,6 +1,8 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 
+#include "buffer.h"
+
 typedef enum TaskSize {
     TASK_SIZE_GIANT = 0,
     TASK_SIZE_BIG,
@@ -11,12 +13,26 @@ typedef enum TaskSize {
 
 void Exit(void);
 
-int Create(int priority, void (*code)(), TaskSize size);
+int CreateSize(int priority, void (*code)(), TaskSize size);
+
+int Create(int priority, void (*code)());
 
 int MyTid(void);
 
 int MyParentTid(void);
 
 void Pass(void);
+
+int SendBuffer(int tid, Buffer *msg, Buffer *reply);
+
+int Send(int tid, char *msg, int msglen, char *reply, int rplen);
+
+int ReceiveBuffer(int *tid, Buffer *msg);
+
+int Receive(int *tid, char *msg, int msglen);
+
+int ReplyBuffer(int tid, Buffer *reply);
+
+int Reply(int tid, char *reply, int rplen);
 
 #endif /* SYSCALL_H */

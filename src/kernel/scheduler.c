@@ -25,6 +25,7 @@ struct TaskDescriptor *reschedule(struct RunQueue *state)
 			state->exhausted[0] = ret->next;
 
 			if (ret->priority < 0) {
+                /* Don't reschedule. */
                 return reschedule(state);
             }
 
@@ -45,3 +46,18 @@ struct TaskDescriptor *reschedule(struct RunQueue *state)
 	return 0;
 }
 
+void blockTask(struct RunQueue *state, struct TaskDescriptor *task)
+{
+    task->priority = -task->priority;
+}
+
+void unblockTask(struct RunQueue *state, struct TaskDescriptor *task)
+{
+    if (task->priority < 0) {
+        task->priority = -task->priority;
+
+        /* Reschedule the task. */
+        task->next = state->exhausted[task->priority];
+        state->exhausted[task->priority] = task;
+    }
+}
