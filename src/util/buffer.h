@@ -3,9 +3,9 @@
 
 /* DO NOT directly accesses these fields. Treat this object as opaque! */
 typedef struct Buffer {
-    void *data;
-    size_t data_len;
-    int truncated;
+	void *data;
+	size_t data_len;
+	int truncated;
 } Buffer;
 
 /** Copy one buffer into another.

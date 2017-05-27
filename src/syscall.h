@@ -4,11 +4,11 @@
 #include "buffer.h"
 
 typedef enum TaskSize {
-    TASK_SIZE_GIANT = 0,
-    TASK_SIZE_BIG,
-    TASK_SIZE_NORMAL,
-    TASK_SIZE_SMALL,
-    TASK_SIZE_TINY
+	TASK_SIZE_GIANT = 0,
+	TASK_SIZE_BIG,
+	TASK_SIZE_NORMAL,
+	TASK_SIZE_SMALL,
+	TASK_SIZE_TINY
 } TaskSize;
 
 void Exit(void);

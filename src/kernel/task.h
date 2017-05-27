@@ -29,35 +29,35 @@ struct TaskFrame {
 };
 
 typedef enum TaskState {
-    STATE_ACTIVE = 0,
-    STATE_ZOMBIE,
-    STATE_SEND_BLOCKED,
-    STATE_RECV_BLOCKED,
-    STATE_REPL_BLOCKED
+	STATE_ACTIVE = 0,
+	STATE_ZOMBIE,
+	STATE_SEND_BLOCKED,
+	STATE_RECV_BLOCKED,
+	STATE_REPL_BLOCKED
 } TaskState;
 
 typedef struct TaskDescriptor {
 	int tid;
 
-    /* Context */
+	/* Context */
 	int cpsr;
 	int rval; /* return value */
 	void *stack; /* The top of memory of the stack */
 	struct TaskFrame *data;
 
-    /* Scheduler */
+	/* Scheduler */
 	struct TaskDescriptor *next;
 	int priority; /* -prio = blocked, NUM_PRIORITIES = zombied */
 
-    /* Hierarchy */
+	/* Hierarchy */
 	struct TaskDescriptor *parent;
 
-    /* Message passing */
-    struct TaskDescriptor *recvQueueHead;
-    struct TaskDescriptor *recvQueueTail;
-    struct TaskDescriptor *nextRecv;
-    struct Buffer *buf[2]; /* { normal, reply/extra } */
-    TaskState state;
+	/* Message passing */
+	struct TaskDescriptor *recvQueueHead;
+	struct TaskDescriptor *recvQueueTail;
+	struct TaskDescriptor *nextRecv;
+	struct Buffer *buf[2]; /* { normal, reply/extra } */
+	TaskState state;
 } *TD_ptr;
 
 /** Initializes an entire task array to point to the correct addresses.

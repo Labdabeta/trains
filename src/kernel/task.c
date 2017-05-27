@@ -7,8 +7,8 @@
 
 void setupTaskArray(struct TaskDescriptor *ta)
 {
-    int i;
-    int addresses[NUM_SUPPORTED_TASKS] = {0};
+	int i;
+	int addresses[NUM_SUPPORTED_TASKS] = {0};
 	addresses[0] = 0x2000000; /* giant task 1  */
 	addresses[1] = 0x1E00000; /* giant task 2  */
 	addresses[2] = 0x1C00000; /* giant task 3  */
@@ -96,22 +96,22 @@ void setupTaskArray(struct TaskDescriptor *ta)
 	addresses[84] = 0x0208000; /* tiny task 15  */
 	addresses[85] = 0x0204000; /* tiny task 16  */
 
-    for (i = 0; i < NUM_SUPPORTED_TASKS; ++i) {
-        ta[i].tid = i;
-        ta[i].priority = -1;
-        ta[i].cpsr = -1;
-        ta[i].stack = (void*)(addresses[i]);
-        ta[i].next = 0;
-        ta[i].parent = 0;
+	for (i = 0; i < NUM_SUPPORTED_TASKS; ++i) {
+		ta[i].tid = i;
+		ta[i].priority = -1;
+		ta[i].cpsr = -1;
+		ta[i].stack = (void*)(addresses[i]);
+		ta[i].next = 0;
+		ta[i].parent = 0;
 		ta[i].rval = 0;
 		ta[i].data = 0; /* computed later. */
-        ta[i].state = STATE_ZOMBIE;
-        ta[i].recvQueueHead = 0;
-        ta[i].recvQueueTail = 0;
-        ta[i].nextRecv = 0;
-        ta[i].buf[0] = 0;
-        ta[i].buf[1] = 0;
-    }
+		ta[i].state = STATE_ZOMBIE;
+		ta[i].recvQueueHead = 0;
+		ta[i].recvQueueTail = 0;
+		ta[i].nextRecv = 0;
+		ta[i].buf[0] = 0;
+		ta[i].buf[1] = 0;
+	}
 }
 
 void activateTask(struct TaskDescriptor *td, void (*entry)())

@@ -19,13 +19,13 @@
 
 /* As a struct */
 struct UART {
-    volatile int data;
-    volatile int recv;
-    volatile int lcrh;
-    volatile int lcrm;
-    volatile int lcrl;
-    volatile int ctrl;
-    volatile int flag;
+	volatile int data;
+	volatile int recv;
+	volatile int lcrh;
+	volatile int lcrm;
+	volatile int lcrl;
+	volatile int ctrl;
+	volatile int flag;
 };
 
 #define UART_FIFOEN_MASK 0x10
