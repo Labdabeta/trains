@@ -35,6 +35,11 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 	Buffer *reply = (Buffer*)data->argv[2];
 	struct TaskDescriptor *target = 0;
 
+    DEBUG_PRINT("Sending\n\r");
+    DEBUG_DUMP_VAL(tid);
+    DEBUG_DUMP_ADR(msg);
+    DEBUG_DUMP_ADR(reply);
+
 	if (tid < 0 ||
 		tid > NUM_SUPPORTED_TASKS ||
 		data->tasks[tid].priority >= NUM_PRIORITIES)
@@ -68,8 +73,13 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 	int *tid = (int*)data->argv[0];
 	Buffer *msg = (Buffer*)data->argv[1];
 
+
+    DEBUG_PRINT("Receiving\n\r");
+    DEBUG_DUMP_ADR(tid);
+    DEBUG_DUMP_ADR(msg);
+
 	if (active->recvQueueHead) {
-		struct TaskDescriptor *sender;
+		struct TaskDescriptor *sender = active->recvQueueHead;
 		writeBuffer(msg, sender->buf[0]);
 		*tid = sender->tid;
 		sender->state = STATE_REPL_BLOCKED;
@@ -89,6 +99,10 @@ static inline int handleReply(struct KernelData *data, struct TaskDescriptor *ac
 	int tid = data->argv[0];
 	Buffer *reply = (Buffer*)data->argv[1];
 	struct TaskDescriptor *target;
+
+    DEBUG_PRINT("Receiving Reply\n\r");
+    DEBUG_DUMP_VAL(tid);
+    DEBUG_DUMP_ADR(reply);
 
 	if (tid < 0 ||
 		tid > NUM_SUPPORTED_TASKS ||
@@ -111,7 +125,9 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 {
 	switch (data->fn) {
 		case CODE_EXIT:
-			active->priority = -1;
+			active->priority = NUM_PRIORITIES;
+            DEBUG_PRINT("Zombied: ");
+            DEBUG_DUMP_VAL(active->tid);
 			return 0;
 		case CODE_MY_ID:
 			return active->tid;

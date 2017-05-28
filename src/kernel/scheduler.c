@@ -22,9 +22,14 @@ struct TaskDescriptor *reschedule(struct RunQueue *state)
 	while (iterations --> 0) {
 		struct TaskDescriptor *ret = state->exhausted[0];
 		if (ret) {
+            DEBUG_PRINT("POPPING");
+            DEBUG_DUMP_VAL(ret->tid);
 			state->exhausted[0] = ret->next;
 
-			if (ret->priority < 0) {
+			if (ret->priority < 0 || ret->priority == NUM_PRIORITIES) {
+                DEBUG_PRINT("INACTIVE");
+                DEBUG_DUMP_VAL(ret->tid);
+                DEBUG_DUMP_VAL(ret->next->tid);
 				/* Don't reschedule. */
 				return reschedule(state);
 			}
@@ -34,6 +39,7 @@ struct TaskDescriptor *reschedule(struct RunQueue *state)
 
 			return ret;
 		} else {
+            DEBUG_PRINT("SHIFTING\n\r");
 			/* Need a new active array. */
 			int i;
 			for (i = 0; i < NUM_PRIORITIES - 1; ++i)
@@ -56,8 +62,10 @@ void unblockTask(struct RunQueue *state, struct TaskDescriptor *task)
 	if (task->priority < 0) {
 		task->priority = -task->priority;
 
-		/* Reschedule the task. */
-		task->next = state->exhausted[task->priority];
-		state->exhausted[task->priority] = task;
+		/* Reschedule the task, unless its already scheduled. */
+        if (task != state->exhausted[task->priority]) {
+            task->next = state->exhausted[task->priority];
+            state->exhausted[task->priority] = task;
+        }
 	}
 }
