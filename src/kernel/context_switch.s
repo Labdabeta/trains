@@ -73,10 +73,11 @@ asm_EnterKernel:
 # Returns in r0 after swi
 .global asm_callSystemInterrupt
 asm_callSystemInterrupt:
-	stmdb sp!, {r3}
-	stmdb sp!, {r2}
-	stmdb sp!, {r1}
-	stmdb sp!, {r0}
+	@stmdb sp!, {r3}
+	@stmdb sp!, {r2}
+	@stmdb sp!, {r1}
+	@stmdb sp!, {r0}
+    stmdb sp!, {r0-r3}
 	swi 0
-	add sp, sp, #20
+	add sp, sp, #16
 	bx lr

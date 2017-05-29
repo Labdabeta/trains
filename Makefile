@@ -12,11 +12,11 @@ LDSCRIPT=load.ld
 CPU=-mcpu=arm920t
 
 prod:CFLAGS+=-O2 -Werror
-prodebug:CFLAGS+=-O2
+prodebug:CFLAGS+=-O2 -DDEBUG_MODE
 small:CFLAGS+=-Os -Werror
 debug:CFLAGS+=-g -DDEBUG_MODE
 
-CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -nostdlib -Isrc -Isrc/kernel/ -Isrc/util/
+CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/
 ASFLAGS=-mcpu=arm920t -mapcs-32
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 
@@ -47,8 +47,10 @@ small:$(TARGETS)
 push:
 	./push_kernel.sh
 
-report: reports/k1.tex
-	cd reports && sed "s/{{{commit hash}}}/$(shell git rev-parse HEAD)/g" < k1.tex > real.tex && lualatex --jobname=k1 real.tex && rm real.tex
+report: reports/k1.pdf reports/k2.pdf
+
+reports/%.pdf: reports/%.tex
+	cd reports && sed "s/{{{commit hash}}}/$(shell git rev-parse HEAD)/g" < $*.tex > real.tex && lualatex --jobname=$* real.tex && rm real.tex
 
 clean:
 	-@find -name '*.map' -delete

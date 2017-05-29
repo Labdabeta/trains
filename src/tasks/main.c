@@ -4,27 +4,13 @@
 
 void main_task(void)
 {
-    int tid;
-    tid = Create(2, k1_test_task, TASK_SIZE_BIG);
-    debugio_putstr("Created: ");
-    debugio_putint_decimal(tid);
-    debugio_putstr("\n\r");
+    int ns_tid, sv_tid, c1_tid, c2_tid;
 
-    tid = Create(2, k1_test_task, TASK_SIZE_BIG);
-    debugio_putstr("Created: ");
-    debugio_putint_decimal(tid);
-    debugio_putstr("\n\r");
+    ns_tid = CreateSize(0, name_server, TASK_SIZE_TINY);
 
-    tid = Create(0, k1_test_task, TASK_SIZE_BIG);
-    debugio_putstr("Created: ");
-    debugio_putint_decimal(tid);
-    debugio_putstr("\n\r");
+    sv_tid = Create(1, rps_server);
+    c1_tid = Create(4, rps_client);
+    c2_tid = Create(4, rps_client);
 
-    tid = Create(0, k1_test_task, TASK_SIZE_BIG);
-    debugio_putstr("Created: ");
-    debugio_putint_decimal(tid);
-    debugio_putstr("\n\r");
-
-    debugio_putstr("FirstUserTask: exiting\n\r");
-    Exit();
+	Exit();
 }

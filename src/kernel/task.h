@@ -1,6 +1,8 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include "buffer.h"
+
 #define NUM_SUPPORTED_TASKS 86
 #define NUM_GIANT_TASKS 4 /* 1 is kernel */
 #define NUM_BIG_TASKS 14
@@ -22,28 +24,41 @@
 #define SIZE_TINY 4
 
 struct TaskFrame {
-	int pc;
-	int r4;
-	int r5;
-	int r6;
-	int r7;
-	int r8;
-	int r9;
-	int r10;
-	int r11;
-	int fp;
-	int lr;
+	int pc; int r4; int r5; int r6; int r7; int r8;
+	int r9; int r10; int r11; int fp; int lr;
 };
+
+typedef enum TaskState {
+	STATE_ACTIVE = 0,
+	STATE_ZOMBIE,
+	STATE_SEND_BLOCKED,
+	STATE_RECV_BLOCKED,
+	STATE_REPL_BLOCKED
+} TaskState;
 
 typedef struct TaskDescriptor {
 	int tid;
-	int priority; /* -1 = zombied */
+
+	/* Context */
 	int cpsr;
 	int rval; /* return value */
 	void *stack; /* The top of memory of the stack */
 	struct TaskFrame *data;
+
+	/* Scheduler */
 	struct TaskDescriptor *next;
+	int priority; /* -prio = blocked, NUM_PRIORITIES = zombied */
+    int isin; /* Is this task anywhere in the scheduler, or not? */
+
+	/* Hierarchy */
 	struct TaskDescriptor *parent;
+
+	/* Message passing */
+	struct TaskDescriptor *recvQueueHead;
+	struct TaskDescriptor *recvQueueTail;
+	struct TaskDescriptor *nextRecv;
+	struct Buffer *buf[2]; /* { normal, reply/extra } */
+	TaskState state;
 } *TD_ptr;
 
 /** Initializes an entire task array to point to the correct addresses.
@@ -74,7 +89,12 @@ void activateTask(struct TaskDescriptor *td, void (*entry)());
  *
  * \param[in] td               The task to transfer control to.
  */
-void enterTask(struct TaskDescriptor *td);
+static inline void enterTask(struct TaskDescriptor *td)
+{
+    extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
+	td->data = (struct TaskFrame*)asm_EnterTask((struct TaskFrame*)td->data, td->cpsr, td->rval);
+	asm ("mov %0, r1" : "=r"(td->cpsr));
+}
 
 #endif /* TASK_H */
 
