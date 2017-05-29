@@ -60,6 +60,8 @@ void rps_server()
           tid1 = tid;
         } else{
           tid2 = tid;
+        }
+        if(tid1 && tid2){
           reply = 'r';
           Reply(tid1, &reply, 1);
           Reply(tid2, &reply, 1);
