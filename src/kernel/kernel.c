@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
 {
 	struct KernelData data;
 	struct TaskDescriptor *active;
-    unsigned flags;
 
 	init_debugio();
 	initScheduler(&data.scheduler);

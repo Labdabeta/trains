@@ -5,6 +5,8 @@
 
 #include "debugio.h"
 
+extern void *memcpy(void *dst, const void *src, unsigned int len);
+
 void Exit(void)
 {
 	(void)asm_callSystemInterrupt(0,0,0,CODE_EXIT);
@@ -94,17 +96,20 @@ int Reply(int tid, char *reply, int rplen)
 	return ReplyBuffer(tid, &r);
 }
 
-static char NameCommon(char *name, char prefix){
+static char NameCommon(char *name, char prefix)
+{
 	int len = 0;
 	char res;
-	while(name[len])
-		len++;
-	if(len > MAX_NAME_LENGTH -2)
-		return -1;
 	char msg[MAX_NAME_LENGTH];
+	int err;
+
+	while(name[len++]);
+	if(len > MAX_NAME_LENGTH - 2)
+		return -1;
+
+	(void)memcpy((void*)(&msg[1]), (const void*)name, len + 1);
 	msg[0] = prefix;
-	memcpy(msg + 1, name, len + 1);
-	int err = Send(NAMESERVER_TID, msg, len + 2, &res, 1);
+	err = Send(NAMESERVER_TID, &msg[0], len + 2, &res, 1);
 	return err > -1 && res ? res : -1;
 }
 

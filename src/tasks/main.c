@@ -7,13 +7,11 @@
 
 void main_task(void)
 {
-  int tidnam = CreateSize(1, name_server, TASK_SIZE_TINY);
+  (void)CreateSize(1, name_server, TASK_SIZE_TINY);
   //Pass();
-  char name = "Task";
-  debugio_putuint_decimal(RegisterAs(name));
-  debugio_putstr("\n\r");
-  debugio_putuint_decimal(WhoIs(name));
-  debugio_putstr("\n\r");
+  char name[] = "Task";
+  DEBUG_DUMP_VAL(RegisterAs(name));
+  DEBUG_DUMP_VAL(WhoIs(name));
   char msg[MSG_SIZE];
   char rpl[MSG_SIZE];
   int i,tid;
