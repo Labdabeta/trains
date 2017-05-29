@@ -109,7 +109,7 @@ static char NameCommon(char *name, char prefix)
 
 	(void)memcpy((void*)(&msg[1]), (const void*)name, len + 1);
 	msg[0] = prefix;
-	err = Send(NAMESERVER_TID, &msg[0], len + 2, &res, 1);
+	err = Send(NAMESERVER_TID, msg, len + 2, &res, 1);
 	return err > -1 && res ? res : -1;
 }
 

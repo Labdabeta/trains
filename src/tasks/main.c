@@ -7,11 +7,18 @@
 
 void main_task(void)
 {
+  DEBUG_PRINT("Entered main");
   (void)CreateSize(1, name_server, TASK_SIZE_TINY);
   //Pass();
-  char name[] = "Task";
-  DEBUG_DUMP_VAL(RegisterAs(name));
-  DEBUG_DUMP_VAL(WhoIs(name));
+  char name1[] = "Task";
+  char name2[] = "Tupac";
+  char name3[] = "Risk";
+  RegisterAs(name1);
+  RegisterAs(name3);
+  DEBUG_DUMP_VAL(WhoIs(name1));
+  DEBUG_DUMP_VAL(WhoIs(name2));
+  DEBUG_DUMP_VAL(WhoIs(name3));
+  
   char msg[MSG_SIZE];
   char rpl[MSG_SIZE];
   int i,tid;

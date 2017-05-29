@@ -7,7 +7,6 @@ void name_server()
 {
 	volatile char names[MAX_NAME_LENGTH * NAMES_CAPACITY];
 	volatile char tids[NAMES_CAPACITY];
-	char msg[MAX_NAME_LENGTH];
 	volatile int size = 0;
 	int tid, err;
 	char reply = 0;
@@ -19,36 +18,25 @@ void name_server()
 	for (ever) {
 		if(size == NAMES_CAPACITY)
 			goto nameserver_reply;
-		err = Receive(&tid, &msg[size * MAX_NAME_LENGTH], MAX_NAME_LENGTH);
-		debugio_putstr("Recieved in nameserv\n\r");
+		err = Receive(&tid, &names[size * MAX_NAME_LENGTH], MAX_NAME_LENGTH);
 		if(err == -1)
 			goto nameserver_reply;
-		if(msg[size * MAX_NAME_LENGTH] == 'r'){
-			DEBUG_PRINT("Register case");
-			DEBUG_DUMP_VAL(tid);
+		if(names[size * MAX_NAME_LENGTH] == 'r'){
 			tids[size] = tid;
-			DEBUG_DUMP_UVAL(size);
-			DEBUG_DUMP_UVAL(tids[size]);
 			size++;
 			reply = 1;
 			goto nameserver_reply;
 		} else{
-			DEBUG_PRINT("WhoIs case");
 			int i, j;
 			for(i = size - 1; i >= 0; i--){
-				for(j = err - 1; j >= 0; j--){
+				for(j = err - 1; j >= 1; j--){
 					if(! (names[size * MAX_NAME_LENGTH + j] == names[i * MAX_NAME_LENGTH + j]) )
 						break;
 				}
-				if(j == -1)
+				if(j == 0)
 					break;
 			}
-			DEBUG_DUMP_VAL(i);
-			DEBUG_DUMP_VAL(tids[0]);
-			DEBUG_DUMP_VAL(tids[i]);
 			reply = i == -1 ? 0 : tids[i];
-			DEBUG_DUMP_UVAL(reply);
-			DEBUG_DUMP_UVAL(tids[0]);
 			goto nameserver_reply;
 		}
 
