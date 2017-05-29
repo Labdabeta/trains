@@ -51,8 +51,8 @@ void rps_server()
 	results[3] = '1';
 	results[4] = 't';
 	results[5] = '2';
-	results[6] = '1';
-	results[7] = '2';
+	results[6] = '2';
+	results[7] = '1';
 	results[8] = 't';
 
     RegisterAs("RPS");

@@ -91,6 +91,12 @@ reliably.
 
 \section*{Game Task Priorities}
 
+The server was given a priority of 1, while the clients were given priorities of
+4 so as to allow the server time to register itself and setup its state. Servers
+can in general be a higher priority task than the tasks they serve since they
+spend most of their time blocked. Their runtime is simply an extension of that
+of the tasks they serve.
+
 \section*{Results}
 
 \begin{center}
@@ -140,6 +146,46 @@ organization of the linker script in order to place critical functions near each
 other, and long functions near the end.
 
 \section*{Game Task Output}
+
+The output of the game is:
+
+\begin{verbatim}
+src/tasks/rps_client.c:27        Joined
+src/tasks/rps_client.c:27        Joined
+Signed up!
+Signed up!
+P1: R
+P2: S
+p2: I lost.
+P2: P
+P1: I won!
+Press any key to continue...
+P1: P
+p1: Great minds think alike.
+Press any key to continue...
+P1: S
+p2: Great minds think alike.
+P2: P
+p2: I lost.
+P2: Q
+p1: I won!
+Press any key to continue...
+P1: R
+src/tasks/rpsserver.c:94        QUIT
+p1: Sore loser.
+Press any key to continue...
+\end{verbatim}
+
+Note that first the clients join and sign up using the name server and the game
+server (name server debug shown as expanded debug message). Next they play a few
+rounds, announcing their moves (capital letters) and sending them to the server.
+When they get a response they parse it and emote as appropriate. They don't get
+rescheduled again until they send their next move to the server, so their moves
+come immediately after they find out what happened. The three cases of winning,
+losing and tying are shown. Finally one of the tasks quits. The other task
+continues playing but the server notifies it that the other player has quit
+(again shown using expanded debug messages). The result is that the player also
+quits, ending the program.
 
 \section*{SHA of commit}
 
