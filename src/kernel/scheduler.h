@@ -97,7 +97,9 @@ static inline struct TaskDescriptor *reschedule(struct RunQueue *state)
  */
 static inline void blockTask(struct RunQueue *state, struct TaskDescriptor *task)
 {
-	task->priority = (-task->priority) - 1;
+    if (task->priority >= 0) {
+        task->priority = (-task->priority) - 1;
+    }
 }
 
 

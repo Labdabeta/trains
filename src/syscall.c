@@ -96,7 +96,7 @@ int Reply(int tid, char *reply, int rplen)
 	return ReplyBuffer(tid, &r);
 }
 
-static char NameCommon(char *name, char prefix)
+static int NameCommon(char *name, char prefix)
 {
 	int len = 0;
 	char res;
