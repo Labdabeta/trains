@@ -48,6 +48,7 @@ typedef struct TaskDescriptor {
 	/* Scheduler */
 	struct TaskDescriptor *next;
 	int priority; /* -prio = blocked, NUM_PRIORITIES = zombied */
+    int isin; /* Is this task anywhere in the scheduler, or not? */
 
 	/* Hierarchy */
 	struct TaskDescriptor *parent;

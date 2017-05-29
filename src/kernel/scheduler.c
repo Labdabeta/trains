@@ -13,6 +13,7 @@ void scheduleTask(struct RunQueue *state, struct TaskDescriptor *task)
 {
 	task->next = state->exhausted[task->priority];
 	state->exhausted[task->priority] = task;
+    task->isin = 1;
 }
 
 struct TaskDescriptor *reschedule(struct RunQueue *state)
@@ -22,15 +23,16 @@ struct TaskDescriptor *reschedule(struct RunQueue *state)
 	while (iterations --> 0) {
 		struct TaskDescriptor *ret = state->exhausted[0];
 		if (ret) {
-            DEBUG_PRINT("POPPING");
-            DEBUG_DUMP_VAL(ret->tid);
 			state->exhausted[0] = ret->next;
+            DEBUG_PRINT("Next active tid: ");
+            DEBUG_DUMP_VAL(ret->tid);
+            DEBUG_DUMP_VAL(ret->priority);
+            DEBUG_DUMP_ADR(ret);
+            DEBUG_DUMP_ADR(ret->next);
 
 			if (ret->priority < 0 || ret->priority == NUM_PRIORITIES) {
-                DEBUG_PRINT("INACTIVE");
-                DEBUG_DUMP_VAL(ret->tid);
-                DEBUG_DUMP_VAL(ret->next->tid);
-				/* Don't reschedule. */
+                ret->isin = 0;
+				/* Don't reschedule that task, get a new one. */
 				return reschedule(state);
 			}
 
@@ -39,7 +41,6 @@ struct TaskDescriptor *reschedule(struct RunQueue *state)
 
 			return ret;
 		} else {
-            DEBUG_PRINT("SHIFTING\n\r");
 			/* Need a new active array. */
 			int i;
 			for (i = 0; i < NUM_PRIORITIES - 1; ++i)
@@ -59,11 +60,17 @@ void blockTask(struct RunQueue *state, struct TaskDescriptor *task)
 
 void unblockTask(struct RunQueue *state, struct TaskDescriptor *task)
 {
+    DEBUG_PRINT("Unblocking: ");
+    DEBUG_DUMP_VAL(task->tid);
+    DEBUG_DUMP_VAL(task->priority);
+    DEBUG_DUMP_ADR(task);
+    DEBUG_DUMP_ADR(task->next);
 	if (task->priority < 0) {
+        DEBUG_DUMP_ADR(state->exhausted[task->priority]);
 		task->priority = -task->priority;
 
 		/* Reschedule the task, unless its already scheduled. */
-        if (task != state->exhausted[task->priority]) {
+        if (!task->isin) {
             task->next = state->exhausted[task->priority];
             state->exhausted[task->priority] = task;
         }

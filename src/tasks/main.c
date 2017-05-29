@@ -2,23 +2,23 @@
 
 #include "debugio.h"
 
+#define MSG_SIZE 4
+#define ITERATIONS 1000
+
 void main_task(void)
 {
-	int tid;
-    char msg;
+    char msg[MSG_SIZE];
+    char rpl[MSG_SIZE];
+    int i,tid;
+    for (i = 0; i < MSG_SIZE; ++i)
+        rpl[i] = i;
+
 	tid = CreateSize(2, k1_test_task, TASK_SIZE_BIG);
-	debugio_putstr("Created: ");
-	debugio_putint_decimal(tid);
-	debugio_putstr("\n\r");
 
-    Receive(&tid, &msg, 1);
+    for (i = 0; i < ITERATIONS; ++i) {
+        Receive(&tid, msg, MSG_SIZE);
+        Reply(tid, rpl, MSG_SIZE);
+    }
 
-    debugio_putstr("Got: ");
-    debugio_putc(msg);
-    debugio_putstr("\n\r");
-    msg = 'X';
-    Reply(tid, &msg, 1);
-
-	debugio_putstr("FirstUserTask: exiting\n\r");
 	Exit();
 }

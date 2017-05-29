@@ -48,13 +48,15 @@ int main(int argc, char *argv[])
 	scheduleTask(&data.scheduler, &data.tasks[1]);
 
 	while ((active = reschedule(&data.scheduler))) {
+		DEBUG_DUMP_VAL(active->tid);
+
 		enterTask(active);
 
-        DEBUG_PRINT("Current tid: ");
-        DEBUG_DUMP_VAL(active->tid);
-        DEBUG_DUMP_VAL(active->priority);
+		DEBUG_DUMP_VAL(active->priority);
 
 		active->rval = handleSyscall(&data, active);
+
+		DEBUG_DUMP_VAL(active->rval);
 	}
 
 	return 0;

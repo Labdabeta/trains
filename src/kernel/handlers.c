@@ -35,7 +35,7 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 	Buffer *reply = (Buffer*)data->argv[2];
 	struct TaskDescriptor *target = 0;
 
-    DEBUG_PRINT("Sending\n\r");
+    DEBUG_PRINT("Sending");
     DEBUG_DUMP_VAL(tid);
     DEBUG_DUMP_ADR(msg);
     DEBUG_DUMP_ADR(reply);
@@ -74,12 +74,13 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 	Buffer *msg = (Buffer*)data->argv[1];
 
 
-    DEBUG_PRINT("Receiving\n\r");
+    DEBUG_PRINT("Receiving");
     DEBUG_DUMP_ADR(tid);
     DEBUG_DUMP_ADR(msg);
 
 	if (active->recvQueueHead) {
 		struct TaskDescriptor *sender = active->recvQueueHead;
+        DEBUG_DUMP_ADR(sender);
 		writeBuffer(msg, sender->buf[0]);
 		*tid = sender->tid;
 		sender->state = STATE_REPL_BLOCKED;
@@ -100,7 +101,7 @@ static inline int handleReply(struct KernelData *data, struct TaskDescriptor *ac
 	Buffer *reply = (Buffer*)data->argv[1];
 	struct TaskDescriptor *target;
 
-    DEBUG_PRINT("Receiving Reply\n\r");
+    DEBUG_PRINT("Receiving Reply");
     DEBUG_DUMP_VAL(tid);
     DEBUG_DUMP_ADR(reply);
 

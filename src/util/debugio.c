@@ -43,9 +43,32 @@ void debugio_putint_base(int x, int base)
 	}
 }
 
+void debugio_putuint_base(unsigned int x, int base)
+{
+    unsigned int n = 0;
+    int dgt;
+    unsigned int d = 1;
+
+    while ((x/d) >= base) d *= base;
+    while (d!=0) {
+        dgt = x / d;
+        x %= d;
+        d /= base;
+        if (n || dgt > 0 || d == 0) {
+            debugio_putc(dgt + (dgt < 10 ? '0' : 'A' - 10));
+            n++;
+        }
+    }
+}
+
 void debugio_putint_decimal(int x)
 {
 	debugio_putint_base(x,10);
+}
+
+void debugio_putuint_decimal(unsigned int x)
+{
+    debugio_putuint_base(x,10);
 }
 
 void debugio_putint_hex(int x)
