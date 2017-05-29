@@ -75,7 +75,7 @@ void rps_server()
         if(play1 && play2){
           if(!tid1 || tid2){
             reply = 'q';
-            Reply(tid1, &reply, 1);
+            Reply(tid, &reply, 1);
           } else{
             resolve(tid1, tid2, play1, play2, &results);
           }
