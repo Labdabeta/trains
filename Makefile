@@ -47,8 +47,10 @@ small:$(TARGETS)
 push:
 	./push_kernel.sh
 
-report: reports/k1.tex
-	cd reports && sed "s/{{{commit hash}}}/$(shell git rev-parse HEAD)/g" < k1.tex > real.tex && lualatex --jobname=k1 real.tex && rm real.tex
+report: reports/k1.pdf reports/k2.pdf
+
+reports/%.pdf: reports/%.tex
+	cd reports && sed "s/{{{commit hash}}}/$(shell git rev-parse HEAD)/g" < $*.tex > real.tex && lualatex --jobname=$* real.tex && rm real.tex
 
 clean:
 	-@find -name '*.map' -delete
