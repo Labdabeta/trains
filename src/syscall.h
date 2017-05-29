@@ -2,6 +2,8 @@
 #define SYSCALL_H
 
 #include "buffer.h"
+#define NAMESERVER_TID 2
+#define MAX_NAME_LENGTH 32
 
 typedef enum TaskSize {
 	TASK_SIZE_GIANT = 0,
@@ -34,5 +36,9 @@ int Receive(int *tid, char *msg, int msglen);
 int ReplyBuffer(int tid, Buffer *reply);
 
 int Reply(int tid, char *reply, int rplen);
+
+int RegisterAs(char *name);
+
+int WhoIs(char *name);
 
 #endif /* SYSCALL_H */

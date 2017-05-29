@@ -94,3 +94,24 @@ int Reply(int tid, char *reply, int rplen)
 	return ReplyBuffer(tid, &r);
 }
 
+static char NameCommon(char *name, char prefix){
+	int len = 0;
+	char res;
+	while(name[len])
+		len++;
+	if(len > MAX_NAME_LENGTH -2)
+		return -1;
+	char msg[MAX_NAME_LENGTH];
+	msg[0] = prefix;
+	memcpy(msg + 1, name, len + 1);
+	int err = Send(NAMESERVER_TID, msg, len + 2, &res, 1);
+	return err > -1 && res ? res : -1;
+}
+
+int RegisterAs(char *name){
+	return NameCommon(name, 'r');
+}
+
+int WhoIs(char *name){
+	return NameCommon(name, 'w');
+}
