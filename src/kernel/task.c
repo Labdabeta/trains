@@ -124,9 +124,10 @@ void activateTask(struct TaskDescriptor *td, void (*entry)())
 	td->data->pc = (int)entry;
 }
 
+/*
 extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
 
 void enterTask(struct TaskDescriptor *td) {
 	td->data = (struct TaskFrame*)asm_EnterTask((struct TaskFrame*)td->data, td->cpsr, td->rval);
 	asm ("mov %0, r1" : "=r"(td->cpsr));
-}
+} */

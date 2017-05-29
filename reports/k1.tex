@@ -1,5 +1,14 @@
 \documentclass{article}
 
+\usepackage[indentafter]{titlesec}
+\titleformat{name=\section}{}{\thetitle.}{0.8em}{\centering\scshape}
+\titleformat{name=\subsection}[runin]{}{\thetitle.}{0.5em}{\bfseries}[.]
+\titleformat{name=\subsubsection}[runin]{}{\thetitle.}{0.5em}{\itshape}[.]
+\titleformat{name=\paragraph,numberless}[runin]{}{}{0em}{}[.]
+\titlespacing{\paragraph}{0em}{0em}{0.5em}
+\titleformat{name=\subparagraph,numberless}[runin]{}{}{0em}{}[.]
+\titlespacing{\subparagraph}{0em}{0em}{0.5em}
+
 \usepackage{tikz}
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -17,7 +26,7 @@
 \maketitle
 \endgroup
 
-\section{Overview}
+\section*{Overview}
 
 The higher cognitive functions of the human mind are conjectured to be enabled
 due to the structure that language provides. Society hence endows infants with
@@ -42,9 +51,9 @@ interface to allow tasks to be easily written. Being a real-time kernel it must
 allow tasks with sufficiently high priority to be given the execution time they
 need to do what they have to.
 
-\section{Structure}
+\section*{Structure}
 
-\subsection{Architecture}
+\subsection*{Architecture}
 
 Our kernel is currently a micro kernel, any drivers or other modules will have
 to be implemented as separate tasks. It currently consists almost entirely of a
@@ -69,7 +78,7 @@ does mean that if the kernel were ever to enter the scheduler it would have the
 wrong stack, but since the kernel never leaves the "zombie" priority of -1, it
 will never happen.
 
-\subsection{Context Switch}
+\subsection*{Context Switch}
 
 To transfer control to and from the kernel, we execute handwritten assembly
 constituting the context switch. The state of a user task is stored between the
@@ -140,7 +149,7 @@ there is a single dividing point. Upon returning to the function that called
 \texttt{sp} and saved program status register in the \texttt{TaskDescriptor}.
 These two functions exemplify the $ABB^{-1}A^{-1}$ design pattern.
 
-\subsubsection{The Ersatz Trap Frame}
+\subsubsection*{The Ersatz Trap Frame}
 
 The context switch allows us to reenter a task after having previously exited it
 via a software interrupt. Indeed, there must be a user state that is to be
@@ -149,7 +158,7 @@ to enter a newly created task. We do this by writing a \textit{ersatz trap
 frame} to the user stack during creation. From the kernel's perspective, we
 enter a new task \textit{in medias ras} as though returning from an interrupt.
 
-\subsection{Scheduler}
+\subsection*{Scheduler}
 
 Our scheduler is a modified implementation of the O(1) scheduler found in older
 versions of the linux kernel.
@@ -203,7 +212,7 @@ single low priority task is the only one running. However, since low priority
 tasks by definition don't need the scheduler to run quickly, this is not a
 problem.
 
-\subsection{Main Loop and System Calls}
+\subsection*{Main Loop and System Calls}
 
 The main loop starts by initializing all of the task objects on its giant stack.
 It then sets up the first user task with priority 1 and adds it to the
@@ -212,7 +221,7 @@ ready to run we enter said task and wait for it to call a software interrupt.
 When it does we analyze the stack to determine what system call was sent and
 what its arguments were. Then we enact whatever is requested.
 
-\section{Results}
+\section*{Results}
 
 The output of our code is:
 \begin{verbatim}
@@ -247,7 +256,7 @@ This leaves only the low priority tasks to run. As they are the same priority,
 and it is low, they take turns making one system call at a time. Therefore their
 outputs are interweaved.
 
-\section{SHA of commit}
+\section*{SHA of commit}
 
 The commit hash of the submission commit (which is on master) is:
 

@@ -1,0 +1,21 @@
+laburke and tkolomat,Message length,Caches,Send before Reply,Optimization,Time
+,4 bytes,off,yes,off,264
+,64 bytes,off,yes,off,401
+,4 bytes,on,yes,off,19.8
+,64 bytes,on,yes,off,29.0
+
+,4 bytes,off,no,off,356
+,64 bytes,off,no,off,478
+,4 bytes,on,no,off,25.8
+,64 bytes,on,no,off,35.0
+
+,4 bytes,off,yes,on,101
+,64 bytes,off,yes,on,139
+,4 bytes,on,yes,on,8.07
+,64 bytes,on,yes,on,10.5
+
+,4 bytes,off,no,on,143
+,64 bytes,off,no,on,176
+,4 bytes,on,no,on,10.7
+,64 bytes,on,no,on,13.2
+

@@ -13,6 +13,6 @@
  *
  * \return The returned value of the syscall.
  */
-int callSystemInterrupt(int arg0, int arg1, int arg2, int code);
+extern int asm_callSystemInterrupt(int arg0, int arg1, int arg2, int code);
 
 #endif /* INTERFACE_H */

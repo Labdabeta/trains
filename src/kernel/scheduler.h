@@ -1,7 +1,9 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#define NUM_PRIORITIES 32
+#include "task.h"
+
+#define NUM_PRIORITIES 8
 
 /** Maintains the state of the scheduler.
  *
@@ -49,8 +51,37 @@ void scheduleTask(struct RunQueue *state, struct TaskDescriptor *task);
  *
  * \return The next task in line, which should be given a chance to execute.
  */
-struct TaskDescriptor *reschedule(struct RunQueue *state);
+static inline struct TaskDescriptor *reschedule(struct RunQueue *state)
+{
+	int iterations = NUM_PRIORITIES; /* How many iterations of queue updating can we still do? */
+    struct TaskDescriptor *ret;
 
+	while (iterations --> 0) {
+		ret = state->exhausted[0];
+		if (ret) {
+			state->exhausted[0] = ret->next;
+			if (ret->priority < 0 || ret->priority == NUM_PRIORITIES) {
+                ret->isin = 0;
+				/* Don't reschedule that task, get a new one. */
+				return reschedule(state);
+			}
+
+			ret->next = state->exhausted[ret->priority];
+			state->exhausted[ret->priority] = ret;
+
+			return ret;
+		} else {
+			/* Need a new active array. */
+			int i;
+			for (i = 0; i < NUM_PRIORITIES - 1; ++i)
+				state->exhausted[i] = state->exhausted[i+1];
+			state->exhausted[NUM_PRIORITIES - 1] = 0;
+		}
+	}
+
+	/* No task found. */
+	return 0;
+}
 /** Block a task
  *
  * This will add a task to the blocked list. It will only unblock when
@@ -64,7 +95,11 @@ struct TaskDescriptor *reschedule(struct RunQueue *state);
  * \param[in] state            The state of the scheduler.
  * \param[in] task             The task to block.
  */
-void blockTask(struct RunQueue *state, struct TaskDescriptor *task);
+static inline void blockTask(struct RunQueue *state, struct TaskDescriptor *task)
+{
+	task->priority = (-task->priority) - 1;
+}
+
 
 /** Unblock the given task
  *
@@ -73,6 +108,18 @@ void blockTask(struct RunQueue *state, struct TaskDescriptor *task);
  * \param[in,out] state        The state of the scheduler.
  * \param[in] task             The task to unblock.
  */
-void unblockTask(struct RunQueue *state, struct TaskDescriptor *task);
+static inline void unblockTask(struct RunQueue *state, struct TaskDescriptor *task)
+{
+	if (task->priority < 0) {
+		task->priority = -(task->priority + 1);
+
+		/* Reschedule the task, unless its already scheduled. */
+        if (!task->isin) {
+            task->next = state->exhausted[task->priority];
+            state->exhausted[task->priority] = task;
+            task->isin = 1;
+        }
+	}
+}
 
 #endif /* SCHEDULER_H */

@@ -17,18 +17,20 @@ SECTIONS
 
 	CODE_BASE = . ;
 
-	/* Initialized data. */
-	data : {
-		_DataStart = . ; /* Save start of data */
-	   	*(.data) /* Put any .data section here */
-		_DataEnd = . ;  /* Save end of data */
+	/* Instruction cache sensitive code. */
+	good_text : {
+		src/kernel/kernel.o(.text)
+		src/kernel/scheduler.o(.text)
+		src/kernel/context_switch.o(.text)
+		src/kernel/handlers.o(.text)
+		src/util/buffer.o(.text)
+		src/memcpy.o(.text)
+		src/syscall.o(.text)
 	} >ram /* Put it in ram */
 
-	/* Uninitialized data. */
-	bss : {
-		_BssStart = . ; /* Save start of bss */
-		*(.bss) /* Put any .bss section here */
-		_BssEnd = . ;  /* Save end of bss */
+	/* Task's code. */
+	tasks : {
+		src/tasks/*.o(.text)
 	} >ram /* Put it in ram */
 
 	/* Code. */
@@ -37,10 +39,30 @@ SECTIONS
 		*(.text)
 		*(.got)
 		*(.got.plt)
+	} >ram /* Put it in ram */
+
+	/* Uninitialized data. */
+	bss : {
+		_BssStart = . ; /* Save start of bss */
+		*(.bss) /* Put any .bss section here */
 		*(.rodata)
 		*(.glue_7)
 		*(.glue_7t)
 		*(.rodata.str1.4)
+		_BssEnd = . ;  /* Save end of bss */
+	} >ram /* Put it in ram */
+
+	/* Instruction cache faulting code. */
+	bad_text : {
+		src/kernel/task.o(.text)
+		src/util/debugio.o(.text)
+	} >ram /* Put it in ram */
+
+	/* Initialized data. */
+	data : {
+		_DataStart = . ; /* Save start of data */
+	   	*(.data) /* Put any .data section here */
+		_DataEnd = . ;  /* Save end of data */
 	} >ram /* Put it in ram */
 
 	_TopOfProgram = . ;

@@ -89,7 +89,12 @@ void activateTask(struct TaskDescriptor *td, void (*entry)());
  *
  * \param[in] td               The task to transfer control to.
  */
-void enterTask(struct TaskDescriptor *td);
+static inline void enterTask(struct TaskDescriptor *td)
+{
+    extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
+	td->data = (struct TaskFrame*)asm_EnterTask((struct TaskFrame*)td->data, td->cpsr, td->rval);
+	asm ("mov %0, r1" : "=r"(td->cpsr));
+}
 
 #endif /* TASK_H */
 

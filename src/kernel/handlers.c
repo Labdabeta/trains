@@ -35,15 +35,12 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 	Buffer *reply = (Buffer*)data->argv[2];
 	struct TaskDescriptor *target = 0;
 
-    DEBUG_PRINT("Sending");
-    DEBUG_DUMP_VAL(tid);
-    DEBUG_DUMP_ADR(msg);
-    DEBUG_DUMP_ADR(reply);
-
+#ifdef DEBUG_MODE
 	if (tid < 0 ||
 		tid > NUM_SUPPORTED_TASKS ||
 		data->tasks[tid].priority >= NUM_PRIORITIES)
 		return -2;
+#endif
 
 	/* Load our buffers. */
 	active->buf[0] = msg;
@@ -73,18 +70,13 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 	int *tid = (int*)data->argv[0];
 	Buffer *msg = (Buffer*)data->argv[1];
 
-
-    DEBUG_PRINT("Receiving");
-    DEBUG_DUMP_ADR(tid);
-    DEBUG_DUMP_ADR(msg);
-
 	if (active->recvQueueHead) {
 		struct TaskDescriptor *sender = active->recvQueueHead;
-        DEBUG_DUMP_ADR(sender);
 		writeBuffer(msg, sender->buf[0]);
 		*tid = sender->tid;
 		sender->state = STATE_REPL_BLOCKED;
 		/* Don't awaken sender yet, they still need their reply. */
+        if (active->recvQueueTail == active->recvQueueHead) active->recvQueueTail = 0;
 		active->recvQueueHead = sender->nextRecv;
 
 		return 1;
@@ -101,19 +93,19 @@ static inline int handleReply(struct KernelData *data, struct TaskDescriptor *ac
 	Buffer *reply = (Buffer*)data->argv[1];
 	struct TaskDescriptor *target;
 
-    DEBUG_PRINT("Receiving Reply");
-    DEBUG_DUMP_VAL(tid);
-    DEBUG_DUMP_ADR(reply);
-
+#ifdef DEBUG_MODE
 	if (tid < 0 ||
 		tid > NUM_SUPPORTED_TASKS ||
 		data->tasks[tid].priority >= NUM_PRIORITIES)
 		return -2;
+#endif
 
 	target = &data->tasks[tid];
 
+#ifdef DEBUG_MODE
 	if (target->state != STATE_REPL_BLOCKED)
 		return -3;
+#endif
 
 	writeBuffer(target->buf[1], reply);
 	target->state = STATE_ACTIVE;
@@ -127,8 +119,6 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 	switch (data->fn) {
 		case CODE_EXIT:
 			active->priority = NUM_PRIORITIES;
-            DEBUG_PRINT("Zombied: ");
-            DEBUG_DUMP_VAL(active->tid);
 			return 0;
 		case CODE_MY_ID:
 			return active->tid;
@@ -149,7 +139,6 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 			return handleReply(data, active);
 		default:
 			debugio_putstr("\n\rInvalid syscall...\n\r");
-			DEBUG_DUMP_VAL(data->fn);
 			return -1;
 	}
 }

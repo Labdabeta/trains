@@ -7,12 +7,12 @@
 
 void Exit(void)
 {
-	(void)callSystemInterrupt(0,0,0,CODE_EXIT);
+	(void)asm_callSystemInterrupt(0,0,0,CODE_EXIT);
 }
 
 int CreateSize(int priority, void (*code)(), TaskSize size)
 {
-	return callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
+	return asm_callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
 }
 
 int Create(int priority, void (*code)())
@@ -22,22 +22,22 @@ int Create(int priority, void (*code)())
 
 int MyTid(void)
 {
-	return callSystemInterrupt(0,0,0,CODE_MY_ID);
+	return asm_callSystemInterrupt(0,0,0,CODE_MY_ID);
 }
 
 int MyParentTid(void)
 {
-	return callSystemInterrupt(0,0,0,CODE_PARENT_ID);
+	return asm_callSystemInterrupt(0,0,0,CODE_PARENT_ID);
 }
 
 void Pass(void)
 {
-	(void)callSystemInterrupt(0,0,0,CODE_PASS);
+	(void)asm_callSystemInterrupt(0,0,0,CODE_PASS);
 }
 
 int SendBuffer(int tid, Buffer *msg, Buffer *reply)
 {
-	int result = callSystemInterrupt(tid,(int)msg,(int)reply,CODE_SEND);
+	int result = asm_callSystemInterrupt(tid,(int)msg,(int)reply,CODE_SEND);
 
 	if (result == -2)
 		return -2;
@@ -61,8 +61,9 @@ int Send(int tid, char *msg, int msglen, char *reply, int rplen)
 
 int ReceiveBuffer(int *tid, Buffer *msg)
 {
-	if (!callSystemInterrupt((int)tid,(int)msg,0,CODE_RECEIVE))
-		callSystemInterrupt((int)tid,(int)msg,0,CODE_RECEIVE);
+	if (!asm_callSystemInterrupt((int)tid,(int)msg,0,CODE_RECEIVE)) {
+		asm_callSystemInterrupt((int)tid,(int)msg,0,CODE_RECEIVE);
+    }
 
 	if (msg->truncated)
 		return -1;
@@ -81,7 +82,7 @@ int Receive(int *tid, char *msg, int msglen)
 
 int ReplyBuffer(int tid, Buffer *reply)
 {
-	return callSystemInterrupt(tid,(int)reply,0,CODE_REPLY);
+	return asm_callSystemInterrupt(tid,(int)reply,0,CODE_REPLY);
 }
 
 int Reply(int tid, char *reply, int rplen)
