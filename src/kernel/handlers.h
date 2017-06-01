@@ -14,7 +14,10 @@ typedef enum SyscallCode {
 	CODE_PASS,
 	CODE_SEND,
 	CODE_RECEIVE, /* 0 return -> call again */
-	CODE_REPLY
+	CODE_REPLY,
+    CODE_SHARE,
+    CODE_OBTAIN, /* 0 return -> call again */
+    CODE_RESPOND
 } SyscallCode;
 
 int handleSyscall(struct KernelData *data, struct TaskDescriptor *active);

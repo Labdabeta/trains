@@ -61,6 +61,13 @@ int Send(int tid, char *msg, int msglen, char *reply, int rplen)
 	return SendBuffer(tid, &m, &r);
 }
 
+void *Share(int tid, void *msg)
+{
+    void *ret = 0;
+    (void)asm_callSystemInterrupt(tid,(int)msg,(int)&ret,CODE_SHARE);
+    return ret;
+}
+
 int ReceiveBuffer(int *tid, Buffer *msg)
 {
 	if (!asm_callSystemInterrupt((int)tid,(int)msg,0,CODE_RECEIVE)) {
@@ -82,6 +89,15 @@ int Receive(int *tid, char *msg, int msglen)
 	return ReceiveBuffer(tid, &m);
 }
 
+void *Obtain(int *tid)
+{
+    void *ret = 0;
+    if (asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN))
+        asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN);
+
+    return ret;
+}
+
 int ReplyBuffer(int tid, Buffer *reply)
 {
 	return asm_callSystemInterrupt(tid,(int)reply,0,CODE_REPLY);
@@ -94,6 +110,11 @@ int Reply(int tid, char *reply, int rplen)
 	loadBuffer(&r, reply, rplen);
 
 	return ReplyBuffer(tid, &r);
+}
+
+void Respond(int tid, void *rpl)
+{
+    (void)asm_callSystemInterrupt(tid,(int)rpl,0,CODE_RESPOND);
 }
 
 static int NameCommon(char *name, char prefix)

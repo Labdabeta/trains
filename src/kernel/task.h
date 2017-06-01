@@ -33,7 +33,10 @@ typedef enum TaskState {
 	STATE_ZOMBIE,
 	STATE_SEND_BLOCKED,
 	STATE_RECV_BLOCKED,
-	STATE_REPL_BLOCKED
+	STATE_REPL_BLOCKED,
+    STATE_SHARE_BLOCKED,
+    STATE_OBTAIN_BLOCKED,
+    STATE_RESPOND_BLOCKED
 } TaskState;
 
 typedef struct TaskDescriptor {
@@ -57,6 +60,10 @@ typedef struct TaskDescriptor {
 	struct TaskDescriptor *recvQueueHead;
 	struct TaskDescriptor *recvQueueTail;
 	struct TaskDescriptor *nextRecv;
+    struct TaskDescriptor *obtQueueHead;
+    struct TaskDescriptor *obtQueueTail;
+    struct TaskDescriptor *nextObt;
+    void *share[2]; /* { normal, reply/extra } */
 	struct Buffer *buf[2]; /* { normal, reply/extra } */
 	TaskState state;
 } *TD_ptr;
