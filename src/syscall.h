@@ -196,4 +196,6 @@ int RegisterAs(char *name);
  */
 int WhoIs(char *name);
 
+int AwaitEvent(void);
+
 #endif /* SYSCALL_H */

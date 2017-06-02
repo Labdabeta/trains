@@ -2,12 +2,19 @@
 @ void asm_SetupTrap(struct SyscallArgs *args)
 @ Writes the swi handler to the trap table
 @ Pass the address where stack pushes will write args then fn
+.extern EnterHWI
+
 .global asm_SetupTrap
 asm_SetupTrap:
 	str r0, arg_pointer @ Save the argument in the arg pointer
+
 	adr r0, asm_EnterKernel @ Save the swi callback in r0
-	mov r1, #0x28 @ The trap table location
-	str r0, [r1] @ Save the callback in the trap table
+	mov r2, #0x28 @ The trap table location
+	str r0, [r2] @ Save the callback in the trap table
+
+	mov r2, #0x18 @ The trap table location
+	str r1, [r2] @ Save the callback in the trap table
+
 	mov pc, lr @ return
 
 arg_pointer:

@@ -15,4 +15,3 @@ void scheduleTask(struct RunQueue *state, struct TaskDescriptor *task)
 	state->exhausted[task->priority] = task;
     task->isin = 1;
 }
-

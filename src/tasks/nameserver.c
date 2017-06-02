@@ -5,12 +5,12 @@
 
 void name_server()
 {
-	volatile char names[MAX_NAME_LENGTH * NAMES_CAPACITY];
-	volatile char tids[NAMES_CAPACITY];
-	volatile int size = 0;
+	char names[MAX_NAME_LENGTH * NAMES_CAPACITY];
+	char tids[NAMES_CAPACITY];
+	int size = 0;
 	int tid, err;
 	char reply = 0;
-	volatile int i;
+	int i;
 
 	for (i = 0; i < NAMES_CAPACITY; ++i)
 		tids[i] = 0x13;

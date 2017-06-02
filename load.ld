@@ -49,6 +49,7 @@ SECTIONS
 		*(.glue_7)
 		*(.glue_7t)
 		*(.rodata.str1.4)
+		*(COMMON)
 		_BssEnd = . ;  /* Save end of bss */
 	} >ram /* Put it in ram */
 

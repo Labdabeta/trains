@@ -141,3 +141,7 @@ int RegisterAs(char *name){
 int WhoIs(char *name){
 	return NameCommon(name, 'w');
 }
+
+int AwaitEvent(){
+	return asm_callSystemInterrupt(0, 0, 0, CODE_AWAIT);
+}

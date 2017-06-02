@@ -1,7 +1,7 @@
 #include "tasks.h"
 #include "debugio.h"
 
-static int index(char pl){
+static int ind(char pl){
 	switch(pl){
 		case 'r':
 			return 0;
@@ -10,11 +10,12 @@ static int index(char pl){
 		case 's':
 			return 2;
 	}
+	return -1;
 }
 
 static void resolve(int tid1, int tid2, char play1, char play2, char* res){
 	char r1, r2;
-	switch(res[3*index(play1) + index(play2)]){
+	switch(res[3*ind(play1) + ind(play2)]){
 		case '1':
 			r1 = 'w';
 			r2 = 'l';
@@ -79,12 +80,12 @@ void rps_server()
 				} else{
 					play2 = msg[1];
 				}
-				if(play1 && play2 || tid1 == 0 || tid2 == 0){
+				if((play1 && play2) || tid1 == 0 || tid2 == 0){
 					if(!tid1 || !tid2){
 						reply = 'q';
 						Reply(tid, &reply, 1);
 					} else{
-						resolve(tid1, tid2, play1, play2, &results);
+						resolve(tid1, tid2, play1, play2, results);
 					}
 					play1 = play2 = 0;
 				}

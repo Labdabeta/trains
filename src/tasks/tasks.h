@@ -8,5 +8,6 @@ void main_task(void);
 void rps_server(void);
 void rps_client(void);
 void name_server(void);
+void clock_notifier(void);
 
 #endif /* TASKS_H */

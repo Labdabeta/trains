@@ -200,12 +200,15 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 			return handleReceive(data, active);
 		case CODE_REPLY:
 			return handleReply(data, active);
-        case CODE_SHARE:
-            return handleShare(data, active);
-        case CODE_OBTAIN:
-            return handleObtain(data, active);
-        case CODE_RESPOND:
-            return handleRespond(data, active);
+    case CODE_SHARE:
+        return handleShare(data, active);
+    case CODE_OBTAIN:
+        return handleObtain(data, active);
+    case CODE_RESPOND:
+        return handleRespond(data, active);
+		case CODE_AWAIT:
+			blockTask(&data->scheduler, active);
+			return 0;
 		default:
 			debugio_putstr("\n\rInvalid syscall...\n\r");
 			return -1;
