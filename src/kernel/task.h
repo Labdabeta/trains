@@ -36,7 +36,8 @@ typedef enum TaskState {
 	STATE_REPL_BLOCKED,
   STATE_SHARE_BLOCKED,
   STATE_OBTAIN_BLOCKED,
-  STATE_RESPOND_BLOCKED
+  STATE_RESPOND_BLOCKED,
+	STATE_EVENT_BLOCKED
 } TaskState;
 
 typedef struct TaskDescriptor {

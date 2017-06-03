@@ -157,7 +157,6 @@ static inline int handleReply(struct KernelData *data, struct TaskDescriptor *ac
 #endif
 
 	writeBuffer(target->buf[1], reply);
-	target->state = STATE_ACTIVE;
 	unblockTask(&data->scheduler, target);
 
 	return -1 * (target->buf[1]->truncated);
@@ -171,7 +170,6 @@ static inline int handleRespond(struct KernelData *data, struct TaskDescriptor *
     struct TaskDescriptor *target = &data->tasks[tid];
 
     target->share[1] = ret;
-    target->state = STATE_ACTIVE;
     unblockTask(&data->scheduler, target);
 
     return 0;
@@ -207,6 +205,7 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
     case CODE_RESPOND:
         return handleRespond(data, active);
 		case CODE_AWAIT:
+			active->state = STATE_EVENT_BLOCKED;
 			blockTask(&data->scheduler, active);
 			return 0;
 		default:

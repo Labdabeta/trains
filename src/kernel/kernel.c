@@ -35,7 +35,8 @@ void EnterHWI(void)
 {
 	volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
 	*tclr = 0;
-	unblockTask(global_sheduler, global_dispatcher);
+	if(global_dispatcher->state == STATE_EVENT_BLOCKED)
+		unblockTask(global_sheduler, global_dispatcher);
 }
 
 int main(int argc, char *argv[])

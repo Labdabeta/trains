@@ -114,6 +114,7 @@ static inline void unblockTask(struct RunQueue *state, struct TaskDescriptor *ta
 {
 	if (task->priority < 0) {
 		task->priority = -(task->priority + 1);
+		task->state = STATE_ACTIVE;
 
 		/* Reschedule the task, unless its already scheduled. */
        if (!task->isin) {
