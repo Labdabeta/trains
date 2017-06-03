@@ -57,13 +57,9 @@ int main(int argc, char *argv[])
 	activateTask(&data.tasks[1], fn_ptr(main_task));
 	scheduleTask(&data.scheduler, &data.tasks[1]);
 
-	data.tasks[85].priority = 0;
-	activateTask(&data.tasks[85], fn_ptr(clock_notifier));
-	scheduleTask(&data.scheduler, &data.tasks[85]);
-
-	global_dispatcher = &data.tasks[85];
+	global_dispatcher = &data.tasks[72];
 	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI));
-	setupTimer();
+	//setupTimer();
 
 	while ((active = reschedule(&data.scheduler))) {
 		enterTask(active);
