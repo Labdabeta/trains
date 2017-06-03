@@ -1,9 +1,12 @@
 #include "tasks.h"
 #include "debugio.h"
+#include "ts7200.h"
 
 void clock_notifier(){
+  int ticks = 0;
   while(1){
-    DEBUG_PRINT("Tick/r/n");
     AwaitEvent();
+    ticks++;
+    DEBUG_DUMP_VAL(ticks);
   }
 }

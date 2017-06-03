@@ -12,7 +12,7 @@ asm_SetupTrap:
 	mov r2, #0x28 @ The trap table location
 	str r0, [r2] @ Save the callback in the trap table
 
-	mov r2, #0x18 @ The trap table location
+	mov r2, #0x38 @ The trap table location
 	str r1, [r2] @ Save the callback in the trap table
 
 	mov pc, lr @ return

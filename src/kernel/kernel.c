@@ -33,6 +33,8 @@ struct TaskDescriptor *global_dispatcher;
 void EnterHWI(void) __attribute__((interrupt("IRQ")));
 void EnterHWI(void)
 {
+	volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
+	*tclr = 0;
 	unblockTask(global_sheduler, global_dispatcher);
 }
 
@@ -57,9 +59,10 @@ int main(int argc, char *argv[])
 	data.tasks[85].priority = 0;
 	activateTask(&data.tasks[85], fn_ptr(clock_notifier));
 	scheduleTask(&data.scheduler, &data.tasks[85]);
-	global_dispatcher = &data.tasks[85];
 
-	asm_SetupTrap(&data.fn, EnterHWI);
+	global_dispatcher = &data.tasks[85];
+	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI));
+	setupTimer();
 
 	while ((active = reschedule(&data.scheduler))) {
 		enterTask(active);

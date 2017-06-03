@@ -42,8 +42,8 @@ void rps_client(void)
         SendBuffer(server, &snd, &rpl);
         debugio_putstr("P1: ");
         printResult(&rpl);
-        debugio_putstr("Press any key to continue...\n\r");
-        debugio_getc();
+        /*debugio_putstr("Press any key to continue...\n\r");
+        debugio_getc();*/
 
         /* Paper */
         debugio_putstr("P1: P\n\r");
@@ -51,8 +51,8 @@ void rps_client(void)
         SendBuffer(server, &snd, &rpl);
         debugio_putstr("p1: ");
         printResult(&rpl);
-        debugio_putstr("Press any key to continue...\n\r");
-        debugio_getc();
+        /*debugio_putstr("Press any key to continue...\n\r");
+        debugio_getc();*/
 
         /* Scissors */
         debugio_putstr("P1: S\n\r");
@@ -60,8 +60,8 @@ void rps_client(void)
         SendBuffer(server, &snd, &rpl);
         debugio_putstr("p1: ");
         printResult(&rpl);
-        debugio_putstr("Press any key to continue...\n\r");
-        debugio_getc();
+        /*debugio_putstr("Press any key to continue...\n\r");
+        debugio_getc();*/
 
         /* Rock */
         debugio_putstr("P1: R\n\r");
@@ -69,8 +69,8 @@ void rps_client(void)
         SendBuffer(server, &snd, &rpl);
         debugio_putstr("p1: ");
         printResult(&rpl);
-        debugio_putstr("Press any key to continue...\n\r");
-        debugio_getc();
+        /*debugio_putstr("Press any key to continue...\n\r");
+        debugio_getc();*/
 
     } else {
         /* Scissors */
@@ -99,7 +99,8 @@ void rps_client(void)
         snd_buf[0] = 'q'; snd_buf[1] = 0; snd_buf[2] = 0;
         SendBuffer(server, &snd, &rpl);
     }
-
+    while(1){
+      Pass();
+    }
     Exit();
 }
-

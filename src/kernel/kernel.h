@@ -4,6 +4,7 @@
 #include "task.h"
 #include "scheduler.h"
 #include "handlers.h"
+#include "setup.h"
 
 /* NOTE: This is *BIG* */
 struct KernelData {

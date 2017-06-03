@@ -117,7 +117,7 @@ void setupTaskArray(struct TaskDescriptor *ta)
 
 void activateTask(struct TaskDescriptor *td, void (*entry)())
 {
-	td->cpsr = 0x90; /* mode set */
+	td->cpsr = 0x50; /* mode set */
 	td->data = (struct TaskFrame*)((int)td->stack - sizeof(struct TaskFrame) + WORD_SIZE);
 
 	td->data->lr = (int)fn_ptr(Exit);
