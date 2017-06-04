@@ -19,24 +19,26 @@ void clock_notifier(){
 
 void clock_server(){
   CreateSize(0, clock_notifier, TASK_SIZE_NORMAL);
+  //DEBUG_DUMP_VAL(n_tid);
   int caller, len, deadline;
   int *ticks = Obtain(&caller);
   Respond(caller, ticks);
   RegisterAs("CLOCK");
+
+  char msg[2];
   timeheap events;
   thinit(&events);
   struct event* top;
-  char msg[2];
 
   while(1){
     len = Receive(&caller, msg, 2);
     if(len){
-      if(len == 1){
+      if(msg[0] == 't'){
         Reply(caller, (char*) ticks, sizeof(*ticks));
       } else{
-        deadline = msg[0];
+        deadline = *ticks;
         if(msg[0] == 'd')
-          deadline += *ticks;
+          deadline += msg[1];
         thinsert(&events, deadline, caller);
       }
     } else{
