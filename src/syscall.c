@@ -19,7 +19,9 @@ int CreateSize(int priority, void (*code)(), TaskSize size)
 
 int Create(int priority, void (*code)())
 {
-	return CreateSize(priority, code, TASK_SIZE_NORMAL);
+	int ret = CreateSize(priority, code, TASK_SIZE_NORMAL);
+	DEBUG_DUMP_VAL(ret);
+	return ret;
 }
 
 int MyTid(void)

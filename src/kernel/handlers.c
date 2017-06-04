@@ -83,7 +83,8 @@ static inline int handleShare(struct KernelData *data, struct TaskDescriptor *ac
 		target->obtQueueHead = active;
 	target->obtQueueTail = active;
 
-	unblockTask(&data->scheduler, target);
+	if (target->state == STATE_OBTAIN_BLOCKED)
+		unblockTask(&data->scheduler, target);
 
 	/* Set ourselves up for blocking. */
 	active->state = STATE_SHARE_BLOCKED;

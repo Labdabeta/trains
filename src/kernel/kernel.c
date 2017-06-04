@@ -27,7 +27,7 @@ int newTID(struct KernelData *data, int size)
 	return -1;
 }
 
-struct Scheduler *global_sheduler;
+struct Scheduler *global_scheduler;
 struct TaskDescriptor *global_dispatcher;
 
 void EnterHWI(void) __attribute__((interrupt("IRQ")));
@@ -35,7 +35,7 @@ void EnterHWI(void)
 {
 	volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
 	*tclr = 0;
-	unblockTask(global_sheduler, global_dispatcher);
+	unblockTask(global_scheduler, global_dispatcher);
 }
 
 int main(int argc, char *argv[])
@@ -44,10 +44,8 @@ int main(int argc, char *argv[])
 	struct TaskDescriptor *active;
 
 	init_debugio();
-    DEBUG_DUMP_ADR(&CODE_BASE);
-    DEBUG_DUMP_ADR(main);
 	initScheduler(&data.scheduler);
-	global_sheduler = &data.scheduler;
+	global_scheduler = &data.scheduler;
 
 	setupTaskArray(data.tasks);
 	data.tasks[0].stack = &data;
@@ -61,7 +59,7 @@ int main(int argc, char *argv[])
 
 	global_dispatcher = &data.tasks[18];
 	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI));
-	//setupTimer();
+	setupTimer();
 
 	while ((active = reschedule(&data.scheduler))) {
 		enterTask(active);

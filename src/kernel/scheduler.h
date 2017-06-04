@@ -81,6 +81,7 @@ static inline void unblockTask(struct Scheduler *state, struct TaskDescriptor *t
 {
 	if (task->next == (void*)1)
 		scheduleTask(state,task);
+	task->state = STATE_ACTIVE;
 }
 
 
