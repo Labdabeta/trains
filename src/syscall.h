@@ -198,4 +198,10 @@ int WhoIs(char *name);
 
 int AwaitEvent(void);
 
+int Time(int tid);
+
+void Delay(int tid, int ticks);
+
+void DelayUntil(int tid, int ticks);
+
 #endif /* SYSCALL_H */
