@@ -19,6 +19,7 @@ static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *a
 		struct TaskDescriptor *newtask = &data->tasks[newid];
 		newtask->priority = prio;
 		newtask->parent = active;
+		newtask->state = STATE_ACTIVE;
 		activateTask(newtask, (void*)code);
 
 		scheduleTask(&data->scheduler, newtask);
@@ -60,36 +61,35 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 
 	/* Set ourselves up for blocking. */
 	active->state = STATE_SEND_BLOCKED;
-	blockTask(&data->scheduler, active);
 
 	return 0;
 }
 
 static inline int handleShare(struct KernelData *data, struct TaskDescriptor *active)
 {
-    int tid = data->argv[0];
-    void *msg = (void*)data->argv[1];
-    void **rpl = (void**)data->argv[2];
-    struct TaskDescriptor *target = 0;
+	int tid = data->argv[0];
+	void *msg = (void*)data->argv[1];
+	void **rpl = (void**)data->argv[2];
+	struct TaskDescriptor *target = 0;
 
-    active->share[0] = msg;
-    active->share[1] = rpl;
+	active->share[0] = msg;
+	active->share[1] = rpl;
 
-    target = &data->tasks[tid];
-    active->nextObt = 0;
-    if (target->obtQueueTail)
-        target->obtQueueTail->nextObt = active;
-    if (!target->obtQueueHead)
-        target->obtQueueHead = active;
-    target->obtQueueTail = active;
+	target = &data->tasks[tid];
+	active->nextObt = 0;
+	if (target->obtQueueTail)
+		target->obtQueueTail->nextObt = active;
+	if (!target->obtQueueHead)
+		target->obtQueueHead = active;
+	target->obtQueueTail = active;
 
-    unblockTask(&data->scheduler, target);
+	if (target->state == STATE_OBTAIN_BLOCKED)
+		unblockTask(&data->scheduler, target);
 
-    /* Set ourselves up for blocking. */
-    active->state = STATE_SHARE_BLOCKED;
-    blockTask(&data->scheduler, active);
+	/* Set ourselves up for blocking. */
+	active->state = STATE_SHARE_BLOCKED;
 
-    return 0;
+	return 0;
 }
 
 static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *active)
@@ -103,37 +103,35 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 		*tid = sender->tid;
 		sender->state = STATE_REPL_BLOCKED;
 		/* Don't awaken sender yet, they still need their reply. */
-        if (active->recvQueueTail == active->recvQueueHead) active->recvQueueTail = 0;
+		if (active->recvQueueTail == active->recvQueueHead) active->recvQueueTail = 0;
 		active->recvQueueHead = sender->nextRecv;
 
 		return 1;
 	} else {
 		active->state = STATE_RECV_BLOCKED;
-		blockTask(&data->scheduler, active);
 		return 0;
 	}
 }
 
 static inline int handleObtain(struct KernelData *data, struct TaskDescriptor *active)
 {
-    int *tid = (int*)data->argv[0];
-    void **ret = (void**)data->argv[1];
+	int *tid = (int*)data->argv[0];
+	void **ret = (void**)data->argv[1];
 
-    if (active->obtQueueHead) {
-        struct TaskDescriptor *sender = active->obtQueueHead;
-        *ret = sender->share[0];
-        *tid = sender->tid;
-        sender->state = STATE_RESPOND_BLOCKED;
-        /* Don't awaken sender yet, they still need their reply. */
-        if (active->obtQueueTail == active->obtQueueHead) active->obtQueueTail = 0;
-        active->obtQueueHead = sender->nextObt;
+	if (active->obtQueueHead) {
+		struct TaskDescriptor *sender = active->obtQueueHead;
+		*ret = sender->share[0];
+		*tid = sender->tid;
+		sender->state = STATE_RESPOND_BLOCKED;
+		/* Don't awaken sender yet, they still need their reply. */
+		if (active->obtQueueTail == active->obtQueueHead) active->obtQueueTail = 0;
+		active->obtQueueHead = sender->nextObt;
 
-        return 1;
-    } else {
-        active->state = STATE_OBTAIN_BLOCKED;
-        blockTask(&data->scheduler, active);
-        return 0;
-    }
+		return 1;
+	} else {
+		active->state = STATE_OBTAIN_BLOCKED;
+		return 0;
+	}
 }
 
 static inline int handleReply(struct KernelData *data, struct TaskDescriptor *active)
@@ -164,22 +162,23 @@ static inline int handleReply(struct KernelData *data, struct TaskDescriptor *ac
 
 static inline int handleRespond(struct KernelData *data, struct TaskDescriptor *active)
 {
-    int tid = data->argv[0];
-    void *ret = (void*)data->argv[1];
+	int tid = data->argv[0];
+	void *ret = (void*)data->argv[1];
 
-    struct TaskDescriptor *target = &data->tasks[tid];
+	struct TaskDescriptor *target = &data->tasks[tid];
 
-    target->share[1] = ret;
-    unblockTask(&data->scheduler, target);
+	target->share[1] = ret;
+	unblockTask(&data->scheduler, target);
 
-    return 0;
+	return 0;
 }
 
 int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 {
 	switch (data->fn) {
 		case CODE_EXIT:
-			active->priority = NUM_PRIORITIES;
+			active->state = STATE_ZOMBIE;
+			active->priority = -1;
 			return 0;
 		case CODE_MY_ID:
 			return active->tid;
@@ -198,15 +197,14 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 			return handleReceive(data, active);
 		case CODE_REPLY:
 			return handleReply(data, active);
-    case CODE_SHARE:
-        return handleShare(data, active);
-    case CODE_OBTAIN:
-        return handleObtain(data, active);
-    case CODE_RESPOND:
-        return handleRespond(data, active);
+	case CODE_SHARE:
+		return handleShare(data, active);
+	case CODE_OBTAIN:
+		return handleObtain(data, active);
+	case CODE_RESPOND:
+		return handleRespond(data, active);
 		case CODE_AWAIT:
 			active->state = STATE_EVENT_BLOCKED;
-			blockTask(&data->scheduler, active);
 			return 0;
 		default:
 			debugio_putstr("\n\rInvalid syscall...\n\r");

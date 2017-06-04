@@ -16,7 +16,7 @@ struct KernelData {
 	struct TaskDescriptor tasks[NUM_SUPPORTED_TASKS];
 
 	/* Scheduler */
-	struct RunQueue scheduler;
+	struct Scheduler scheduler;
 };
 
 /** Returns a new unused task id.

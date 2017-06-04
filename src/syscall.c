@@ -19,7 +19,9 @@ int CreateSize(int priority, void (*code)(), TaskSize size)
 
 int Create(int priority, void (*code)())
 {
-	return CreateSize(priority, code, TASK_SIZE_NORMAL);
+	int ret = CreateSize(priority, code, TASK_SIZE_NORMAL);
+	DEBUG_DUMP_VAL(ret);
+	return ret;
 }
 
 int MyTid(void)
@@ -63,16 +65,16 @@ int Send(int tid, char *msg, int msglen, char *reply, int rplen)
 
 void *Share(int tid, void *msg)
 {
-    void *ret = 0;
-    (void)asm_callSystemInterrupt(tid,(int)msg,(int)&ret,CODE_SHARE);
-    return ret;
+	void *ret = 0;
+	(void)asm_callSystemInterrupt(tid,(int)msg,(int)&ret,CODE_SHARE);
+	return ret;
 }
 
 int ReceiveBuffer(int *tid, Buffer *msg)
 {
 	if (!asm_callSystemInterrupt((int)tid,(int)msg,0,CODE_RECEIVE)) {
 		asm_callSystemInterrupt((int)tid,(int)msg,0,CODE_RECEIVE);
-    }
+	}
 
 	if (msg->truncated)
 		return -1;
@@ -91,11 +93,11 @@ int Receive(int *tid, char *msg, int msglen)
 
 void *Obtain(int *tid)
 {
-    void *ret = 0;
-    if (asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN))
-        asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN);
+	void *ret = 0;
+	if (asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN))
+		asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN);
 
-    return ret;
+	return ret;
 }
 
 int ReplyBuffer(int tid, Buffer *reply)
@@ -114,7 +116,7 @@ int Reply(int tid, char *reply, int rplen)
 
 void Respond(int tid, void *rpl)
 {
-    (void)asm_callSystemInterrupt(tid,(int)rpl,0,CODE_RESPOND);
+	(void)asm_callSystemInterrupt(tid,(int)rpl,0,CODE_RESPOND);
 }
 
 static int NameCommon(char *name, char prefix)
@@ -153,14 +155,12 @@ int Time(int tid){
 	return ret;
 }
 
-static inline void DelayCommon(int tid, char prefix, int arg)
+static inline void DelayCommon(int tid, char code, int arg)
 {
-	char msg[2];
-	msg[0] = prefix;
-	msg[1] = arg;
-	//((int *) msg)[0] = arg;
-	//msg[4] = prefix;
-	Send(tid, msg, 2, 0, 0);
+	struct intandflag msg;
+	msg.val = arg;
+	msg.code = code;
+	Send(tid, (void *)&msg, sizeof(struct intandflag), 0, 0);
 }
 
 void Delay(int tid, int ticks){

@@ -13,6 +13,11 @@ typedef enum TaskSize {
 	TASK_SIZE_TINY
 } TaskSize;
 
+struct intandflag{
+	int val;
+	char code;
+};
+
 /* Exits the task.
  *
  * This exits the task and should be called as the last action of every user

@@ -89,20 +89,20 @@ system call made by the task. The top of the user's stack contain the saved
 values of \texttt{r4-r12, lr} followed by the saved \texttt{pc}. To trap out of
 the kernel we do the following:
 \begin{enumerate}
-    \item \textit{Pass the \texttt{sp}, \texttt{spsr}, and \texttt{rval} into
-        the \texttt{asm\_EnterTask} function (this places the arguments in
-        registers),}
-    \item \textit{Restore the task's \texttt{spsr}}
-    \item \textit{Store \texttt{r4-r12, lr} on the kernel's stack,}
-    \item \textit{Pop the saved \texttt{pc} from the user's stack to the
-        $\texttt{lr}_\texttt{svs}$ register (this increments \texttt{r0} where
-        the argument is stored),}
-    \item \textit{Mask \texttt{cpsr} to switch to system mode}
-    \item \textit{Restore the user \texttt{sp}}
-    \item \textit{Restore the user registers \texttt{r4-r12, lr}}
-    \item \textit{Mask \texttt{cpsr} to switch to supervisor mode}
-    \item \textit{Pass the return value into \texttt{r0}}
-    \item \textit{\texttt{movs pc, lr}}
+	\item \textit{Pass the \texttt{sp}, \texttt{spsr}, and \texttt{rval} into
+		the \texttt{asm\_EnterTask} function (this places the arguments in
+		registers),}
+	\item \textit{Restore the task's \texttt{spsr}}
+	\item \textit{Store \texttt{r4-r12, lr} on the kernel's stack,}
+	\item \textit{Pop the saved \texttt{pc} from the user's stack to the
+		$\texttt{lr}_\texttt{svs}$ register (this increments \texttt{r0} where
+		the argument is stored),}
+	\item \textit{Mask \texttt{cpsr} to switch to system mode}
+	\item \textit{Restore the user \texttt{sp}}
+	\item \textit{Restore the user registers \texttt{r4-r12, lr}}
+	\item \textit{Mask \texttt{cpsr} to switch to supervisor mode}
+	\item \textit{Pass the return value into \texttt{r0}}
+	\item \textit{\texttt{movs pc, lr}}
 \end{enumerate}
 
 Notice that beginning at step 4, we have definitively switched from working in
@@ -121,26 +121,26 @@ function that pushes the code and arguments on the user stack and issue an
 interrupts. This function performs the following operations:
 
 \begin{enumerate}
-    \item \textit{Copy into \texttt{r3}, the value of the current link register,
-        which is the saved stack pointer at the time of the \texttt{swi},}
-    \item \textit{Mask \texttt{cpsr} to switch to system mode (this gives us
-        access to $\texttt{sp}_\texttt{sys}$)}
-    \item \textit{Copy \texttt{sp}$_\texttt{sys}$ into \texttt{r1} as to save
-        it's value before by the subsequent pushes,}
-    \item \textit{Store $\texttt{r4-r12, lr}_\texttt{sys}$ on the user space
-        stack,}
-    \item \textit{Store \texttt{r3}, and hence the saved \texttt{pc}, on the
-        user's stack,}
-    \item \textit{At this point, \texttt{r4-r7} are scratch registers; we use
-        them to store the syscall arguments from the user stack, starting at the
-        address currently in \texttt{r1},}
-    \item \textit{Copy the saved \texttt{sp} into \texttt{r0} to return,}
-    \item \textit{Mask \texttt{cpsr} to switch to supervisor mode,}
-    \item \textit{Save the syscall arguments in a kernel data structure (the
-        address is written in code space at startup),}
-    \item \textit{Copy the \texttt{spsr} into \texttt{r1} to return it}
-    \item \textit{Restore \texttt{r4-r12, lr} from the kernel's stack, but place
-        \texttt{lr} in the \texttt{pc} to return from  \texttt{asm\_EnterTask}.}
+	\item \textit{Copy into \texttt{r3}, the value of the current link register,
+		which is the saved stack pointer at the time of the \texttt{swi},}
+	\item \textit{Mask \texttt{cpsr} to switch to system mode (this gives us
+		access to $\texttt{sp}_\texttt{sys}$)}
+	\item \textit{Copy \texttt{sp}$_\texttt{sys}$ into \texttt{r1} as to save
+		it's value before by the subsequent pushes,}
+	\item \textit{Store $\texttt{r4-r12, lr}_\texttt{sys}$ on the user space
+		stack,}
+	\item \textit{Store \texttt{r3}, and hence the saved \texttt{pc}, on the
+		user's stack,}
+	\item \textit{At this point, \texttt{r4-r7} are scratch registers; we use
+		them to store the syscall arguments from the user stack, starting at the
+		address currently in \texttt{r1},}
+	\item \textit{Copy the saved \texttt{sp} into \texttt{r0} to return,}
+	\item \textit{Mask \texttt{cpsr} to switch to supervisor mode,}
+	\item \textit{Save the syscall arguments in a kernel data structure (the
+		address is written in code space at startup),}
+	\item \textit{Copy the \texttt{spsr} into \texttt{r1} to return it}
+	\item \textit{Restore \texttt{r4-r12, lr} from the kernel's stack, but place
+		\texttt{lr} in the \texttt{pc} to return from  \texttt{asm\_EnterTask}.}
 \end{enumerate}
 
 We switch from working in user memory to kernel memory at step 10. Once again,
@@ -183,16 +183,16 @@ task's rescheduling is:
 \begin{verbatim}
 int irrelevant = 1;
 while (irrelevant) {
-    struct TaskDescriptor *ret = state->exhausted[0];
-    if (ret) {
-        state->exhausted[0] = ret->next;
+	struct TaskDescriptor *ret = state->exhausted[0];
+	if (ret) {
+		state->exhausted[0] = ret->next;
 
-        if (ret->priority > 0) {
-            ret->next = *state->exhausted;
-            *state->exhausted = ret;
-            return ret;
-        }
-    }
+		if (ret->priority > 0) {
+			ret->next = *state->exhausted;
+			*state->exhausted = ret;
+			return ret;
+		}
+	}
 }
 \end{verbatim}
 
@@ -242,7 +242,7 @@ TID: 5  PID: 1
 
 The explanation is as follows:
 
-    The user task (id 1) calls create on the two low priority tasks (here 4 and
+	The user task (id 1) calls create on the two low priority tasks (here 4 and
 5).  Since these tasks are lower priority than it, they don't get rescheduled
 and the initial task runs again.  Now it calls create to create a high priority
 task (here 6).  Since this task is a higher priority than it, it immediately

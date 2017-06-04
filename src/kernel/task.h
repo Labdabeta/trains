@@ -2,6 +2,7 @@
 #define TASK_H
 
 #include "buffer.h"
+#include "asm.h"
 
 #define NUM_SUPPORTED_TASKS 86
 #define NUM_GIANT_TASKS 4 /* 1 is kernel */
@@ -30,13 +31,13 @@ struct TaskFrame {
 
 typedef enum TaskState {
 	STATE_ACTIVE = 0,
-	STATE_ZOMBIE,
+	STATE_ZOMBIE = 1,
 	STATE_SEND_BLOCKED,
 	STATE_RECV_BLOCKED,
 	STATE_REPL_BLOCKED,
-  STATE_SHARE_BLOCKED,
-  STATE_OBTAIN_BLOCKED,
-  STATE_RESPOND_BLOCKED,
+	STATE_SHARE_BLOCKED,
+	STATE_OBTAIN_BLOCKED,
+	STATE_RESPOND_BLOCKED,
 	STATE_EVENT_BLOCKED
 } TaskState;
 
@@ -50,9 +51,8 @@ typedef struct TaskDescriptor {
 	struct TaskFrame *data;
 
 	/* Scheduler */
-	struct TaskDescriptor *next;
-	int priority; /* -prio = blocked, NUM_PRIORITIES = zombied */
-    int isin; /* Is this task anywhere in the scheduler, or not? */
+	struct TaskDescriptor *next; /* Set to "1" if 'real' blocked. */
+	int priority; /* -1 == dead */
 
 	/* Hierarchy */
 	struct TaskDescriptor *parent;
@@ -61,10 +61,10 @@ typedef struct TaskDescriptor {
 	struct TaskDescriptor *recvQueueHead;
 	struct TaskDescriptor *recvQueueTail;
 	struct TaskDescriptor *nextRecv;
-    struct TaskDescriptor *obtQueueHead;
-    struct TaskDescriptor *obtQueueTail;
-    struct TaskDescriptor *nextObt;
-    void *share[2]; /* { normal, reply/extra } */
+	struct TaskDescriptor *obtQueueHead;
+	struct TaskDescriptor *obtQueueTail;
+	struct TaskDescriptor *nextObt;
+	void *share[2]; /* { normal, reply/extra } */
 	struct Buffer *buf[2]; /* { normal, reply/extra } */
 	TaskState state;
 } *TD_ptr;
@@ -99,9 +99,9 @@ void activateTask(struct TaskDescriptor *td, void (*entry)());
  */
 static inline void enterTask(struct TaskDescriptor *td)
 {
-    extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
+	extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
 	td->data = (struct TaskFrame*)asm_EnterTask((struct TaskFrame*)td->data, td->cpsr, td->rval);
-	asm ("mov %0, r1" : "=r"(td->cpsr));
+	ASM ("mov %0, r1" : "=r"(td->cpsr));
 }
 
 #endif /* TASK_H */

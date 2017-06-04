@@ -6,7 +6,7 @@
 #include "tasks/tasks.h"
 
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
-extern void asm_SetupTrap(void *one, void *two);
+extern void asm_SetupTrap(void *one, void *two, void *three);
 
 int newTID(struct KernelData *data, int size)
 {
@@ -27,25 +27,26 @@ int newTID(struct KernelData *data, int size)
 	return -1;
 }
 
-static struct RunQueue *global_sheduler;
-static struct TaskDescriptor *global_dispatcher;
+struct Scheduler *global_scheduler;
+struct TaskDescriptor *global_dispatcher;
 
 static void EnterHWI(void) __attribute__((interrupt("IRQ")));
 static void EnterHWI(void)
 {
 	volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
 	*tclr = 0;
-	unblockTask(global_sheduler, global_dispatcher);
+	unblockTask(global_scheduler, global_dispatcher);
 }
 
 int main(int argc, char *argv[])
 {
+	int HWIstackspace[20];
 	struct KernelData data;
 	struct TaskDescriptor *active;
 
 	init_debugio();
 	initScheduler(&data.scheduler);
-	global_sheduler = &data.scheduler;
+	global_scheduler = &data.scheduler;
 
 	setupTaskArray(data.tasks);
 	data.tasks[0].stack = &data;
@@ -53,11 +54,12 @@ int main(int argc, char *argv[])
 
 	/* Load first task. */
 	data.tasks[1].priority = 0;
+	data.tasks[1].state = STATE_ACTIVE;
 	activateTask(&data.tasks[1], fn_ptr(main_task));
 	scheduleTask(&data.scheduler, &data.tasks[1]);
 
 	global_dispatcher = &data.tasks[18];
-	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI));
+	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI), &HWIstackspace[19]);
 	setupTimer();
 
 	while ((active = reschedule(&data.scheduler))) {
