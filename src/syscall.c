@@ -155,14 +155,12 @@ int Time(int tid){
 	return ret;
 }
 
-static inline void DelayCommon(int tid, char prefix, int arg)
+static inline void DelayCommon(int tid, char code, int arg)
 {
-	char msg[2];
-	msg[0] = prefix;
-	msg[1] = arg;
-	//((int *) msg)[0] = arg;
-	//msg[4] = prefix;
-	Send(tid, msg, 2, 0, 0);
+	struct intandflag msg;
+	msg.val = arg;
+	msg.code = code;
+	Send(tid, (void *)&msg, sizeof(struct intandflag), 0, 0);
 }
 
 void Delay(int tid, int ticks){

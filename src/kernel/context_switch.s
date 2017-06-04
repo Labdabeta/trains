@@ -8,12 +8,22 @@
 asm_SetupTrap:
 	str r0, arg_pointer @ Save the argument in the arg pointer
 
-	adr r0, asm_EnterKernel @ Save the swi callback in r0
-	mov r2, #0x28 @ The trap table location
-	str r0, [r2] @ Save the callback in the trap table
+	mrs r3, cpsr @Switch to HWI mode to set sp
+	eor r3, r3, #1
+	msr cpsr_c, r3
 
-	mov r2, #0x38 @ The trap table location
-	str r1, [r2] @ Save the callback in the trap table
+	mov sp, r2
+
+	mrs r3, cpsr @Back to system mode
+	orr r3, r3, #1
+	msr cpsr_c, r3
+
+	adr r0, asm_EnterKernel @ Save the swi callback in r0
+	mov r3, #0x28 @ The trap table location
+	str r0, [r3] @ Save the callback in the trap table
+
+	mov r3, #0x38 @ The trap table location
+	str r1, [r3] @ Save the callback in the trap table
 
 	mov pc, lr @ return
 

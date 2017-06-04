@@ -6,7 +6,7 @@
 #include "tasks/tasks.h"
 
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
-extern void asm_SetupTrap(void *one, void *two);
+extern void asm_SetupTrap(void *one, void *two, void *three);
 
 int newTID(struct KernelData *data, int size)
 {
@@ -40,6 +40,7 @@ void EnterHWI(void)
 
 int main(int argc, char *argv[])
 {
+	int HWIstackspace[20];
 	struct KernelData data;
 	struct TaskDescriptor *active;
 
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
 	scheduleTask(&data.scheduler, &data.tasks[1]);
 
 	global_dispatcher = &data.tasks[18];
-	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI));
+	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI), &HWIstackspace[19]);
 	setupTimer();
 
 	while ((active = reschedule(&data.scheduler))) {
