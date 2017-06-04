@@ -60,10 +60,10 @@ typedef struct TaskDescriptor {
 	struct TaskDescriptor *recvQueueHead;
 	struct TaskDescriptor *recvQueueTail;
 	struct TaskDescriptor *nextRecv;
-    struct TaskDescriptor *obtQueueHead;
-    struct TaskDescriptor *obtQueueTail;
-    struct TaskDescriptor *nextObt;
-    void *share[2]; /* { normal, reply/extra } */
+	struct TaskDescriptor *obtQueueHead;
+	struct TaskDescriptor *obtQueueTail;
+	struct TaskDescriptor *nextObt;
+	void *share[2]; /* { normal, reply/extra } */
 	struct Buffer *buf[2]; /* { normal, reply/extra } */
 	TaskState state;
 } *TD_ptr;
@@ -98,7 +98,7 @@ void activateTask(struct TaskDescriptor *td, void (*entry)());
  */
 static inline void enterTask(struct TaskDescriptor *td)
 {
-    extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
+	extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
 	td->data = (struct TaskFrame*)asm_EnterTask((struct TaskFrame*)td->data, td->cpsr, td->rval);
 	asm ("mov %0, r1" : "=r"(td->cpsr));
 }

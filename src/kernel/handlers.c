@@ -67,28 +67,28 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 
 static inline int handleShare(struct KernelData *data, struct TaskDescriptor *active)
 {
-    int tid = data->argv[0];
-    void *msg = (void*)data->argv[1];
-    void **rpl = (void**)data->argv[2];
-    struct TaskDescriptor *target = 0;
+	int tid = data->argv[0];
+	void *msg = (void*)data->argv[1];
+	void **rpl = (void**)data->argv[2];
+	struct TaskDescriptor *target = 0;
 
-    active->share[0] = msg;
-    active->share[1] = rpl;
+	active->share[0] = msg;
+	active->share[1] = rpl;
 
-    target = &data->tasks[tid];
-    active->nextObt = 0;
-    if (target->obtQueueTail)
-        target->obtQueueTail->nextObt = active;
-    if (!target->obtQueueHead)
-        target->obtQueueHead = active;
-    target->obtQueueTail = active;
+	target = &data->tasks[tid];
+	active->nextObt = 0;
+	if (target->obtQueueTail)
+		target->obtQueueTail->nextObt = active;
+	if (!target->obtQueueHead)
+		target->obtQueueHead = active;
+	target->obtQueueTail = active;
 
-    unblockTask(&data->scheduler, target);
+	unblockTask(&data->scheduler, target);
 
-    /* Set ourselves up for blocking. */
-    active->state = STATE_SHARE_BLOCKED;
+	/* Set ourselves up for blocking. */
+	active->state = STATE_SHARE_BLOCKED;
 
-    return 0;
+	return 0;
 }
 
 static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *active)
@@ -102,7 +102,7 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 		*tid = sender->tid;
 		sender->state = STATE_REPL_BLOCKED;
 		/* Don't awaken sender yet, they still need their reply. */
-        if (active->recvQueueTail == active->recvQueueHead) active->recvQueueTail = 0;
+		if (active->recvQueueTail == active->recvQueueHead) active->recvQueueTail = 0;
 		active->recvQueueHead = sender->nextRecv;
 
 		return 1;
@@ -114,23 +114,23 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 
 static inline int handleObtain(struct KernelData *data, struct TaskDescriptor *active)
 {
-    int *tid = (int*)data->argv[0];
-    void **ret = (void**)data->argv[1];
+	int *tid = (int*)data->argv[0];
+	void **ret = (void**)data->argv[1];
 
-    if (active->obtQueueHead) {
-        struct TaskDescriptor *sender = active->obtQueueHead;
-        *ret = sender->share[0];
-        *tid = sender->tid;
-        sender->state = STATE_RESPOND_BLOCKED;
-        /* Don't awaken sender yet, they still need their reply. */
-        if (active->obtQueueTail == active->obtQueueHead) active->obtQueueTail = 0;
-        active->obtQueueHead = sender->nextObt;
+	if (active->obtQueueHead) {
+		struct TaskDescriptor *sender = active->obtQueueHead;
+		*ret = sender->share[0];
+		*tid = sender->tid;
+		sender->state = STATE_RESPOND_BLOCKED;
+		/* Don't awaken sender yet, they still need their reply. */
+		if (active->obtQueueTail == active->obtQueueHead) active->obtQueueTail = 0;
+		active->obtQueueHead = sender->nextObt;
 
-        return 1;
-    } else {
-        active->state = STATE_OBTAIN_BLOCKED;
-        return 0;
-    }
+		return 1;
+	} else {
+		active->state = STATE_OBTAIN_BLOCKED;
+		return 0;
+	}
 }
 
 static inline int handleReply(struct KernelData *data, struct TaskDescriptor *active)
@@ -161,15 +161,15 @@ static inline int handleReply(struct KernelData *data, struct TaskDescriptor *ac
 
 static inline int handleRespond(struct KernelData *data, struct TaskDescriptor *active)
 {
-    int tid = data->argv[0];
-    void *ret = (void*)data->argv[1];
+	int tid = data->argv[0];
+	void *ret = (void*)data->argv[1];
 
-    struct TaskDescriptor *target = &data->tasks[tid];
+	struct TaskDescriptor *target = &data->tasks[tid];
 
-    target->share[1] = ret;
-    unblockTask(&data->scheduler, target);
+	target->share[1] = ret;
+	unblockTask(&data->scheduler, target);
 
-    return 0;
+	return 0;
 }
 
 int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
@@ -196,12 +196,12 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 			return handleReceive(data, active);
 		case CODE_REPLY:
 			return handleReply(data, active);
-    case CODE_SHARE:
-        return handleShare(data, active);
-    case CODE_OBTAIN:
-        return handleObtain(data, active);
-    case CODE_RESPOND:
-        return handleRespond(data, active);
+	case CODE_SHARE:
+		return handleShare(data, active);
+	case CODE_OBTAIN:
+		return handleObtain(data, active);
+	case CODE_RESPOND:
+		return handleRespond(data, active);
 		case CODE_AWAIT:
 			active->state = STATE_EVENT_BLOCKED;
 			return 0;

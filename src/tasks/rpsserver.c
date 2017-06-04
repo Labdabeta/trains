@@ -41,8 +41,8 @@ void rps_server()
 	char msg[10];
 	char reply;
 
-    tid1 = 0;
-    tid2 = 0;
+	tid1 = 0;
+	tid2 = 0;
 
 	char results[9];
 	// 0 -r ; 1 -p; 2 -s;
@@ -56,7 +56,7 @@ void rps_server()
 	results[7] = '1';
 	results[8] = 't';
 
-    RegisterAs("RPS");
+	RegisterAs("RPS");
 
 	while(1){
 		err = Receive(&tid, msg, 2);
@@ -92,13 +92,13 @@ void rps_server()
 			break;
 
 			case 'q':
-                DEBUG_PRINT("QUIT");
+				DEBUG_PRINT("QUIT");
 				if(tid == tid1){
 					tid1 = 0;
 				} else{
 					tid2 = 0;
 				}
-                Reply(tid, 0, 0);
+				Reply(tid, 0, 0);
 			break;
 		}
 	}
