@@ -1,9 +1,9 @@
 .PHONY: clean default all debug prod push report small prodebug
 .SUFFIXES:
 
-CC=res/bin/gcc --prefix=res/4.0.2/
-AS=res/bin/as
-LD=res/bin/ld
+CC=res/bin/arm-none-eabi-gcc --prefix=res/6.3.1/
+AS=res/bin/arm-none-eabi-as
+LD=res/bin/arm-none-eabi-ld
 
 LIBS=-Lres/lib
 CLIBS=-lgcc

@@ -21,9 +21,9 @@ int debugio_getc(void)
 	return com->data;
 }
 
-void debugio_putstr(char *str)
+void debugio_putstr(const char *str)
 {
-	char *c;
+	const char *c;
 	for (c = str; *c; c++) debugio_putc(*c);
 }
 

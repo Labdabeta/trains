@@ -6,7 +6,7 @@ void init_debugio(void);
 
 void debugio_putc(char c);
 
-void debugio_putstr(char *str);
+void debugio_putstr(const char *str);
 
 void debugio_putint_decimal(int x);
 
