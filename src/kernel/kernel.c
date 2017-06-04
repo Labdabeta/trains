@@ -35,8 +35,7 @@ void EnterHWI(void)
 {
 	volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
 	*tclr = 0;
-	if(global_dispatcher->state == STATE_EVENT_BLOCKED)
-		unblockTask(global_sheduler, global_dispatcher);
+	unblockTask(global_sheduler, global_dispatcher);
 }
 
 int main(int argc, char *argv[])
@@ -57,9 +56,9 @@ int main(int argc, char *argv[])
 	activateTask(&data.tasks[1], fn_ptr(main_task));
 	scheduleTask(&data.scheduler, &data.tasks[1]);
 
-	global_dispatcher = &data.tasks[72];
+	global_dispatcher = &data.tasks[18];
 	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI));
-	//setupTimer();
+	setupTimer();
 
 	while ((active = reschedule(&data.scheduler))) {
 		enterTask(active);
