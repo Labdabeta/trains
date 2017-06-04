@@ -49,24 +49,25 @@ static inline void scheduleTask(struct Scheduler *state, struct TaskDescriptor *
  */
 static inline struct TaskDescriptor *reschedule(struct Scheduler *state)
 {
-	struct RunQueue *initial = state->active;
-	while (!state->active->head) {
-		state->active = state->active->queues[1];
-		if (state->active == initial)
-			return 0; /* No tasks found. */
-	}
+    struct TaskDescriptor *ret;
+    struct RunQueue *initial = state->active;
+    for (ever) {
+        while (!state->active->head) {
+            state->active = state->active->queues[1];
+            if (state->active == initial)
+                return 0; /* No tasks found. */
+        }
+        ret = state->active->head;
+        state->active->head = state->active->head->next;
 
-	struct TaskDescriptor *ret = state->active->head;
-	state->active->head = state->active->head->next;
-
-	/* Check if we need to block the task. */
-	if (ret->state) {
-		ret->next = (void*)1;
-		return reschedule(state);
-	}
-
-	scheduleTask(state, ret);
-	return ret;
+        /* Check if we need to block the task. */
+        if (ret->state) {
+            ret->next = (void*)1;
+        } else {
+            scheduleTask(state,ret);
+            return ret;
+        }
+    }
 }
 
 /** Unblock the given task
