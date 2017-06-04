@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 
 	/* Load first task. */
 	data.tasks[1].priority = 0;
+	data.tasks[1].state = STATE_ACTIVE;
 	activateTask(&data.tasks[1], fn_ptr(main_task));
 	scheduleTask(&data.scheduler, &data.tasks[1]);
 

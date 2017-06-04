@@ -19,6 +19,7 @@ static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *a
 		struct TaskDescriptor *newtask = &data->tasks[newid];
 		newtask->priority = prio;
 		newtask->parent = active;
+		newtask->state = STATE_ACTIVE;
 		activateTask(newtask, (void*)code);
 
 		scheduleTask(&data->scheduler, newtask);
@@ -176,6 +177,7 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 	switch (data->fn) {
 		case CODE_EXIT:
 			active->state = STATE_ZOMBIE;
+			active->priority = -1;
 			return 0;
 		case CODE_MY_ID:
 			return active->tid;

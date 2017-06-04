@@ -51,7 +51,7 @@ typedef struct TaskDescriptor {
 
 	/* Scheduler */
 	struct TaskDescriptor *next; /* Set to "1" if 'real' blocked. */
-	int priority;
+	int priority; /* -1 == dead */
 
 	/* Hierarchy */
 	struct TaskDescriptor *parent;

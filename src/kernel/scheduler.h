@@ -14,7 +14,7 @@ struct RunQueue {
 };
 
 struct Scheduler {
-	struct RunQueue *queues[NUM_PRIORITIES];
+	struct RunQueue queues[NUM_PRIORITIES];
 	struct RunQueue *active; /* Points to one of the queues entries. */
 };
 
@@ -57,6 +57,7 @@ static inline struct TaskDescriptor *reschedule(struct Scheduler *state)
 	}
 
 	struct TaskDescriptor *ret = state->active->head;
+	state->active->head = state->active->head->next;
 
 	/* Check if we need to block the task. */
 	if (ret->state) {
@@ -64,7 +65,6 @@ static inline struct TaskDescriptor *reschedule(struct Scheduler *state)
 		return reschedule(state);
 	}
 
-	state->active->head = state->active->head->next;
 	scheduleTask(state, ret);
 	return ret;
 }
