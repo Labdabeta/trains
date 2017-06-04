@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./res/bin/objdump -D kernel.elf
+./res/bin/arm-none-eabi-objdump -D kernel.elf

@@ -1,7 +1,7 @@
 .PHONY: clean default all debug prod push report small prodebug
 .SUFFIXES:
 
-CC=res/bin/arm-none-eabi-gcc --prefix=res/6.3.1/
+CC=res/bin/arm-none-eabi-gcc --prefix=./res/6.3.1
 AS=res/bin/arm-none-eabi-as
 LD=res/bin/arm-none-eabi-ld
 
@@ -9,7 +9,7 @@ LIBS=-Lres/lib
 CLIBS=-lgcc
 
 LDSCRIPT=load.ld
-CPU=-mcpu=arm920t
+CPU=-mcpu=arm920t -mtune=arm920t
 
 prod:CFLAGS+=-O2 -Werror
 prodebug:CFLAGS+=-O2 -DDEBUG_MODE
@@ -17,7 +17,7 @@ small:CFLAGS+=-Os -Werror
 debug:CFLAGS+=-g -DDEBUG_MODE
 
 CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/
-ASFLAGS=-mcpu=arm920t -mapcs-32
+ASFLAGS=-mcpu=arm920t -mapcs-32 -march=armv4t
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 
 TARGETS=kernel.elf

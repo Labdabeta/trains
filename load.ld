@@ -20,6 +20,7 @@ SECTIONS
 	/* Instruction cache sensitive code. */
 	good_text : {
 		src/kernel/kernel.o(.text)
+		src/kernel/kernel.o(.text.startup)
 		src/kernel/scheduler.o(.text)
 		src/kernel/context_switch.o(.text)
 		src/kernel/handlers.o(.text)

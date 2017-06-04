@@ -2,6 +2,7 @@
 #define TASK_H
 
 #include "buffer.h"
+#include "asm.h"
 
 #define NUM_SUPPORTED_TASKS 86
 #define NUM_GIANT_TASKS 4 /* 1 is kernel */
@@ -100,7 +101,7 @@ static inline void enterTask(struct TaskDescriptor *td)
 {
 	extern int asm_EnterTask(struct TaskFrame *sp, int cpsr, int rval);
 	td->data = (struct TaskFrame*)asm_EnterTask((struct TaskFrame*)td->data, td->cpsr, td->rval);
-	asm ("mov %0, r1" : "=r"(td->cpsr));
+	ASM ("mov %0, r1" : "=r"(td->cpsr));
 }
 
 #endif /* TASK_H */

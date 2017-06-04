@@ -44,6 +44,8 @@ int main(int argc, char *argv[])
 	struct TaskDescriptor *active;
 
 	init_debugio();
+    DEBUG_DUMP_ADR(&CODE_BASE);
+    DEBUG_DUMP_ADR(main);
 	initScheduler(&data.scheduler);
 	global_sheduler = &data.scheduler;
 
