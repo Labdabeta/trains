@@ -145,3 +145,28 @@ int WhoIs(char *name){
 int AwaitEvent(){
 	return asm_callSystemInterrupt(0, 0, 0, CODE_AWAIT);
 }
+
+int Time(int tid){
+	int ret;
+	char msg = 't';
+	Send(tid, &msg, 1, (char*) &ret, 4);
+	return ret;
+}
+
+static inline void DelayCommon(int tid, char prefix, int arg)
+{
+	char msg[2];
+	msg[0] = prefix;
+	msg[1] = arg;
+	//((int *) msg)[0] = arg;
+	//msg[4] = prefix;
+	Send(tid, msg, 2, 0, 0);
+}
+
+void Delay(int tid, int ticks){
+	DelayCommon(tid, 'd', ticks);
+}
+
+void DelayUntil(int tid, int ticks){
+	DelayCommon(tid, 'u', ticks);
+}
