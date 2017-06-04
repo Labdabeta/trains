@@ -2,6 +2,7 @@
 #include "debugio.h"
 
 void idle(){
-  while(1)
-    Pass();
+	for (ever) {
+		Pass();
+	}
 }

@@ -67,11 +67,6 @@ SECTIONS
 		_DataEnd = . ;  /* Save end of data */
 	} >ram /* Put it in ram */
 
-	/* Anything else. */
-	unknown : {
-		*(*)
-	} >ram
-
 	_TopOfProgram = . ;
 }
 

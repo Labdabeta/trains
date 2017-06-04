@@ -67,6 +67,9 @@ typedef struct TaskDescriptor {
 	void *share[2]; /* { normal, reply/extra } */
 	struct Buffer *buf[2]; /* { normal, reply/extra } */
 	TaskState state;
+
+	/* Runtime */
+	unsigned long long int ticks; /* t4 ticks spent in this task. */
 } *TD_ptr;
 
 /** Initializes an entire task array to point to the correct addresses.

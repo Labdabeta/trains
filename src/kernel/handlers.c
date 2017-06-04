@@ -20,9 +20,11 @@ static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *a
 		newtask->priority = prio;
 		newtask->parent = active;
 		newtask->state = STATE_ACTIVE;
+		newtask->ticks = 0;
 		activateTask(newtask, (void*)code);
 
 		scheduleTask(&data->scheduler, newtask);
+		data->alive++;
 	}
 
 	/* convert -1 to -2 */
@@ -173,12 +175,29 @@ static inline int handleRespond(struct KernelData *data, struct TaskDescriptor *
 	return 0;
 }
 
+static inline int handleUtime(struct KernelData *data, struct TaskDescriptor *active)
+{
+	unsigned long long int *ret = (unsigned long long int*)data->argv[0];
+	int which = data->argv[1];
+
+	switch (which) {
+		case 0: *ret = active->ticks; break;
+		case 1: *ret = data->usertime; break;
+		case 2: *ret = data->kerntime; break;
+		case 3: *ret = data->handtime; break;
+		case 4: *ret = data->inittime; break;
+		default: *ret = 0;
+	}
+	return 0;
+}
+
 int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 {
 	switch (data->fn) {
 		case CODE_EXIT:
 			active->state = STATE_ZOMBIE;
 			active->priority = -1;
+			data->alive--;
 			return 0;
 		case CODE_MY_ID:
 			return active->tid;
@@ -203,11 +222,17 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 		return handleObtain(data, active);
 	case CODE_RESPOND:
 		return handleRespond(data, active);
-		case CODE_AWAIT:
-			active->state = STATE_EVENT_BLOCKED;
-			return 0;
-		default:
-			debugio_putstr("\n\rInvalid syscall...\n\r");
-			return -1;
+	case CODE_AWAIT:
+		active->state = STATE_EVENT_BLOCKED;
+		return 0;
+	case CODE_UTIME:
+		return handleUtime(data, active);
+	case CODE_QUIT:
+		data->alive = 0;
+		return 0;
+	default:
+		debugio_putstr("\n\rInvalid syscall...\n\r");
+		return -1;
+
 	}
 }

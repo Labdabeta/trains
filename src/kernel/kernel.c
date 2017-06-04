@@ -5,6 +5,12 @@
 #include "syscall.h"
 #include "tasks/tasks.h"
 
+#ifdef DEBUG_MODE
+#define HWI_STACK_SIZE 100
+#else
+#define HWI_STACK_SIZE 20
+#endif
+
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
 extern void asm_SetupTrap(void *one, void *two, void *three);
 
@@ -39,11 +45,33 @@ void EnterHWI(void)
 		unblockTask(global_scheduler, global_dispatcher);
 }
 
+static void enableT4(void)
+{
+    unsigned long long int *t4 = (unsigned long long int*)0x80810060;
+
+	*t4 &= 0UL;
+    *t4 |= 0x10000000000UL;
+}
+
 int main(int argc, char *argv[])
 {
-	int HWIstackspace[20];
+	int HWIstackspace[HWI_STACK_SIZE];
 	struct KernelData data;
 	struct TaskDescriptor *active;
+
+	data.inittime = 0;
+	data.lasttick = 0;
+	data.kerntime = 0;
+	data.usertime = 0;
+	data.handtime = 0;
+
+#ifdef DEBUG_MODE
+    enableT4();
+    data.lasttick = t4t();
+#endif
+
+	/* First user task. */
+	data.alive = 1;
 
 	init_debugio();
 	initScheduler(&data.scheduler);
@@ -59,15 +87,83 @@ int main(int argc, char *argv[])
 	activateTask(&data.tasks[1], fn_ptr(main_task));
 	scheduleTask(&data.scheduler, &data.tasks[1]);
 
-	global_dispatcher = &data.tasks[18];
-	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI), &HWIstackspace[19]);
+	/* Load idle task. */
+	data.tasks[NUM_SUPPORTED_TASKS-1].priority = NUM_PRIORITIES+1; /* never gets scheduled anyways. */
+	activateTask(&data.tasks[NUM_SUPPORTED_TASKS-1], fn_ptr(idle));
+
+	/* Load the dispatcher. */
+	global_dispatcher = &data.tasks[18]; /* Magic number: tid */
+	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI), &HWIstackspace[HWI_STACK_SIZE-1]);
 	setupTimer();
 
-	while ((active = reschedule(&data.scheduler))) {
-		enterTask(active);
+#ifdef DEBUG_MODE
+	data.inittime = data.lasttick;
+	data.lasttick = t4t();
+	data.inittime = data.lasttick - data.inittime;
+#endif
 
-		active->rval = handleSyscall(&data, active);
+	while (data.alive > 0) {
+		/* Process active tasks until there are none. */
+		while ((active = reschedule(&data.scheduler))) {
+#ifdef DEBUG_MODE
+			data.tmp = t4t();
+			data.kerntime += data.tmp - data.lasttick;
+			data.lasttick = data.tmp;
+#endif
+
+			enterTask(active);
+
+#ifdef DEBUG_MODE
+			data.tmp = t4t();
+			data.usertime += data.tmp - data.lasttick;
+			active->ticks += data.tmp - data.lasttick;
+			data.lasttick = data.tmp;
+#endif
+
+			active->rval = handleSyscall(&data, active);
+
+#ifdef DEBUG_MODE
+			data.tmp = t4t();
+			data.handtime += data.tmp - data.lasttick;
+			data.lasttick = data.tmp;
+#endif
+		}
+
+#ifdef DEBUG_MODE
+		/* Add the last kernel's time to the idle task. */
+		data.tmp = t4t();
+		data.tasks[NUM_SUPPORTED_TASKS-1].ticks += data.tmp - data.lasttick;
+		data.lasttick = data.tmp;
+#endif
+		enterTask(&data.tasks[NUM_SUPPORTED_TASKS-1]);
 	}
+
+#ifdef DEBUG_MODE
+	debugio_putstr("\n\r");
+	debugio_putstr("Kernel time: ");
+	debugio_putuint_decimal((unsigned int)(data.kerntime>>32));
+	debugio_putuint_decimal((unsigned int)data.kerntime);
+	debugio_putstr("\n\r");
+	debugio_putstr("Handler time: ");
+	debugio_putuint_decimal((unsigned int)(data.handtime>>32));
+	debugio_putuint_decimal((unsigned int)data.handtime);
+	debugio_putstr("\n\r");
+	debugio_putstr("User time: ");
+	debugio_putuint_decimal((unsigned int)(data.usertime>>32));
+	debugio_putuint_decimal((unsigned int)data.usertime);
+	debugio_putstr("\n\r");
+	debugio_putstr("Idle time: ");
+	debugio_putuint_decimal((unsigned int)(data.tasks[NUM_SUPPORTED_TASKS-1].ticks>>32));
+	debugio_putuint_decimal((unsigned int)data.tasks[NUM_SUPPORTED_TASKS-1].ticks);
+	debugio_putstr("\n\r");
+	debugio_putstr("Total time: ");
+	debugio_putuint_decimal((unsigned int)(data.lasttick>>32));
+	debugio_putuint_decimal((unsigned int)data.lasttick);
+	debugio_putstr("\n\r");
+	debugio_putstr("Percent idle: ");
+	debugio_putint_decimal((data.tasks[NUM_SUPPORTED_TASKS-1].ticks * 100) / data.lasttick);
+	debugio_putstr("%\n\r");
+#endif
 
 	return 0;
 }

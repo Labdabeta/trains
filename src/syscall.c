@@ -19,9 +19,7 @@ int CreateSize(int priority, void (*code)(), TaskSize size)
 
 int Create(int priority, void (*code)())
 {
-	int ret = CreateSize(priority, code, TASK_SIZE_NORMAL);
-	DEBUG_DUMP_VAL(ret);
-	return ret;
+	return CreateSize(priority, code, TASK_SIZE_NORMAL);
 }
 
 int MyTid(void)
@@ -169,4 +167,16 @@ void Delay(int tid, int ticks){
 
 void DelayUntil(int tid, int ticks){
 	DelayCommon(tid, 'u', ticks);
+}
+
+unsigned long long int UTime(KernelTimer kt)
+{
+	unsigned long long int ret = 0;
+	(void)asm_callSystemInterrupt((int)&ret, (int)kt, 0, CODE_UTIME);
+	return ret;
+}
+
+void KQuit(void)
+{
+	(void)asm_callSystemInterrupt(0,0,0,CODE_QUIT);
 }

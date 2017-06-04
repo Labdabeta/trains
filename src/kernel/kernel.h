@@ -17,6 +17,12 @@ struct KernelData {
 
 	/* Scheduler */
 	struct Scheduler scheduler;
+
+	/* Timers */
+    unsigned long long int inittime, lasttick, kerntime, usertime, handtime, tmp;
+
+	/* Are we dead yet? */
+	int alive;
 };
 
 /** Returns a new unused task id.
@@ -30,5 +36,16 @@ struct KernelData {
  * \return The new tid or -1 if none were found.
  */
 int newTID(struct KernelData *data, int size);
+
+/** Returns the t4 ticks.
+ *
+ * This returns the number of ticks elapsed on timer 4 since the kernel started.
+ *
+ * \return The number of ticks on t4, might loop!
+ */
+static inline unsigned long long int t4t(void)
+{
+    return (*(unsigned long long int*)0x80810060) & 0xFFFFFFFFFFUL;
+}
 
 #endif /* KERNEL_H */

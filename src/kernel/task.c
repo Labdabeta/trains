@@ -111,6 +111,7 @@ void setupTaskArray(struct TaskDescriptor *ta)
 		ta[i].nextRecv = 0;
 		ta[i].buf[0] = 0;
 		ta[i].buf[1] = 0;
+		ta[i].ticks = 0;
 	}
 }
 

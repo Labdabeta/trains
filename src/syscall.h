@@ -2,8 +2,10 @@
 #define SYSCALL_H
 
 #include "buffer.h"
-#define NAMESERVER_TID 70
+#define NAMESERVER_TID 70 /* Magic number. */
 #define MAX_NAME_LENGTH 32
+
+#define CLOCK_SERVER_NAME "CLOCK"
 
 typedef enum TaskSize {
 	TASK_SIZE_GIANT = 0,
@@ -208,5 +210,29 @@ int Time(int tid);
 void Delay(int tid, int ticks);
 
 void DelayUntil(int tid, int ticks);
+
+typedef enum KernelTimer {
+	KERNEL_TIMER_TASK = 0, /* Ticks spent in your task. */
+	KERNEL_TIMER_USER, /* Ticks spent in userspace. */
+	KERNEL_TIMER_KERN, /* Ticks spent doing kernel stuff. */
+	KERNEL_TIMER_HAND, /* Ticks spent in kernel handlers. */
+	KERNEL_TIMER_INIT, /* Ticks spent in initialization. */
+} KernelTimer;
+
+/* Returns the number of ticks spent in the current task.
+ *
+ * This is based off of timer 4 as maintained by the kernel.
+ *
+ * \param[in] timer            The timer to query.
+ *
+ * \return The number of ticks on the given timer.
+ */
+unsigned long long int UTime(KernelTimer kt);
+
+/* Quit the kernel.
+ *
+ * This literally quits the kernel, good bye.
+ */
+void KQuit(void);
 
 #endif /* SYSCALL_H */
