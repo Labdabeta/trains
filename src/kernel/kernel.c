@@ -27,7 +27,7 @@ int newTID(struct KernelData *data, int size)
 	return -1;
 }
 
-struct RunQueue *global_sheduler;
+struct Scheduler *global_sheduler;
 struct TaskDescriptor *global_dispatcher;
 
 void EnterHWI(void) __attribute__((interrupt("IRQ")));
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
 	global_dispatcher = &data.tasks[18];
 	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI));
-	setupTimer();
+	//setupTimer();
 
 	while ((active = reschedule(&data.scheduler))) {
 		enterTask(active);

@@ -60,7 +60,6 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 
 	/* Set ourselves up for blocking. */
 	active->state = STATE_SEND_BLOCKED;
-	blockTask(&data->scheduler, active);
 
 	return 0;
 }
@@ -87,7 +86,6 @@ static inline int handleShare(struct KernelData *data, struct TaskDescriptor *ac
 
     /* Set ourselves up for blocking. */
     active->state = STATE_SHARE_BLOCKED;
-    blockTask(&data->scheduler, active);
 
     return 0;
 }
@@ -109,7 +107,6 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 		return 1;
 	} else {
 		active->state = STATE_RECV_BLOCKED;
-		blockTask(&data->scheduler, active);
 		return 0;
 	}
 }
@@ -131,7 +128,6 @@ static inline int handleObtain(struct KernelData *data, struct TaskDescriptor *a
         return 1;
     } else {
         active->state = STATE_OBTAIN_BLOCKED;
-        blockTask(&data->scheduler, active);
         return 0;
     }
 }
@@ -179,7 +175,7 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 {
 	switch (data->fn) {
 		case CODE_EXIT:
-			active->priority = NUM_PRIORITIES;
+			active->state = STATE_ZOMBIE;
 			return 0;
 		case CODE_MY_ID:
 			return active->tid;
@@ -206,7 +202,6 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
         return handleRespond(data, active);
 		case CODE_AWAIT:
 			active->state = STATE_EVENT_BLOCKED;
-			blockTask(&data->scheduler, active);
 			return 0;
 		default:
 			debugio_putstr("\n\rInvalid syscall...\n\r");
