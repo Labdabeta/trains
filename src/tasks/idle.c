@@ -2,7 +2,8 @@
 #include "debugio.h"
 
 void idle(){
-  DEBUG_PRINT("Idle enter!");
-  while(1)
-    Pass();
+  int cs_tid = WhoIs("CLOCK");
+  DEBUG_PRINT("Calling Delay!");
+  Delay(cs_tid, 500);
+  DEBUG_PRINT("Returned from delay!");
 }
