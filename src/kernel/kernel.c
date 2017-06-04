@@ -27,11 +27,11 @@ int newTID(struct KernelData *data, int size)
 	return -1;
 }
 
-struct RunQueue *global_sheduler;
-struct TaskDescriptor *global_dispatcher;
+static struct RunQueue *global_sheduler;
+static struct TaskDescriptor *global_dispatcher;
 
-void EnterHWI(void) __attribute__((interrupt("IRQ")));
-void EnterHWI(void)
+static void EnterHWI(void) __attribute__((interrupt("IRQ")));
+static void EnterHWI(void)
 {
 	volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
 	*tclr = 0;
