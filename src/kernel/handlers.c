@@ -221,6 +221,9 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 		return 0;
 	case CODE_UTIME:
 		return handleUtime(data, active);
+	case CODE_SERVICE:
+		data->alive--;
+		return 0;
 	case CODE_QUIT:
 		data->alive = 0;
 		return 0;

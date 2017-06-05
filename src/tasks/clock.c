@@ -6,6 +6,7 @@
 #include "pq.h"
 
 void clock_notifier(){
+	Service();
 	int serv_tid = MyParentTid();
 	while(1){
 		AwaitEvent();
@@ -14,6 +15,7 @@ void clock_notifier(){
 }
 
 void clock_server(){
+	Service();
 	CreateSize(0, clock_notifier, TASK_SIZE_NORMAL);
 	int caller, len, deadline;
 	int ticks = 0;

@@ -12,6 +12,8 @@ void name_server()
 	char reply = 0;
 	int i;
 
+	Service();
+
 	for (i = 0; i < NAMES_CAPACITY; ++i)
 		tids[i] = 0x13;
 

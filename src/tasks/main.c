@@ -34,6 +34,7 @@ void client_task(void)
 
 void main_task(void)
 {
+	Service();
 	CreateSize(0, name_server, TASK_SIZE_TINY);
 	(void)CreateSize(0, clock_server, TASK_SIZE_SMALL);
 	while(WhoIs("CLOCK") < 0)
@@ -62,5 +63,5 @@ void main_task(void)
 		Reply(tid, 0, 0);
 	}
 
-	KQuit();
+	//KQuit();
 }

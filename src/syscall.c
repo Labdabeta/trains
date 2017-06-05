@@ -176,6 +176,11 @@ unsigned long long int UTime(KernelTimer kt)
 	return ret;
 }
 
+void Service(void)
+{
+	(void)asm_callSystemInterrupt(0,0,0,CODE_SERVICE);
+}
+
 void KQuit(void)
 {
 	(void)asm_callSystemInterrupt(0,0,0,CODE_QUIT);

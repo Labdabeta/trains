@@ -229,6 +229,12 @@ typedef enum KernelTimer {
  */
 unsigned long long int UTime(KernelTimer kt);
 
+/* Registers the current task as a service.
+ *
+ * The kernel will exit when only services are still running.
+ */
+void Service(void);
+
 /* Quit the kernel.
  *
  * This literally quits the kernel, good bye.
