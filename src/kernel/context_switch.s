@@ -26,7 +26,7 @@ asm_SetupTrap:
 	str r1, [r3] @ Save the callback in the trap table
 
 	mrc p15, 0, r0, c1, c0, 0
-	orr r0, r0, #0x1000
+	orr r0, r0, #0xd000
 	orr r0, r0, #0x4
 	mcr p15, 0, r0, c1, c0, 0
 
