@@ -25,6 +25,11 @@ asm_SetupTrap:
 	mov r3, #0x38 @ The trap table location
 	str r1, [r3] @ Save the callback in the trap table
 
+	mrc p15, 0, r0, c1, c0, 0
+	orr r0, r0, #0x800
+	orr r0, r0, #0x2
+	mcr p15, 0, r0, c1, c0, 0
+
 	mov pc, lr @ return
 
 arg_pointer:
