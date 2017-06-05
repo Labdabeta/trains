@@ -38,12 +38,10 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 	Buffer *reply = (Buffer*)data->argv[2];
 	struct TaskDescriptor *target = 0;
 
-#ifdef DEBUG_MODE
 	if (tid < 0 ||
 		tid > NUM_SUPPORTED_TASKS ||
 		data->tasks[tid].priority >= NUM_PRIORITIES)
 		return -2;
-#endif
 
 	/* Load our buffers. */
 	active->buf[0] = msg;
@@ -142,19 +140,15 @@ static inline int handleReply(struct KernelData *data, struct TaskDescriptor *ac
 	Buffer *reply = (Buffer*)data->argv[1];
 	struct TaskDescriptor *target;
 
-#ifdef DEBUG_MODE
 	if (tid < 0 ||
 		tid > NUM_SUPPORTED_TASKS ||
 		data->tasks[tid].priority >= NUM_PRIORITIES)
 		return -2;
-#endif
 
 	target = &data->tasks[tid];
 
-#ifdef DEBUG_MODE
 	if (target->state != STATE_REPL_BLOCKED)
 		return -3;
-#endif
 
 	writeBuffer(target->buf[1], reply);
 	unblockTask(&data->scheduler, target);
