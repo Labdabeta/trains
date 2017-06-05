@@ -20,11 +20,12 @@ void main_task(void)
   while(WhoIs("CLOCK") < 0)
     Pass();
   CreateSize(5, idle, TASK_SIZE_TINY);
-  Delay(cs_tid, 100);
+  Delay(cs_tid, 200);
   DEBUG_PRINT("Delay done");
-  Delay(cs_tid, 100);
+	int curtime = Time(cs_tid);
+  DelayUntil(cs_tid, curtime+200);
   DEBUG_PRINT("Delay done");
-  Delay(cs_tid, 100);
+  Delay(cs_tid, 200);
   DEBUG_PRINT("Main exit");
 	Exit();
 }

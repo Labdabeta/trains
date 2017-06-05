@@ -149,10 +149,10 @@ int AwaitEvent(){
 }
 
 int Time(int tid){
-	int ret;
-	char msg = 't';
-	Send(tid, &msg, 1, (char*) &ret, 4);
-	return ret;
+	struct intandflag msg;
+	msg.code = 't';
+	Send(tid, &msg.code, 1, (char*) &msg, sizeof(struct intandflag));
+	return msg.val;
 }
 
 static inline void DelayCommon(int tid, char code, int arg)

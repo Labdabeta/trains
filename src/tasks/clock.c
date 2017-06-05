@@ -28,7 +28,8 @@ void clock_server(){
     len = Receive(&caller, (char *)&msg, sizeof(struct intandflag));
     if(len){
       if(len == 1){
-        Reply(caller, (char*) ticks, sizeof(ticks));
+        msg.val = ticks;
+        Reply(caller, (char*) &msg, sizeof(struct intandflag));
       } else{
         deadline = msg.val;
         if(msg.code == 'd')
