@@ -65,10 +65,8 @@ int main(int argc, char *argv[])
 	data.usertime = 0;
 	data.handtime = 0;
 
-#ifdef DEBUG_MODE
     enableT4();
     data.lasttick = t4t();
-#endif
 
 	/* First user task. */
 	data.alive = 1;
@@ -136,6 +134,15 @@ int main(int argc, char *argv[])
 		data.lasttick = data.tmp;
 #endif
 		enterTask(&data.tasks[NUM_SUPPORTED_TASKS-1]);
+
+		data.tasks[NUM_SUPPORTED_TASKS-1].rval = handleSyscall(&data, &data.tasks[NUM_SUPPORTED_TASKS-1]);
+
+#ifdef DEBUG_MODE
+		/* Add the last kernel's time to the idle task. */
+		data.tmp = t4t();
+		data.tasks[NUM_SUPPORTED_TASKS-1].ticks += data.tmp - data.lasttick;
+		data.lasttick = data.tmp;
+#endif
 	}
 
 #ifdef DEBUG_MODE
@@ -157,13 +164,16 @@ int main(int argc, char *argv[])
 	debugio_putuint_decimal((unsigned int)data.tasks[NUM_SUPPORTED_TASKS-1].ticks);
 	debugio_putstr("\n\r");
 	debugio_putstr("Total time: ");
-	debugio_putuint_decimal((unsigned int)(data.lasttick>>32));
-	debugio_putuint_decimal((unsigned int)data.lasttick);
+	unsigned long long int ttime = data.lasttick - data.inittime;
+	debugio_putuint_decimal((unsigned int)(ttime>>32));
+	debugio_putuint_decimal((unsigned int)ttime);
 	debugio_putstr("\n\r");
 	debugio_putstr("Percent idle: ");
-	debugio_putint_decimal((data.tasks[NUM_SUPPORTED_TASKS-1].ticks * 100) / data.lasttick);
+	debugio_putint_decimal((data.tasks[NUM_SUPPORTED_TASKS-1].ticks * 100) / ttime);
 	debugio_putstr("%\n\r");
 #endif
+
+	cleanupTimer();
 
 	return 0;
 }
