@@ -13,9 +13,9 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 
-\usepackage[margin=0.7in]{geometry}
+\usepackage[margin=0.5in]{geometry}
 
-\title{\vspace{-3em}CS 452 Kernel 3}
+\title{\vspace{-3.5em}CS 452 Kernel 3}
 \author{Louis A. Burke (laburke) and Taras Kolomatski (tkolomat)}
 \date{\vspace{-0.9em}\today}
 
@@ -56,7 +56,8 @@ that is now present, an idle task has also been created.
 notifiers. These tasks spend most of their time event blocked and are directly
 linked to the hardware interrupt handler which reactivates them. This introduces
 a level of separation between hardware interrupts and the tasks that depend on
-them.
+them. Notifiers are by definition tasks which await events by calling the
+\texttt{AwaitEvent} kernel primitive.
 
 A new system call was created in order to facilitate these notifiers and still
 allow the kernel to determine when it is safe to return.
@@ -68,6 +69,23 @@ with another task rather than copying data. This is very beneficial in a few
 cases where read-only data is passed between tasks. While this still incurs a
 cache miss, it does not have to copy the memory which significantly improves
 performance.
+
+\subsection*{Clock}
+
+\textsc{Our} newest notifier is the clock notifier. It consists solely of a call to find
+its parent's id and an infinite loop that waits for the timer interrupt then
+sends to the clock server to communicate that a tick has occurred.
+
+The clock server is responsible for creating the clock notifier and maintaining
+the tick counter. It is also responsible for responding to requests from other
+tasks. To do this, it registers itself with the name server.
+
+Once registered the clock server enters an infinite fetch/decode loop for
+requests. When a time request is made it responds with the ticks counter. When a
+delay or delay until call is made the end-time is calculated and the caller's id
+is inserted into a priority queue. Whenever a tick is reported by the notifier
+the first element in the queue is checked, if it is due then it is responded to
+and the process repeats itself.
 
 \subsection*{Hardware Interrupts}
 
