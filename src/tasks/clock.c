@@ -5,6 +5,8 @@
 #define PQ_CAPACITY 100
 #include "pq.h"
 
+extern struct TaskDescriptor *global_clocknotifier;
+
 void clock_notifier(){
 	Service();
 	int serv_tid = MyParentTid();
@@ -16,7 +18,6 @@ void clock_notifier(){
 
 void clock_server(){
 	Service();
-	CreateSize(0, clock_notifier, TASK_SIZE_NORMAL);
 	int caller, len, deadline;
 	int ticks = 0;
 	RegisterAs("CLOCK");
@@ -25,6 +26,9 @@ void clock_server(){
 	timeheap events;
 	thinit(&events);
 	struct event* top;
+
+	SetGlobalTID(&global_clocknotifier, CreateSize(0, clock_notifier, TASK_SIZE_NORMAL));
+	setupTimer();
 
 	while(1){
 		len = Receive(&caller, (char *)&msg, sizeof(struct intandflag));

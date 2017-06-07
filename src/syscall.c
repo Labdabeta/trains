@@ -161,11 +161,13 @@ static inline void DelayCommon(int tid, char code, int arg)
 	Send(tid, (void *)&msg, sizeof(struct intandflag), 0, 0);
 }
 
-void Delay(int tid, int ticks){
+void Delay(int tid, int ticks)
+{
 	DelayCommon(tid, 'd', ticks);
 }
 
-void DelayUntil(int tid, int ticks){
+void DelayUntil(int tid, int ticks)
+{
 	DelayCommon(tid, 'u', ticks);
 }
 
@@ -174,6 +176,11 @@ unsigned long long int UTime(KernelTimer kt)
 	unsigned long long int ret = 0;
 	(void)asm_callSystemInterrupt((int)&ret, (int)kt, 0, CODE_UTIME);
 	return ret;
+}
+
+void SetGlobalTID(void *global, int tid)
+{
+	(void)asm_callSystemInterrupt((int)global, tid, 0, CODE_SETGLOBALTID);
 }
 
 void Service(void)

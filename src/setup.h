@@ -22,4 +22,11 @@ static inline void cleanupTimer(){
 	*tclr = 0;
 }
 
+static inline void setupCOM2(){
+	volatile int *uctrl = (int *)( UART2_BASE + UART_CTRL_OFFSET);
+	*uctrl |= 1 << 4;
+	volatile int *enable = (int *) ( VIC1_BASE + VIC_ENABLE_OFFSET );
+	*enable |= 1 << 25;
+}
+
 #endif

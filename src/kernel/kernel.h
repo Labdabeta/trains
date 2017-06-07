@@ -48,4 +48,7 @@ static inline unsigned long long int t4t(void)
     return (*(unsigned long long int*)0x80810060) & 0xFFFFFFFFFFUL;
 }
 
+extern struct TaskDescriptor *global_clocknotifier;
+extern struct TaskDescriptor *global_uartnotifier;
+
 #endif /* KERNEL_H */

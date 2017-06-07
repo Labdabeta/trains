@@ -221,6 +221,9 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 		return 0;
 	case CODE_UTIME:
 		return handleUtime(data, active);
+	case CODE_SETGLOBALTID:
+		*((struct TaskDescriptor **) data->argv[0]) = &data->tasks[data->argv[1]];
+		return 0;
 	case CODE_SERVICE:
 		data->alive--;
 		return 0;

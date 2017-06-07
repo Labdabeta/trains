@@ -3,20 +3,20 @@
 
 void init_debugio(void)
 {
-	volatile struct UART *com = (struct UART *)(UART1_BASE);
+	volatile struct UART *com = (struct UART *)(UART2_BASE);
 	com->lcrh &= ~(UART_FIFOEN_MASK);
 }
 
 void debugio_putc(char c)
 {
-	volatile struct UART *com = (struct UART *)(UART1_BASE);
+	volatile struct UART *com = (struct UART *)(UART2_BASE);
 	while (com->flag & UART_TXFULL_MASK);
 	com->data = c;
 }
 
 int debugio_getc(void)
 {
-	volatile struct UART *com = (struct UART *)(UART1_BASE);
+	volatile struct UART *com = (struct UART *)(UART2_BASE);
 	while (!(com->flag & UART_RXFULL_MASK));
 	return com->data;
 }
@@ -102,4 +102,3 @@ void debugio_dump_registers(void)
 	DEBUG_DUMP_REG("lr");
 	DEBUG_DUMP_REG("pc");
 }
-

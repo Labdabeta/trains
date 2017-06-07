@@ -20,6 +20,7 @@ typedef enum SyscallCode {
 	CODE_RESPOND,
 	CODE_AWAIT,
 	CODE_UTIME,
+	CODE_SETGLOBALTID,
 	CODE_SERVICE,
 	CODE_QUIT
 } SyscallCode;

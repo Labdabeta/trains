@@ -229,6 +229,8 @@ typedef enum KernelTimer {
  */
 unsigned long long int UTime(KernelTimer kt);
 
+void SetGlobalTID(void *global, int tid);
+
 /* Registers the current task as a service.
  *
  * The kernel will exit when only services are still running.
