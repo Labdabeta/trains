@@ -22,11 +22,39 @@ static inline void cleanupTimer(){
 	*tclr = 0;
 }
 
-static inline void setupCOM2(){
+static inline void setuprecieve(){
 	volatile int *uctrl = (int *)( UART2_BASE + UART_CTRL_OFFSET);
 	*uctrl |= 1 << 4;
+}
+
+static inline void setuptransmit(){
+	volatile int *uctrl = (int *)( UART2_BASE + UART_CTRL_OFFSET);
+	*uctrl |= 1 << 4;
+}
+
+static inline void transmiton(){
+	volatile int *enable = (int *) ( VIC1_BASE + VIC_ENABLE_OFFSET );
+	*enable |= 1 << 26;
+}
+
+static inline void transmitoff(){
+	volatile int *enable = (int *) ( VIC1_BASE + VIC_ENABLE_OFFSET );
+	*enable &= ~(1 << 26);
+}
+
+static inline void recieveon(){
 	volatile int *enable = (int *) ( VIC1_BASE + VIC_ENABLE_OFFSET );
 	*enable |= 1 << 25;
+}
+
+static inline void recieveoff(){
+	volatile int *enable = (int *) ( VIC1_BASE + VIC_ENABLE_OFFSET );
+	*enable &= ~(1 << 25);
+}
+
+static inline void putcom2(char c){
+	volatile int *data = (int *)(UART2_BASE + UART_DATA_OFFSET);
+	*data = c;
 }
 
 #endif

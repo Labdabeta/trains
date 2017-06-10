@@ -11,7 +11,7 @@ void clock_notifier(){
 	Service();
 	int serv_tid = MyParentTid();
 	while(1){
-		AwaitEvent();
+		AwaitEvent(EVENT_CLOCK);
 		Send(serv_tid, 0, 0, 0, 0);
 	}
 }

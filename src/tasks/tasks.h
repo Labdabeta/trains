@@ -10,8 +10,10 @@ void rps_client(void);
 void name_server(void);
 void clock_notifier(void);
 void clock_server(void);
-void uart_notifier(void);
-void uart_server(void);
+void uart_recieve_notifier(void);
+void uart_recieve_server(void);
+void uart_transmit_notifier(void);
+void uart_transmit_server(void);
 void idle(void);
 
 #endif /* TASKS_H */

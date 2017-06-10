@@ -19,6 +19,7 @@ typedef enum SyscallCode {
 	CODE_OBTAIN, /* 0 return -> call again */
 	CODE_RESPOND,
 	CODE_AWAIT,
+	CODE_TRANSMIT,
 	CODE_UTIME,
 	CODE_SETGLOBALTID,
 	CODE_SERVICE,

@@ -15,6 +15,12 @@ typedef enum TaskSize {
 	TASK_SIZE_TINY
 } TaskSize;
 
+typedef enum EventType {
+	EVENT_CLOCK = 0,
+	EVENT_RECIEVE,
+	EVENT_TRANSMIT
+} EventType;
+
 struct intandflag{
 	int val;
 	char code;
@@ -203,7 +209,9 @@ int RegisterAs(char *name);
  */
 int WhoIs(char *name);
 
-int AwaitEvent(void);
+int AwaitEvent(EventType event);
+
+int AwaitTransmit(char c);
 
 int Time(int tid);
 
@@ -242,5 +250,9 @@ void Service(void);
  * This literally quits the kernel, good bye.
  */
 void KQuit(void);
+
+char Getc(int tid, int uart);
+
+void Putc(int tid, int uart, char ch);
 
 #endif /* SYSCALL_H */

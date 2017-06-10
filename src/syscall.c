@@ -142,8 +142,12 @@ int WhoIs(char *name){
 	return NameCommon(name, 'w');
 }
 
-int AwaitEvent(){
+int AwaitEvent(EventType event){
 	return asm_callSystemInterrupt(0, 0, 0, CODE_AWAIT);
+}
+
+int AwaitTransmit(char c){
+	return asm_callSystemInterrupt(c, 0, 0, CODE_TRANSMIT);
 }
 
 int Time(int tid){
@@ -191,4 +195,15 @@ void Service(void)
 void KQuit(void)
 {
 	(void)asm_callSystemInterrupt(0,0,0,CODE_QUIT);
+}
+
+char Getc(int tid, int uart){
+	char c;
+	Send(tid, 0, 0, &c, 1);
+	return c;
+}
+
+void Putc(int tid, int uart, char ch){
+	char c = ch;
+	Send(tid, &c, 1, 0, 0);
 }

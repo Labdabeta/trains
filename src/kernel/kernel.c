@@ -35,17 +35,23 @@ int newTID(struct KernelData *data, int size)
 
 struct Scheduler *global_scheduler;
 struct TaskDescriptor *global_clocknotifier;
-struct TaskDescriptor *global_uartnotifier;
+struct TaskDescriptor *global_com2rcv;
+struct TaskDescriptor *global_com2tmt;
 
 void EnterHWI(void) __attribute__((interrupt("IRQ")));
 void EnterHWI(void)
 {
 	volatile int *vic1status = (int *)( VIC1_BASE + VIC_STATUS_OFFSET);
-	if(*vic1status && 1 << 25){
-		volatile int *uart2data = (int *)(UART2_BASE + UART_DATA_OFFSET);
-		global_uartnotifier->rval = *uart2data;
-		if(global_uartnotifier->state == STATE_EVENT_BLOCKED)
-			unblockTask(global_scheduler, global_uartnotifier);
+	if(*vic1status){
+		if(*vic1status && 1 << 25){
+			volatile int *uart2data = (int *)(UART2_BASE + UART_DATA_OFFSET);
+			global_com2rcv->rval = *uart2data;
+			if(global_com2rcv->state == STATE_EVENT_BLOCKED)
+				unblockTask(global_scheduler, global_com2rcv);
+		} else{
+			transmitoff();
+			unblockTask(global_scheduler, global_com2tmt); //Nescessarily event blocked
+		}
 	} else {
 		volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
 		*tclr = 0;

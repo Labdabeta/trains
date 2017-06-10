@@ -3,6 +3,7 @@
 #include "kernel.h"
 #include "task.h"
 #include "linker.h"
+#include "setup.h"
 
 static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *active)
 {
@@ -217,6 +218,11 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 	case CODE_RESPOND:
 		return handleRespond(data, active);
 	case CODE_AWAIT:
+		active->state = STATE_EVENT_BLOCKED;
+		return 0;
+	case CODE_TRANSMIT:
+		putcom2(data->argv[0]);
+		transmiton();
 		active->state = STATE_EVENT_BLOCKED;
 		return 0;
 	case CODE_UTIME:
