@@ -218,12 +218,11 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 		return handleRespond(data, active);
 	case CODE_AWAIT:
 		active->state = STATE_EVENT_BLOCKED;
-		return 0;
+		/* could 2x check for double blocking here. */
+		event_blocks[data->argv[0]] = active;
+		return 0; /* Not actually returned. */
 	case CODE_UTIME:
 		return handleUtime(data, active);
-	case CODE_SETGLOBALTID:
-		*((struct TaskDescriptor **) data->argv[0]) = &data->tasks[data->argv[1]];
-		return 0;
 	case CODE_SERVICE:
 		data->alive--;
 		return 0;

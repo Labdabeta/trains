@@ -1,4 +1,4 @@
-.PHONY: clean default all debug prod push report small prodebug
+.PHONY: clean default all debug prod push report small prodebug log
 .SUFFIXES:
 
 CC=res/bin/arm-none-eabi-gcc --prefix=./res/6.3.1
@@ -16,7 +16,9 @@ prodebug:CFLAGS+=-O2 -DDEBUG_MODE
 small:CFLAGS+=-Os -Werror
 debug:CFLAGS+=-g -DDEBUG_MODE
 
-CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/
+GIT_STUFF="-DGIT_NAME=\"$(shell git log --pretty='%an %h %d' -n 1)\""
+
+CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/ -Isrc/tasks/ $(GIT_STUFF)
 ASFLAGS=-mcpu=arm920t -mapcs-32 -march=armv4t
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 
@@ -43,6 +45,11 @@ small:$(TARGETS)
 
 %.elf: $(OBJECTS)
 	$(LD) $(LDFLAGS) -Map $*.map -o $@ $^ $(CLIBS)
+
+log: log.c
+	$(CC) $(CFLAGS) -Os log.c -S -o log.s
+	$(AS) $(ASFLAGS) log.s -o log.o
+	$(LD) -init main -N -T log.ld $(LIBS) -lgcc -o log.elf log.o
 
 push:
 	./push_kernel.sh

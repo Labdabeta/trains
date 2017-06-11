@@ -1,7 +1,9 @@
 #ifndef TS_7200_H
 #define TS_7200_H
 
-#define TIMER_BASE 0x80810080
+#define TIMER1_BASE 0x80810000
+#define TIMER2_BASE 0x80810020
+#define TIMER3_BASE 0x80810080
 #define UART1_BASE 0x808c0000
 #define UART2_BASE 0x808d0000
 
@@ -11,6 +13,14 @@
 #define TIMER_ENABLE_MASK 0x80
 #define TIMER_PERIODIC_MASK 0x40
 #define TIMER_CLR_OFFSET 0x0c
+
+/* As a struct */
+struct Timer {
+	volatile int load;
+	volatile int value;
+	volatile int ctrl;
+	volatile int clear;
+};
 
 #define UART_DATA_OFFSET 0x00
 #define UART_RECV_OFFSET 0x04
@@ -39,5 +49,10 @@ struct UART {
 #define VIC2_BASE 0x800c0000
 #define VIC_STATUS_OFFSET 0x00
 #define VIC_ENABLE_OFFSET 0x10
+#define VIC_CLEAR_OFFSET 0x14
+
+#define ENABLE_INTERRUPT(VIC_NUM, INT_NUM) *(int*)(VIC##VIC_NUM##_BASE + VIC_ENABLE_OFFSET) |= (1 << (INT_NUM))
+#define DISABLE_INTERRUPT(VIC_NUM, INT_NUM) *(int*)(VIC##VIC_NUM##_BASE + VIC_CLEAR_OFFSET) |= (1 << (INT_NUM))
+#define CHECK_INTERRUPT(VIC_NUM, INT_NUM) (*(int*)(VIC##VIC_NUM##_BASE + VIC_STATUS_OFFSET) | (1 << (INT_NUM)))
 
 #endif /* TS_7200_H */

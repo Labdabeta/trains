@@ -27,38 +27,44 @@ int newTID(struct KernelData *data, int size)
 	}
 
 	for (; i < NUM_SUPPORTED_TASKS; ++i)
-	if (data->tasks[i].priority < 0)
-	return i;
+		if (data->tasks[i].priority < 0)
+			return i;
 
 	return -1;
 }
 
 struct Scheduler *global_scheduler;
-struct TaskDescriptor *global_clocknotifier;
-struct TaskDescriptor *global_uartnotifier;
+struct TaskDescriptor *event_blocks[EVENT_TYPE_MAX];
+
+void initEventBlocks(void)
+{
+	int i;
+	for (i = 0; i < EVENT_TYPE_MAX; ++i)
+		event_blocks[i] = 0;
+}
 
 void EnterHWI(void) __attribute__((interrupt("IRQ")));
 void EnterHWI(void)
 {
-	volatile int *vic1status = (int *)( VIC1_BASE + VIC_STATUS_OFFSET);
-	if(*vic1status && 1 << 25){
-		volatile int *uart2data = (int *)(UART2_BASE + UART_DATA_OFFSET);
-		global_uartnotifier->rval = *uart2data;
-		if(global_uartnotifier->state == STATE_EVENT_BLOCKED)
-			unblockTask(global_scheduler, global_uartnotifier);
-	} else {
-		volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
-		*tclr = 0;
-		if(global_clocknotifier->state == STATE_EVENT_BLOCKED)
-			unblockTask(global_scheduler, global_clocknotifier);
+	int i;
+	for (i = 0; i < 31; ++i) {
+		if (event_blocks[i] && CHECK_INTERRUPT(1, i)) {
+			unblockTask(global_scheduler, event_blocks[i]);
+			event_blocks[i] = 0;
+		}
+		if (event_blocks[32+i] && CHECK_INTERRUPT(2, i)) {
+			unblockTask(global_scheduler, event_blocks[32+i]);
+			event_blocks[i] = 0;
+		}
 	}
 }
 
 static void enableT4(void)
 {
-	unsigned long long int *t4 = (unsigned long long int*)0x80810060;
+    unsigned long long int *t4 = (unsigned long long int*)0x80810060;
+
 	*t4 &= 0UL;
-	*t4 |= 0x10000000000UL;
+    *t4 |= 0x10000000000UL;
 }
 
 int main(int argc, char *argv[])
@@ -73,22 +79,25 @@ int main(int argc, char *argv[])
 	data.usertime = 0;
 	data.handtime = 0;
 
-	enableT4();
-	data.lasttick = t4t();
+    enableT4();
+    data.lasttick = t4t();
 
 	/* First user task. */
 	data.alive = 1;
 
 	init_debugio();
+	DEBUG_PRINT(GIT_NAME);
 	initScheduler(&data.scheduler);
 	global_scheduler = &data.scheduler;
+
+	initEventBlocks();
 
 	setupTaskArray(data.tasks);
 	data.tasks[0].stack = &data;
 	data.tasks[0].priority = 0; /* Don't ever schedule us, but don't delete us either. */
 
 	/* Load first task. */
-	data.tasks[1].priority = 0;
+	data.tasks[1].priority = NUM_PRIORITIES - 1;
 	data.tasks[1].state = STATE_ACTIVE;
 	activateTask(&data.tasks[1], fn_ptr(main_task));
 	scheduleTask(&data.scheduler, &data.tasks[1]);
@@ -97,60 +106,61 @@ int main(int argc, char *argv[])
 	data.tasks[NUM_SUPPORTED_TASKS-1].priority = NUM_PRIORITIES+1; /* never gets scheduled anyways. */
 	activateTask(&data.tasks[NUM_SUPPORTED_TASKS-1], fn_ptr(idle));
 
+	/* Load the dispatcher. */
 	asm_SetupTrap(&data.fn, fn_ptr(EnterHWI), &HWIstackspace[HWI_STACK_SIZE-1]);
 
-	#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 	data.inittime = data.lasttick;
 	data.lasttick = t4t();
 	data.inittime = data.lasttick - data.inittime;
-	#endif
+#endif
 
 	while (data.alive > 0) {
 		/* Process active tasks until there are none. */
 		while ((active = reschedule(&data.scheduler))) {
-			#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 			data.tmp = t4t();
 			data.kerntime += data.tmp - data.lasttick;
 			data.lasttick = data.tmp;
-			#endif
+#endif
 
 			enterTask(active);
 
-			#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 			data.tmp = t4t();
 			data.usertime += data.tmp - data.lasttick;
 			active->ticks += data.tmp - data.lasttick;
 			data.lasttick = data.tmp;
-			#endif
+#endif
 
 			active->rval = handleSyscall(&data, active);
 
-			#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 			data.tmp = t4t();
 			data.handtime += data.tmp - data.lasttick;
 			data.lasttick = data.tmp;
-			#endif
+#endif
 		}
 
-		#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 		/* Add the last kernel's time to the idle task. */
 		data.tmp = t4t();
 		data.tasks[NUM_SUPPORTED_TASKS-1].ticks += data.tmp - data.lasttick;
 		data.lasttick = data.tmp;
-		#endif
+#endif
 		enterTask(&data.tasks[NUM_SUPPORTED_TASKS-1]);
 
 		data.tasks[NUM_SUPPORTED_TASKS-1].rval = handleSyscall(&data, &data.tasks[NUM_SUPPORTED_TASKS-1]);
 
-		#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 		/* Add the last kernel's time to the idle task. */
 		data.tmp = t4t();
 		data.tasks[NUM_SUPPORTED_TASKS-1].ticks += data.tmp - data.lasttick;
 		data.lasttick = data.tmp;
-		#endif
+#endif
 	}
 
-	#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 	debugio_putstr("\n\r");
 	debugio_putstr("Kernel time: ");
 	debugio_putuint_decimal((unsigned int)(data.kerntime>>32));
@@ -176,9 +186,10 @@ int main(int argc, char *argv[])
 	debugio_putstr("Percent idle: ");
 	debugio_putint_decimal((data.tasks[NUM_SUPPORTED_TASKS-1].ticks * 100) / ttime);
 	debugio_putstr("%\n\r");
-	#endif
+#endif
 
-	cleanupTimer();
+	cleanupTimer1();
+	cleanup_debugio();
 
 	return 0;
 }

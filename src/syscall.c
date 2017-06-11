@@ -2,8 +2,9 @@
 #include "kernel/interface.h" /* Kernel space breach */
 #include "kernel/handlers.h" /* Kernel space breach */
 #include "tasks/tasks.h"
-
-#include "debugio.h"
+#include "tasks/clock_server.h"
+#include "tasks/name_server.h"
+#include "ts7200.h"
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
 
@@ -117,58 +118,52 @@ void Respond(int tid, void *rpl)
 	(void)asm_callSystemInterrupt(tid,(int)rpl,0,CODE_RESPOND);
 }
 
-static int NameCommon(char *name, char prefix)
+int RegisterAs(char *name)
 {
-	int len = 0;
-	char res;
-	char msg[MAX_NAME_LENGTH];
-	int err;
-
-	while(name[len++]);
-	if(len > MAX_NAME_LENGTH - 2)
-		return -1;
-
-	(void)memcpy((void*)(&msg[1]), (const void*)name, len + 1);
-	msg[0] = prefix;
-	err = Send(NAMESERVER_TID, msg, len + 2, &res, 1);
-	return err > -1 && res ? res : -1;
+	return sendRegisterAs(NAMESERVER_TID, name);
 }
 
-int RegisterAs(char *name){
-	return NameCommon(name, 'r');
-}
-
-int WhoIs(char *name){
-	return NameCommon(name, 'w');
-}
-
-int AwaitEvent(){
-	return asm_callSystemInterrupt(0, 0, 0, CODE_AWAIT);
-}
-
-int Time(int tid){
-	struct intandflag msg;
-	msg.code = 't';
-	Send(tid, &msg.code, 1, (char*) &msg, sizeof(struct intandflag));
-	return msg.val;
-}
-
-static inline void DelayCommon(int tid, char code, int arg)
+int WhoIs(char *name)
 {
-	struct intandflag msg;
-	msg.val = arg;
-	msg.code = code;
-	Send(tid, (void *)&msg, sizeof(struct intandflag), 0, 0);
+	return sendWhoIs(NAMESERVER_TID, name);
+}
+
+int AwaitEvent(EventType type)
+{
+	return asm_callSystemInterrupt(type, 0, 0, CODE_AWAIT);
+}
+
+void EnableEvent(EventType type)
+{
+	int code = (int)type;
+	if (code > 31)
+		ENABLE_INTERRUPT(2, code - 31);
+	else
+		ENABLE_INTERRUPT(1, code);
+}
+
+void DisableEvent(EventType type)
+{
+	int code = (int)type;
+	if (code > 31)
+		DISABLE_INTERRUPT(2, code - 31);
+	else
+		DISABLE_INTERRUPT(1, code);
+}
+
+int Time(int tid)
+{
+	return sendGetTime(tid);
 }
 
 void Delay(int tid, int ticks)
 {
-	DelayCommon(tid, 'd', ticks);
+	sendDelay(tid, ticks);
 }
 
 void DelayUntil(int tid, int ticks)
 {
-	DelayCommon(tid, 'u', ticks);
+	sendDelayUntil(tid, ticks);
 }
 
 unsigned long long int UTime(KernelTimer kt)
@@ -176,11 +171,6 @@ unsigned long long int UTime(KernelTimer kt)
 	unsigned long long int ret = 0;
 	(void)asm_callSystemInterrupt((int)&ret, (int)kt, 0, CODE_UTIME);
 	return ret;
-}
-
-void SetGlobalTID(void *global, int tid)
-{
-	(void)asm_callSystemInterrupt((int)global, tid, 0, CODE_SETGLOBALTID);
 }
 
 void Service(void)

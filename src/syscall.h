@@ -15,10 +15,31 @@ typedef enum TaskSize {
 	TASK_SIZE_TINY
 } TaskSize;
 
-struct intandflag{
-	int val;
-	char code;
-};
+/* EVENT_TYPE_ */
+typedef enum EventType {
+	EVENT_TYPE_UNUSED_0 = 0, EVENT_TYPE_UNUSED_1, EVENT_TYPE_COMM_RX,
+	EVENT_TYPE_COMM_TX,	EVENT_TYPE_TIMER_1, EVENT_TYPE_TIMER_2,
+	EVENT_TYPE_AUDIO_CODEC, EVENT_TYPE_DMA2P_I0, EVENT_TYPE_DMA2P_I1,
+	EVENT_TYPE_DMA2P_I2, EVENT_TYPE_DMA2P_I3, EVENT_TYPE_DMA2P_I4,
+	EVENT_TYPE_DMA2P_I5, EVENT_TYPE_DMA2P_I6, EVENT_TYPE_DMA2P_I7,
+	EVENT_TYPE_DMA2P_I8, EVENT_TYPE_DMA2P_I9, EVENT_TYPE_DMA2M_I0,
+	EVENT_TYPE_DMA2M_I1, EVENT_TYPE_RESERVED_0, EVENT_TYPE_RESERVED_1,
+	EVENT_TYPE_RESERVED_2, EVENT_TYPE_RESERVED_3, EVENT_TYPE_UART1_RX,
+	EVENT_TYPE_UART1_TX, EVENT_TYPE_UART2_RX, EVENT_TYPE_UART2_TX,
+	EVENT_TYPE_UART3_RX, EVENT_TYPE_UART3_TX, EVENT_TYPE_KEYBOARD,
+	EVENT_TYPE_TOUCH_SCREEN, EVENT_TYPE_RESERVED_4, EVENT_TYPE_EXTERNAL_0,
+	EVENT_TYPE_EXTERNAL_1, EVENT_TYPE_EXTERNAL_2, EVENT_TYPE_TICK_64HZ,
+	EVENT_TYPE_WATCHDOG_EXPIRED, EVENT_TYPE_RTC, EVENT_TYPE_IrDA,
+	EVENT_TYPE_MAC, EVENT_TYPE_RESERVED_5, EVENT_TYPE_RASTER,
+	EVENT_TYPE_TICK_1HZ, EVENT_TYPE_V_SYNC, EVENT_TYPE_V_FIFO,
+	EVENT_TYPE_SSP_RX, EVENT_TYPE_SSP_TX, EVENT_TYPE_RESERVED_6,
+	EVENT_TYPE_RESERVED_7, EVENT_TYPE_RESERVED_8, EVENT_TYPE_RESERVED_9,
+	EVENT_TYPE_TIMER_3, EVENT_TYPE_UART1_INT, EVENT_TYPE_SSP_INT,
+	EVENT_TYPE_UART2_INT, EVENT_TYPE_UART3_INT, EVENT_TYPE_PME,
+	EVENT_TYPE_DSP, EVENT_TYPE_GPIO, EVENT_TYPE_I2S,
+	EVENT_TYPE_UNUSED_2, EVENT_TYPE_UNUSED_3, EVENT_TYPE_UNUSED_4,
+	EVENT_TYPE_MAX
+} EventType;
 
 /* Exits the task.
  *
@@ -203,7 +224,34 @@ int RegisterAs(char *name);
  */
 int WhoIs(char *name);
 
-int AwaitEvent(void);
+/* Await the given event to occur.
+ *
+ * This event blocks the task then returns the value of the event, if it is
+ * relevant.
+ *
+ * \param[in] type             The type of the event to wait for.
+ *
+ * \return The value of the event, if relevant.
+ */
+int AwaitEvent(EventType type);
+
+/* Enables the given event.
+ *
+ * This doesn't even actually call the kernel, but it still references kernel
+ * specific information.
+ *
+ * \param[in] type             The type of the event to enable.
+ */
+void EnableEvent(EventType type);
+
+/* Disable the given event.
+ *
+ * This doesn't even actually call the kernel, but it still references kernel
+ * specific information.
+ *
+ * \param[in] type             The type of the event to disable.
+ */
+void DisableEvent(EventType type);
 
 int Time(int tid);
 
@@ -228,8 +276,6 @@ typedef enum KernelTimer {
  * \return The number of ticks on the given timer.
  */
 unsigned long long int UTime(KernelTimer kt);
-
-void SetGlobalTID(void *global, int tid);
 
 /* Registers the current task as a service.
  *

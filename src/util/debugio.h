@@ -4,6 +4,8 @@
 /* Initializes coms for busy-wait debugging. */
 void init_debugio(void);
 
+void cleanup_debugio(void);
+
 void debugio_putc(char c);
 
 void debugio_putstr(const char *str);
