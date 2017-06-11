@@ -31,6 +31,7 @@ MAKE_SERVICE(name)
 #define MAKE_SERVICE_LONG(name, d_str, init, work) void name(void) {\
 	struct d_str data; \
 	Service(); \
+	DEBUG_DUMP_VAL(MyTid()); \
 	init(&data); \
 	for (ever) work(&data); \
 }

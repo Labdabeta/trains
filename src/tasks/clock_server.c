@@ -35,10 +35,9 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 {
 	switch (m->type) {
 		case TMT_TICK:
-			DEBUG_PRINT("Tick");
 			Reply(tid, 0, 0);
 			data->ticks++;
-			while (pqSize(&data->queue) && pqGetMinPriority(&data->queue) > data->ticks) {
+			while (pqSize(&data->queue) && pqGetMinPriority(&data->queue) < data->ticks) {
 				Reply(pqGetMin(&data->queue), 0, 0);
 				pqPop(&data->queue);
 			}
@@ -55,6 +54,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 		default:
 			DEBUG_PRINT("ERROR: Invalid code passed to clock server.");
 			DEBUG_DUMP_VAL(m->type);
+			DEBUG_DUMP_VAL(tid);
 	}
 }
 
