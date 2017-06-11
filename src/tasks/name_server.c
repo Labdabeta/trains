@@ -31,7 +31,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 		data->tids[data->size] = tid;
 
 		/* Copy the name */
-		n = &data->names[(data->size++)*NUM_SUPPORTED_TASKS];
+		n = &data->names[(data->size++)*MAX_NAME_LENGTH];
 		for (c = m->name; *c; ++c, ++n) *n = *c;
 
 		reply = 0;
@@ -42,7 +42,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 		for (i = data->size - 1; i >= 0; --i) {
 			char *c,*n;
 			int same = 1;
-			n = &data->names[i*NUM_SUPPORTED_TASKS];
+			n = &data->names[i*MAX_NAME_LENGTH];
 			for (c = m->name; *c; ++c, ++n) {
 				if (*c != *n) {
 					same = 0;
@@ -55,11 +55,12 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 			}
 		}
 
-		if (id == -1)
+		if (id == -1) {
 			reply = -1;
-		else
+		} else {
 			reply = data->tids[id];
-		Reply(tid, (char*)&reply, 1);
+		}
+		Reply(tid, (char*)&reply, sizeof(reply));
 	}
 }
 

@@ -19,6 +19,7 @@ ENTRY work(struct Data *data)
 
 	/* Receive from the clock notifier. */
 	Receive(&tid,0,0);
+	Reply(tid,0,0);
 
 	/* Send to the clock server. */
 	sendTick(data->parent);

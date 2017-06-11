@@ -51,10 +51,12 @@ void EnterHWI(void)
 		if (event_blocks[i] && CHECK_INTERRUPT(1, i)) {
 			unblockTask(global_scheduler, event_blocks[i]);
 			event_blocks[i] = 0;
+			DISABLE_INTERRUPT(1, i);
 		}
 		if (event_blocks[32+i] && CHECK_INTERRUPT(2, i)) {
 			unblockTask(global_scheduler, event_blocks[32+i]);
-			event_blocks[i] = 0;
+			event_blocks[32+i] = 0;
+			DISABLE_INTERRUPT(2, i);
 		}
 	}
 }

@@ -18,7 +18,8 @@ ENTRY initialize(struct Data *data)
 ENTRY work(struct Data *data)
 {
 	int send;
-	send = AwaitEvent(EVENT_TYPE_UART2_RX);
+	AwaitEvent(EVENT_TYPE_UART2_RX);
+	send = data->com2->data;
 	Send(data->parent, (char*)&send, sizeof(send), 0, 0);
 }
 

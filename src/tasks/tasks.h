@@ -2,6 +2,7 @@
 #define TASKS_H
 
 #include "syscall.h"
+#include "debugio.h" /* Safe now that debugio doesn't print to the UARTS */
 
 /* Initializes user space, then becomes name server as TID 1. */
 void main_task(void);

@@ -19,7 +19,7 @@ ENTRY initialize(struct Data *data)
 ENTRY work(struct Data *data)
 {
 	AwaitEvent(EVENT_TYPE_TIMER_1);
-	data->t1->clear = 0; /* Clear the interrupt. */
+	data->t1->clear = 0;
 	Send(data->parent, 0, 0, 0, 0);
 }
 

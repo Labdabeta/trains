@@ -5,8 +5,6 @@
 #define PQ_CAPACITY NUM_SUPPORTED_TASKS
 #include "pq.h"
 
-#include "debugio.h"
-
 struct Data {
 	int ticks;
 	struct PriorityQueue queue;
@@ -37,6 +35,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 {
 	switch (m->type) {
 		case TMT_TICK:
+			DEBUG_PRINT("Tick");
 			Reply(tid, 0, 0);
 			data->ticks++;
 			while (pqSize(&data->queue) && pqGetMinPriority(&data->queue) > data->ticks) {
@@ -55,6 +54,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 			break;
 		default:
 			DEBUG_PRINT("ERROR: Invalid code passed to clock server.");
+			DEBUG_DUMP_VAL(m->type);
 	}
 }
 

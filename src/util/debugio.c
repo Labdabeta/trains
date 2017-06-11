@@ -1,11 +1,14 @@
 #include "debugio.h"
 #include "ts7200.h"
+#include "linker.h"
 
 static char *location;
 
+#define INIT_LOCATION 0x50000
+
 void init_debugio(void)
 {
-	location = (char*)(0x50000);
+	location = (char*)INIT_LOCATION;
 }
 
 void cleanup_debugio(void)
@@ -16,6 +19,9 @@ void cleanup_debugio(void)
 void debugio_putc(char c)
 {
 	*(location++) = c;
+	if ((int)location > (int)&CODE_BASE)
+		location = (char*)INIT_LOCATION;
+	*location = 0;
 }
 
 int debugio_getc(void)

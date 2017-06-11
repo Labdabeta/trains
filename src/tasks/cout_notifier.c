@@ -21,12 +21,8 @@ ENTRY work(struct Data *data)
 	AwaitEvent(EVENT_TYPE_UART2_TX);
 
 	/* A bit of hack to allow users to run while waiting on output. */
-	DisableEvent(EVENT_TYPE_UART2_TX);
 	Send(data->parent, 0, 0, &ch, sizeof(ch));
-	while(1); /* See if we even get here. */
-
 	data->com2->data = ch;
-	EnableEvent(EVENT_TYPE_UART2_TX);
 }
 
 MAKE_SERVICE(cout_notifier)
