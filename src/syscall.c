@@ -4,6 +4,8 @@
 #include "tasks/tasks.h"
 #include "tasks/clock_server.h"
 #include "tasks/name_server.h"
+#include "tasks/cin_server.h"
+#include "tasks/cout_server.h"
 #include "ts7200.h"
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
@@ -171,6 +173,29 @@ unsigned long long int UTime(KernelTimer kt)
 	unsigned long long int ret = 0;
 	(void)asm_callSystemInterrupt((int)&ret, (int)kt, 0, CODE_UTIME);
 	return ret;
+}
+
+int Getc(int tid, int uart)
+{
+	(void)uart; // unused
+	return sendCinGetc(tid);
+}
+
+int Putc(int tid, int uart, char ch)
+{
+	(void)uart; // unused
+	char msg[2];
+	msg[0] = ch;
+	msg[1] = 0;
+	sendCoutPutstr(tid, msg);
+	return 0;
+}
+
+int Putstr(int tid, int uart, char *str)
+{
+	(void)uart; // unused
+	sendCoutPutstr(tid, str);
+	return 0;
 }
 
 void Service(void)

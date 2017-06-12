@@ -1,7 +1,6 @@
 #include <server.h>
 #include "kernel/task.h"
 #include "cin_server.h"
-#include "debugio.h"
 
 /* These should both be multiples of 2 for decent performance. */
 #define BLOCK_BUFSIZE 0x10

@@ -251,10 +251,32 @@ void EnableEvent(EventType type);
  */
 void DisableEvent(EventType type);
 
+/* Returns the time in centiseconds since the program started.
+ *
+ * This requires you to know the clock server's tid. Its name is "CLOCK".
+ *
+ * \param[in] tid              The tid of the clock server.
+ *
+ * \return The number of centiseconds since execution started.
+ */
 int Time(int tid);
 
+/* Blocks the task for a specified duration.
+ *
+ * This blocks the current user task for the specified number of centiseconds.
+ *
+ * \param[in] tid              The tid of the clock server.
+ * \param[in] ticks            The number of ticks to delay for.
+ */
 void Delay(int tid, int ticks);
 
+/* Blocks the task until a specified time.
+ *
+ * This blocks the current user task until the specified tick occurs.
+ *
+ * \param[in] tid              The tid of the clock server.
+ * \param[in] ticks            The time in ticks to delay until.
+ */
 void DelayUntil(int tid, int ticks);
 
 typedef enum KernelTimer {
@@ -274,6 +296,45 @@ typedef enum KernelTimer {
  * \return The number of ticks on the given timer.
  */
 unsigned long long int UTime(KernelTimer kt);
+
+/* Returns a character from the given UART.
+ *
+ * The uart parameter is just used to verify the tid. Use either "CIN" or "TIN"
+ * to select the correct server.
+ *
+ * \param[in] tid              The tid of the I/O server.
+ * \param[in] uart             The UART to read (either 1 or 2)
+ *
+ * \return The next unreturned character on the specified UART or -1 if the tid
+ * is wrong.
+ */
+int Getc(int tid, int uart);
+
+/* Puts a character on the given UART.
+ *
+ * The uart parameter is just used to verify the tid. Use either "COUT" or
+ * "TOUT" to select the correct server.
+ *
+ * \param[in] tid              The tid of the I/O server.
+ * \param[in] uart             The UART to send to (either 1 or 2)
+ * \param[in] ch               The character to send.
+ *
+ * \return 0 on success or -1 on failure.
+ */
+int Putc(int tid, int uart, char ch);
+
+/* Puts a string on the given UART.
+ *
+ * The uart parameter is just used to verify the tid. Use either "COUT" or
+ * "TOUT" to select the correct server.
+ *
+ * \param[in] tid              The tid of the I/O server.
+ * \param[in] uart             The UART to send to (either 1 or 2)
+ * \param[in] str              The string to send.
+ *
+ * \return 0 on success or -1 on failure.
+ */
+int Putstr(int tid, int uart, char *str);
 
 /* Registers the current task as a service.
  *
