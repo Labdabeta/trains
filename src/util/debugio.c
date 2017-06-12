@@ -1,17 +1,22 @@
 #include "debugio.h"
 #include "ts7200.h"
 
+char *global_dump;
+
 void init_debugio(void)
 {
 	volatile struct UART *com = (struct UART *)(UART2_BASE);
 	com->lcrh &= ~(UART_FIFOEN_MASK);
+	global_dump = (char*)0x50000;
 }
 
 void debugio_putc(char c)
 {
-	volatile struct UART *com = (struct UART *)(UART2_BASE);
+	*(global_dump++) = c;
+	*global_dump = 0;
+	/*volatile struct UART *com = (struct UART *)(UART2_BASE);
 	while (com->flag & UART_TXFULL_MASK);
-	com->data = c;
+	com->data = c;*/
 }
 
 int debugio_getc(void)

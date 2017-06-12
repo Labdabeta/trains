@@ -16,12 +16,15 @@ void main_task(void)
 	char ch[5];
 	for(int i = 0; i<5; i++){
 		ch[i] = Getc(rs_tid, 2);
-		debugio_putstr("Getc returned.\n\r");
 	}
 	for(int i = 0; i<5; i++){
 		Putc(ts_tid, 2, ch[i]);
+		debugio_putc(ch[i]);
 	}
+	Putc(ts_tid, 2, '\n');
+	Putc(ts_tid, 2, '\r');
+	debugio_putstr("\n\r");
 	//Delay(cs_tid, 100);
-	debugio_putstr("\n\rWe're done here.\n\r");
+	//debugio_putstr("\n\rWe're done here.\n\r");
 	Exit();
 }

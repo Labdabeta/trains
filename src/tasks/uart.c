@@ -58,10 +58,12 @@ void uart_recieve_server(){
 void uart_transmit_notifier(){
   Service();
   int serv_tid = MyParentTid();
-  char c;
+  char c = '\n';
   while(1){
-    Send(serv_tid, 0, 0, &c, 1);
     AwaitTransmit(c);
+    debugio_putstr("Await done!\n\r");
+    Send(serv_tid, 0, 0, &c, 1);
+    debugio_putstr("Recieved char - not!\n\r");
   }
 }
 
@@ -70,6 +72,8 @@ void uart_transmit_server(){
   int caller, len;
   char tid;
   RegisterAs("COM2tmt");
+
+  int ready = 0;
 
   int not_tid = CreateSize(0, uart_transmit_notifier, TASK_SIZE_TINY);
   SetGlobalTID(&global_com2tmt, not_tid);
@@ -83,10 +87,13 @@ void uart_transmit_server(){
   while(1){
     len = Receive(&caller, msg, 1);
     if(len){
-      cbwrite(&requests, caller);
-      cbwrite(&content, msg[0]);
-      if(!cbsize(&requests)){
+      if(ready){
         Reply(not_tid, msg, 1);
+        Reply(caller, 0, 0);
+        ready = 0;
+      } else{
+        cbwrite(&requests, caller);
+        cbwrite(&content, msg[0]);
       }
     } else{
       if(cbsize(&content)){
@@ -95,7 +102,7 @@ void uart_transmit_server(){
         cbread(&requests, &tid);
         Reply(tid, 0, 0);
       } else{
-        //Don't reply - blocks the event
+        ready = 1;
       }
     }
   }

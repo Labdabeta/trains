@@ -41,19 +41,20 @@ struct TaskDescriptor *global_com2tmt;
 void EnterHWI(void) __attribute__((interrupt("IRQ")));
 void EnterHWI(void)
 {
-	//debugio_putstr("HWI!\n\r");
+	debugio_putstr("HWI!\n\r");
 	volatile int *vic1status = (int *)( VIC1_BASE + VIC_STATUS_OFFSET);
 	DEBUG_DUMP_ADR(*vic1status);
-	volatile int *vic2status = (int *)( VIC2_BASE + VIC_STATUS_OFFSET);
-	DEBUG_DUMP_ADR(*vic2status);
+	//volatile int *vic2status = (int *)( VIC2_BASE + VIC_STATUS_OFFSET);
 	if(*vic1status){
-		if(*vic1status && 1 << 25){
+		if(*vic1status & 1 << 25){
 			volatile int *uart2data = (int *)(UART2_BASE + UART_DATA_OFFSET);
 			global_com2rcv->rval = *uart2data;
 			if(global_com2rcv->state == STATE_EVENT_BLOCKED)
 				unblockTask(global_scheduler, global_com2rcv); // Faliure here means dropped input
 		} else{
+			debugio_putstr("Transmit!\n\r");
 			transmitoff();
+			DEBUG_DUMP_ADR(*vic1status);
 			unblockTask(global_scheduler, global_com2tmt); //Nescessarily event blocked
 		}
 	} else {

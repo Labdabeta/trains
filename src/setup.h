@@ -38,8 +38,8 @@ static inline void transmiton(){
 }
 
 static inline void transmitoff(){
-	volatile int *enable = (int *) ( VIC1_BASE + VIC_CLEAR_OFFSET );
-	*enable |= 1 << 26;
+	volatile int *clear = (int *) ( VIC1_BASE + VIC_CLEAR_OFFSET );
+	*clear |= 1 << 26;
 }
 
 static inline void recieveon(){
