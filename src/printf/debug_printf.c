@@ -20,11 +20,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-#include "printf.h"
+#include "debug_printf.h"
 
 typedef void (*putcf) (void*,char);
-static putcf stdout_putf;
-static void* stdout_putp;
+static putcf dstdout_putf;
+static void* dstdout_putp;
 
 
 #ifdef PRINTF_LONG_SUPPORT
@@ -124,7 +124,7 @@ static void putchw(void* putp,putcf putf,int n, char z, char* bf)
         putf(putp,ch);
     }
 
-void tfp_format(void* putp,putcf putf,char *fmt, va_list va)
+void tfp_dformat(void* putp,putcf putf,char *fmt, va_list va)
     {
     char bf[12];
 
@@ -203,17 +203,17 @@ void tfp_format(void* putp,putcf putf,char *fmt, va_list va)
     }
 
 
-void init_printf(void* putp,void (*putf) (void*,char))
+void init_dprintf(void* putp,void (*putf) (void*,char))
     {
-    stdout_putf=putf;
-    stdout_putp=putp;
+    dstdout_putf=putf;
+    dstdout_putp=putp;
     }
 
-void tfp_printf(char *fmt, ...)
+void tfp_dprintf(char *fmt, ...)
     {
     va_list va;
     va_start(va,fmt);
-    tfp_format(stdout_putp,stdout_putf,fmt,va);
+    tfp_dformat(dstdout_putp,dstdout_putf,fmt,va);
     va_end(va);
     }
 
@@ -224,11 +224,11 @@ static void putcp(void* p,char c)
 
 
 
-void tfp_sprintf(char* s,char *fmt, ...)
+void tfp_dsprintf(char* s,char *fmt, ...)
     {
     va_list va;
     va_start(va,fmt);
-    tfp_format(&s,putcp,fmt,va);
+    tfp_dformat(&s,putcp,fmt,va);
     putcp(&s,0);
     va_end(va);
     }

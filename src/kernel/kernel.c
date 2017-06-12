@@ -1,6 +1,5 @@
 #include "kernel.h"
 #include "linker.h"
-#include "debugio.h"
 #include "interface.h"
 #include "syscall.h"
 #include "tasks/tasks.h"
@@ -88,7 +87,9 @@ int main(int argc, char *argv[])
 	data.alive = 1;
 
 	init_debugio();
-	DEBUG_PRINT(GIT_NAME);
+	DEBUG_PRINT("%s", GIT_NAME);
+#undef DEBUG_PRINT
+#define DEBUG_PRINT(...)
 	initScheduler(&data.scheduler);
 	global_scheduler = &data.scheduler;
 
@@ -163,35 +164,18 @@ int main(int argc, char *argv[])
 	}
 
 #ifdef DEBUG_MODE
-	debugio_putstr("\n\r");
-	debugio_putstr("Kernel time: ");
-	debugio_putuint_decimal((unsigned int)(data.kerntime>>32));
-	debugio_putuint_decimal((unsigned int)data.kerntime);
-	debugio_putstr("\n\r");
-	debugio_putstr("Handler time: ");
-	debugio_putuint_decimal((unsigned int)(data.handtime>>32));
-	debugio_putuint_decimal((unsigned int)data.handtime);
-	debugio_putstr("\n\r");
-	debugio_putstr("User time: ");
-	debugio_putuint_decimal((unsigned int)(data.usertime>>32));
-	debugio_putuint_decimal((unsigned int)data.usertime);
-	debugio_putstr("\n\r");
-	debugio_putstr("Idle time: ");
-	debugio_putuint_decimal((unsigned int)(data.tasks[NUM_SUPPORTED_TASKS-1].ticks>>32));
-	debugio_putuint_decimal((unsigned int)data.tasks[NUM_SUPPORTED_TASKS-1].ticks);
-	debugio_putstr("\n\r");
-	debugio_putstr("Total time: ");
 	unsigned long long int ttime = data.lasttick - data.inittime;
-	debugio_putuint_decimal((unsigned int)(ttime>>32));
-	debugio_putuint_decimal((unsigned int)ttime);
-	debugio_putstr("\n\r");
-	debugio_putstr("Percent idle: ");
-	debugio_putint_decimal((data.tasks[NUM_SUPPORTED_TASKS-1].ticks * 100) / ttime);
-	debugio_putstr("%\n\r");
+	dprintf("\n\rKernel time: %u%u\n\rHandler time: %u%u\n\rUser time: %u%u\n\rIdle time: %u%u\n\rTotal time: %u%u\n\rPercent idle: %u%%\n\r",
+			(unsigned int)(data.kerntime>>32), (unsigned int)data.kerntime,
+			(unsigned int)(data.handtime>>32), (unsigned int)data.handtime,
+			(unsigned int)(data.usertime>>32), (unsigned int)data.usertime,
+			(unsigned int)(data.tasks[NUM_SUPPORTED_TASKS-1].ticks >> 32),
+			(unsigned int)data.tasks[NUM_SUPPORTED_TASKS-1].ticks,
+			(unsigned int)(ttime>>32), (unsigned int)ttime,
+			(unsigned int)((data.tasks[NUM_SUPPORTED_TASKS-1].ticks*100)/ttime));
 #endif
 
 	cleanupTimer1();
-	cleanup_debugio();
 
 	return 0;
 }

@@ -52,9 +52,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 			Reply(tid, (char*)&data->ticks, sizeof(data->ticks));
 			break;
 		default:
-			DEBUG_PRINT("ERROR: Invalid code passed to clock server.");
-			DEBUG_DUMP_VAL(m->type);
-			DEBUG_DUMP_VAL(tid);
+			DEBUG_PRINT("ERROR: Invalid code (%d) passed to clock server from %d.", m->type, tid);
 	}
 }
 

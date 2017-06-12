@@ -1,7 +1,6 @@
 #include <service.h>
 
 #include "cin_server.h"
-#include "debugio.h"
 
 struct Data {
 	int notifier;

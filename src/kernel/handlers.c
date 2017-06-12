@@ -1,8 +1,8 @@
 #include "handlers.h"
-#include "debugio.h"
 #include "kernel.h"
 #include "task.h"
 #include "linker.h"
+#include "debugio.h"
 
 static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *active)
 {
@@ -234,7 +234,7 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 		data->alive = 0;
 		return 0;
 	default:
-		debugio_putstr("\n\rInvalid syscall...\n\r");
+		DEBUG_PRINT("%s", "Invalid syscall...\n\r");
 		return -1;
 
 	}
