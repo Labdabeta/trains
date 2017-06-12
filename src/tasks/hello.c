@@ -3,10 +3,18 @@
 void hello()
 {
 	int cout = WhoIs("COUT");
+	int cin = WhoIs("CIN");
+	//int tout = WhoIs("TOUT");
+	//int tin = WhoIs("TIN");
 	int clock = WhoIs("CLOCK");
-	printf("Cout is: %x\n\rClock is: %d\n\r", cout, clock);
-	printf("sizeof(unsigned long) = %d\n\rsizeof(unsigned long long) = %d\n\r",
-			sizeof(unsigned long), sizeof(unsigned long long));
-	Delay(clock, 1000);
+	printf("Cout is: %d\n\rCin is: %d\n\r", cout, cin);
+	//printf("Tout is: %d\n\rTin is: %d\n\r", tout, tin);
+	Delay(clock, 10);
+
+	printf("Got: %d\n\r", Getc(cin, 2));
+	//Putc(tout, 1, 193);
+	//printf("Sensor: %d\n\r", Getc(tin, 1));
+
+	Delay(clock, 100);
 	Exit();
 }

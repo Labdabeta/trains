@@ -16,6 +16,12 @@ void main_task(void);
 	void cout_server(void);
 		void cout_courier(void);
 			void cout_notifier(void);
+	void tin_server(void);
+		void tin_courier(void);
+			void tin_notifier(void);
+	void tout_server(void);
+		void tout_courier(void);
+			void tout_notifier(void);
 	void hello(void);
 void idle(void);
 

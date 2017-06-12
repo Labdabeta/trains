@@ -22,7 +22,20 @@ void main_task(void)
 	while (WhoIs("COUT") < 0)
 		Pass();
 
+	DEBUG_PRINT("Initializing printf");
 	init_printf(0, fn_ptr(printf_putc));
+
+#if 0
+	DEBUG_PRINT("Creating tin server");
+	CreateSize(2, tin_server, TASK_SIZE_TINY);
+	while (WhoIs("TIN") < 0)
+		Pass();
+
+	DEBUG_PRINT("Creating tout server");
+	CreateSize(2, tout_server, TASK_SIZE_TINY);
+	while (WhoIs("TOUT") < 0)
+		Pass();
+#endif
 
 	Create(5, hello);
 

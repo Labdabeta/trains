@@ -46,6 +46,7 @@ void EnterHWI(void) __attribute__((interrupt("IRQ")));
 void EnterHWI(void)
 {
 	int i;
+
 	for (i = 0; i < 31; ++i) {
 		if (event_blocks[i] && CHECK_INTERRUPT(1, i)) {
 			unblockTask(global_scheduler, event_blocks[i]);

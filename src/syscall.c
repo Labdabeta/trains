@@ -6,6 +6,8 @@
 #include "tasks/name_server.h"
 #include "tasks/cin_server.h"
 #include "tasks/cout_server.h"
+#include "tasks/tin_server.h"
+#include "tasks/tout_server.h"
 #include "ts7200.h"
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
@@ -177,13 +179,17 @@ unsigned long long int UTime(KernelTimer kt)
 
 int Getc(int tid, int uart)
 {
-	(void)uart; // unused
+	if (uart == 1)
+		return sendTinGetc(tid);
 	return sendCinGetc(tid);
 }
 
 int Putc(int tid, int uart, char ch)
 {
-	(void)uart; // unused
+	if (uart == 1) {
+		sendToutByte(tid, ch);
+		return 0;
+	}
 	char msg[2];
 	msg[0] = ch;
 	msg[1] = 0;
@@ -193,7 +199,10 @@ int Putc(int tid, int uart, char ch)
 
 int Putstr(int tid, int uart, char *str)
 {
-	(void)uart; // unused
+	if (uart == 1) {
+		sendToutBytePair(tid, str[0], str[1]);
+		return 0;
+	}
 	sendCoutPutstr(tid, str);
 	return 0;
 }
