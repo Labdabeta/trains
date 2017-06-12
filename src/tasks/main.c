@@ -3,7 +3,7 @@
 
 static int _cout_tid;
 void printf_putc(void *data, char ch) {
-	Putc(_cout_tid, 1, ch);
+	Putc(_cout_tid, 2, ch);
 }
 
 void main_task(void)
@@ -25,7 +25,6 @@ void main_task(void)
 	DEBUG_PRINT("Initializing printf");
 	init_printf(0, fn_ptr(printf_putc));
 
-#if 0
 	DEBUG_PRINT("Creating tin server");
 	CreateSize(2, tin_server, TASK_SIZE_TINY);
 	while (WhoIs("TIN") < 0)
@@ -35,7 +34,6 @@ void main_task(void)
 	CreateSize(2, tout_server, TASK_SIZE_TINY);
 	while (WhoIs("TOUT") < 0)
 		Pass();
-#endif
 
 	Create(5, hello);
 

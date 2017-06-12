@@ -11,7 +11,8 @@ ENTRY initialize(struct Data *data)
 	data->com2 = (struct UART*)UART2_BASE;
 	data->parent = MyParentTid();
 
-	data->com2->lcrh |= UART_FIFOEN_MASK;
+	//data->com2->lcrh |= UART_FIFOEN_MASK;
+	data->com2->lcrh &= ~(UART_FIFOEN_MASK);
 	EnableEvent(EVENT_TYPE_UART2_TX);
 }
 

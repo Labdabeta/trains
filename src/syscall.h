@@ -13,7 +13,9 @@ typedef enum TaskSize {
 	TASK_SIZE_TINY
 } TaskSize;
 
-/* EVENT_TYPE_ */
+/* DESIGN NOTE: In general there should be a separate notifier for each event
+ * type. That way two events in rapid succession can be fully handled without
+ * delay and with priority taken into account. */
 typedef enum EventType {
 	EVENT_TYPE_UNUSED_0 = 0, EVENT_TYPE_UNUSED_1, EVENT_TYPE_COMM_RX,
 	EVENT_TYPE_COMM_TX,	EVENT_TYPE_TIMER_1, EVENT_TYPE_TIMER_2,
