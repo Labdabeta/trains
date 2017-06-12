@@ -40,8 +40,8 @@ ENTRY server_initialize(struct server_Data *data) { \
 } \
 ENTRY server_work(struct server_Data *data) { \
 	int tid; \
-	ReceiveBuffer(&tid, &data->buf); \
-	handle(&data->user, tid, &data->msg); \
+	int datalen = ReceiveBuffer(&tid, &data->buf); \
+	handle(&data->user, tid, &data->msg, datalen); \
 } \
 MAKE_SERVICE_LONG(name, server_Data, server_initialize, server_work)
 

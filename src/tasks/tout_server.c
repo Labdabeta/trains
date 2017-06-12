@@ -28,8 +28,9 @@ ENTRY initialize(struct Data *data)
 	data->courier = CreateSize(1, tout_courier, TASK_SIZE_TINY);
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *m)
+ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 {
+	(void)size; /* unused */
 	switch (m->type) {
 		case 0:
 			if (data->output_size) {

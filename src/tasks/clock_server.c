@@ -31,8 +31,9 @@ ENTRY initialize(struct Data *data)
 	(void)CreateSize(1, clock_courier, TASK_SIZE_TINY);
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *m)
+ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 {
+	(void)size; /* unused */
 	switch (m->type) {
 		case TMT_TICK:
 			Reply(tid, 0, 0);

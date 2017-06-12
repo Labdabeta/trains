@@ -18,8 +18,9 @@ ENTRY initialize(struct Data *data)
 	data->size = 0;
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *m)
+ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 {
+	(void)size; /* unused */
 	int reply;
 	if (m->isRegister) {
 		char *c,*n;

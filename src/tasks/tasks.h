@@ -22,7 +22,9 @@ void main_task(void);
 	void tout_server(void);
 		void tout_courier(void);
 			void tout_notifier(void);
-	void hello(void);
+	void view(void);
+		void model(void);
+			void controller(void);
 void idle(void);
 
 

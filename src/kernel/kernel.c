@@ -46,6 +46,9 @@ void EnterHWI(void) __attribute__((interrupt("IRQ")));
 void EnterHWI(void)
 {
 	int i;
+	dprintf("V1: %x S, %x E, %x R\n\rV2: %x S, %x E, %x R\n\r",
+			GET_INT(1), GET_ENA(1), GET_RAW(1),
+			GET_INT(2), GET_ENA(2), GET_RAW(2));
 
 	for (i = 0; i < 31; ++i) {
 		if (event_blocks[i] && CHECK_INTERRUPT(1, i)) {

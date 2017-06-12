@@ -19,12 +19,8 @@ ENTRY work(struct Data *data)
 {
 	int send;
 	AwaitEvent(EVENT_TYPE_UART2_RX);
-	if (!(data->com2->flag & 0x10)) {
-		send = data->com2->data;
-		Send(data->parent, (char*)&send, sizeof(send), 0, 0);
-	} else {
-		Pass();
-	}
+	send = data->com2->data;
+	Send(data->parent, (char*)&send, sizeof(send), 0, 0);
 }
 
 MAKE_SERVICE(cin_notifier)
