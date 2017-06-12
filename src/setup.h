@@ -29,7 +29,7 @@ static inline void setuprecieve(){
 
 static inline void setuptransmit(){
 	volatile int *uctrl = (int *)( UART2_BASE + UART_CTRL_OFFSET);
-	*uctrl |= 1 << 4;
+	*uctrl |= 1 << 5;
 }
 
 static inline void transmiton(){
@@ -38,8 +38,8 @@ static inline void transmiton(){
 }
 
 static inline void transmitoff(){
-	volatile int *enable = (int *) ( VIC1_BASE + VIC_ENABLE_OFFSET );
-	*enable &= ~(1 << 26);
+	volatile int *enable = (int *) ( VIC1_BASE + VIC_CLEAR_OFFSET );
+	*enable |= 1 << 26;
 }
 
 static inline void recieveon(){
@@ -48,8 +48,8 @@ static inline void recieveon(){
 }
 
 static inline void recieveoff(){
-	volatile int *enable = (int *) ( VIC1_BASE + VIC_ENABLE_OFFSET );
-	*enable &= ~(1 << 25);
+	volatile int *enable = (int *) ( VIC1_BASE + VIC_CLEAR_OFFSET );
+	*enable |= 1 << 25;
 }
 
 static inline void putcom2(char c){

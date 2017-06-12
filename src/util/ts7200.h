@@ -38,6 +38,8 @@ struct UART {
 #define VIC1_BASE 0x800b0000
 #define VIC2_BASE 0x800c0000
 #define VIC_STATUS_OFFSET 0x00
+#define VIC_RAW_OFFSET 0x08
 #define VIC_ENABLE_OFFSET 0x10
+#define VIC_CLEAR_OFFSET 0x14
 
 #endif /* TS_7200_H */

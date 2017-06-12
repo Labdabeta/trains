@@ -61,8 +61,7 @@ void uart_transmit_notifier(){
   char c;
   while(1){
     Send(serv_tid, 0, 0, &c, 1);
-    putcom2(c);
-    AwaitEvent(EVENT_TRANSMIT);
+    AwaitTransmit(c);
   }
 }
 
@@ -84,10 +83,9 @@ void uart_transmit_server(){
   while(1){
     len = Receive(&caller, msg, 1);
     if(len){
-      if(cbsize(&requests)){
-        cbwrite(&requests, caller);
-        cbwrite(&content, msg[0]);
-      } else{
+      cbwrite(&requests, caller);
+      cbwrite(&content, msg[0]);
+      if(!cbsize(&requests)){
         Reply(not_tid, msg, 1);
       }
     } else{

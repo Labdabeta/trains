@@ -4,9 +4,9 @@
 void main_task(void)
 {
 	CreateSize(0, name_server, TASK_SIZE_TINY);
-	int cs_tid = CreateSize(0, clock_server, TASK_SIZE_TINY);
+	/*int cs_tid = CreateSize(0, clock_server, TASK_SIZE_TINY);
 	while(WhoIs("CLOCK") < 0)
-		Pass();
+		Pass();*/
 	int rs_tid = CreateSize(0, uart_recieve_server, TASK_SIZE_TINY);
 	while(WhoIs("COM2rcv") < 0)
 		Pass();
@@ -16,11 +16,12 @@ void main_task(void)
 	char ch[5];
 	for(int i = 0; i<5; i++){
 		ch[i] = Getc(rs_tid, 2);
+		debugio_putstr("Getc returned.\n\r");
 	}
 	for(int i = 0; i<5; i++){
 		Putc(ts_tid, 2, ch[i]);
 	}
-	Delay(cs_tid, 100);
+	//Delay(cs_tid, 100);
 	debugio_putstr("\n\rWe're done here.\n\r");
 	Exit();
 }

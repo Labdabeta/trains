@@ -8,7 +8,7 @@
 #ifdef DEBUG_MODE
 #define HWI_STACK_SIZE 100
 #else
-#define HWI_STACK_SIZE 20
+#define HWI_STACK_SIZE 100
 #endif
 
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
@@ -41,13 +41,17 @@ struct TaskDescriptor *global_com2tmt;
 void EnterHWI(void) __attribute__((interrupt("IRQ")));
 void EnterHWI(void)
 {
+	//debugio_putstr("HWI!\n\r");
 	volatile int *vic1status = (int *)( VIC1_BASE + VIC_STATUS_OFFSET);
+	DEBUG_DUMP_ADR(*vic1status);
+	volatile int *vic2status = (int *)( VIC2_BASE + VIC_STATUS_OFFSET);
+	DEBUG_DUMP_ADR(*vic2status);
 	if(*vic1status){
 		if(*vic1status && 1 << 25){
 			volatile int *uart2data = (int *)(UART2_BASE + UART_DATA_OFFSET);
 			global_com2rcv->rval = *uart2data;
 			if(global_com2rcv->state == STATE_EVENT_BLOCKED)
-				unblockTask(global_scheduler, global_com2rcv);
+				unblockTask(global_scheduler, global_com2rcv); // Faliure here means dropped input
 		} else{
 			transmitoff();
 			unblockTask(global_scheduler, global_com2tmt); //Nescessarily event blocked
@@ -56,7 +60,7 @@ void EnterHWI(void)
 		volatile int *tclr = (int *) ( TIMER_BASE + TIMER_CLR_OFFSET );
 		*tclr = 0;
 		if(global_clocknotifier->state == STATE_EVENT_BLOCKED)
-			unblockTask(global_scheduler, global_clocknotifier);
+			unblockTask(global_scheduler, global_clocknotifier); // Faliure here means lost ticks
 	}
 }
 
