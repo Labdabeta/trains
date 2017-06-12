@@ -25,6 +25,7 @@ void main_task(void);
 	void view(void);
 		void model(void);
 			void controller(void);
+	void hello(void);
 void idle(void);
 
 
