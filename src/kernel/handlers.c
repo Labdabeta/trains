@@ -3,6 +3,7 @@
 #include "task.h"
 #include "linker.h"
 #include "debugio.h"
+#include "hwi.h"
 
 static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *active)
 {
@@ -210,32 +211,34 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 			return handleReceive(data, active);
 		case CODE_REPLY:
 			return handleReply(data, active);
-	case CODE_SHARE:
-		return handleShare(data, active);
-	case CODE_OBTAIN:
-		return handleObtain(data, active);
-	case CODE_RESPOND:
-		return handleRespond(data, active);
-	case CODE_AWAIT:
-		active->state = STATE_EVENT_BLOCKED;
-		/* could 2x check for double blocking here. */
-		event_blocks[data->argv[0]] = active;
-		if (data->argv[0] > 31)
-			ENABLE_INTERRUPT(2, data->argv[0] - 32);
-		else
-			ENABLE_INTERRUPT(1, data->argv[0]);
-		return 0; /* Not actually returned. */
-	case CODE_UTIME:
-		return handleUtime(data, active);
-	case CODE_SERVICE:
-		data->alive--;
-		return 0;
-	case CODE_QUIT:
-		data->alive = 0;
-		return 0;
-	default:
-		DEBUG_PRINT("%s", "Invalid syscall...\n\r");
-		return -1;
-
+        case CODE_SHARE:
+            return handleShare(data, active);
+        case CODE_OBTAIN:
+            return handleObtain(data, active);
+        case CODE_RESPOND:
+            return handleRespond(data, active);
+        case CODE_AWAIT:
+            active->state = STATE_EVENT_BLOCKED;
+            addAwait(data->argv[0], active);
+            return 0; /* Not actually returned. */
+        case CODE_AWAIT_TX:
+            active->state = STATE_EVENT_BLOCKED;
+            addTransmit(data->argv[0], active, data->argv[1], (int*)data->argv[2]);
+            return 0;
+        case CODE_AWAIT_RX:
+            active->state = STATE_EVENT_BLOCKED;
+            addReceive(data->argv[0], active, (int*)data->argv[2]);
+            return 0;
+        case CODE_UTIME:
+            return handleUtime(data, active);
+        case CODE_SERVICE:
+            data->alive--;
+            return 0;
+        case CODE_QUIT:
+            data->alive = 0;
+            return 0;
+        default:
+            DEBUG_PRINT("%s", "Invalid syscall...\n\r");
+            return -1;
 	}
 }

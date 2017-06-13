@@ -3,12 +3,7 @@
 #include "interface.h"
 #include "syscall.h"
 #include "tasks/tasks.h"
-
-#ifdef DEBUG_MODE
-#define HWI_STACK_SIZE 100
-#else
-#define HWI_STACK_SIZE 20
-#endif
+#include "hwi.h"
 
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
 extern void asm_SetupTrap(void *one, void *two, void *three);
@@ -30,38 +25,6 @@ int newTID(struct KernelData *data, int size)
 			return i;
 
 	return -1;
-}
-
-struct Scheduler *global_scheduler;
-struct TaskDescriptor *event_blocks[EVENT_TYPE_MAX];
-
-void initEventBlocks(void)
-{
-	int i;
-	for (i = 0; i < EVENT_TYPE_MAX; ++i)
-		event_blocks[i] = 0;
-}
-
-void EnterHWI(void) __attribute__((interrupt("IRQ")));
-void EnterHWI(void)
-{
-	int i;
-	dprintf("V1: %x S, %x E, %x R\n\rV2: %x S, %x E, %x R\n\r",
-			GET_INT(1), GET_ENA(1), GET_RAW(1),
-			GET_INT(2), GET_ENA(2), GET_RAW(2));
-
-	for (i = 0; i < 31; ++i) {
-		if (event_blocks[i] && CHECK_INTERRUPT(1, i)) {
-			unblockTask(global_scheduler, event_blocks[i]);
-			event_blocks[i] = 0;
-			DISABLE_INTERRUPT(1, i);
-		}
-		if (event_blocks[32+i] && CHECK_INTERRUPT(2, i)) {
-			unblockTask(global_scheduler, event_blocks[32+i]);
-			event_blocks[32+i] = 0;
-			DISABLE_INTERRUPT(2, i);
-		}
-	}
 }
 
 static void enableT4(void)
@@ -95,9 +58,8 @@ int main(int argc, char *argv[])
 #undef DEBUG_PRINT
 #define DEBUG_PRINT(...)
 	initScheduler(&data.scheduler);
-	global_scheduler = &data.scheduler;
 
-	initEventBlocks();
+	initEventBlocks(&data.scheduler);
 
 	setupTaskArray(data.tasks);
 	data.tasks[0].stack = &data;

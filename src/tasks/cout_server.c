@@ -25,8 +25,7 @@ ENTRY initialize(struct Data *data)
 	data->ready = 0;
 
 	RegisterAs("COUT");
-	/* cutting out the middle man here. */
-	data->courier = CreateSize(0, cout_notifier, TASK_SIZE_TINY);
+	data->courier = CreateSize(0, cout_courier, TASK_SIZE_TINY);
 }
 
 ENTRY handle(struct Data *data, int tid, struct Message *m, int size)

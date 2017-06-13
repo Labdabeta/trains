@@ -11,6 +11,7 @@ ENTRY initialize(struct Data *data)
 {
 	data->notifier = CreateSize(0, tin_notifier, TASK_SIZE_TINY);
 	data->parent = MyParentTid();
+	RegisterAs("TIN_C");
 }
 
 ENTRY work(struct Data *data)

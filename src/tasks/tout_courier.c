@@ -9,6 +9,7 @@ struct Data {
 
 ENTRY initialize(struct Data *data)
 {
+	RegisterAs("TOUT_N");
 	data->notifier = CreateSize(0, tout_notifier, TASK_SIZE_TINY);
 	data->parent = MyParentTid();
 }
@@ -18,7 +19,7 @@ ENTRY work(struct Data *data)
 	int tid;
 	char ch;
 
-	/* Receive from the tout notifier. */
+	/* Receive from the train notifier. */
 	Receive(&tid, 0, 0);
 
 	/* Send to the tout server. */

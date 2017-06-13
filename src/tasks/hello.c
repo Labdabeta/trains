@@ -4,17 +4,15 @@ void hello()
 {
 	int cout = WhoIs("COUT");
 	int cin = WhoIs("CIN");
-	//int tout = WhoIs("TOUT");
-	//int tin = WhoIs("TIN");
+	int tout = WhoIs("TOUT");
+	int tin = WhoIs("TIN");
 	int clock = WhoIs("CLOCK");
-	printf("Cout is: %d\n\rCin is: %d\n\r", cout, cin);
-	//printf("Tout is: %d\n\rTin is: %d\n\r", tout, tin);
+	Putstr(cout, 2, "Hello, World!\n\r");
+	int ch = Getc(cin, 2);
+	Putc(cout, 2, ch);
+	Putc(tout, 1, 133);
+	ch = Getc(tin, 1);
+	Putc(cout, 2, ch);
 	Delay(clock, 10);
-
-	printf("Got: %d\n\r", Getc(cin, 2));
-	//Putc(tout, 1, 193);
-	//printf("Sensor: %d\n\r", Getc(tin, 1));
-
-	Delay(clock, 100);
 	Exit();
 }
