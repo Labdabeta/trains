@@ -24,11 +24,15 @@ void name_server()
 		if(err == -1)
 			goto nameserver_reply;
 		if(names[size * MAX_NAME_LENGTH] == 'r'){
+			debugio_putstr(&names[size * MAX_NAME_LENGTH]);
+			debugio_putstr(": Registering\n\r");
 			tids[size] = tid;
 			size++;
 			reply = 1;
 			goto nameserver_reply;
 		} else{
+			debugio_putstr(&names[size * MAX_NAME_LENGTH]);
+			debugio_putstr(": Comparing\n\r");
 			int i, j;
 			for(i = size - 1; i >= 0; i--){
 				for(j = err - 1; j >= 1; j--){

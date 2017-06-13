@@ -22,6 +22,14 @@ static inline void cleanupTimer(){
 	*tclr = 0;
 }
 
+static inline void setupUART1(){
+	volatile int *low = (int *) ( UART1_BASE + UART_LCRL_OFFSET );
+	*low &= 0xffffff00;
+	*low |= 0x68;
+	volatile int *high = (int *)(UART1_BASE + UART_LCRH_OFFSET);
+	*high &= ~(UART_FIFOEN_MASK);
+}
+
 static inline void setuprecieve(){
 	volatile int *uctrl = (int *)( UART2_BASE + UART_CTRL_OFFSET);
 	*uctrl |= 1 << 4;

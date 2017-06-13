@@ -21,12 +21,24 @@ void uart_recieve_notifier(){
 }
 
 void uart_recieve_server(){
+  debugio_putstr("Entering rs\n\r");
   Service();
   int caller, len;
   char tid;
-  RegisterAs("COM2rcv");
 
-  SetGlobalTID(&global_com2rcv, CreateSize(0, uart_recieve_notifier, TASK_SIZE_TINY));
+  char name[8];
+  Receive(&caller, name, 8); // Must be null terminated
+  Reply(caller, 0, 0);
+  debugio_putstr(name);
+  debugio_putstr("Name set\n\r");
+  RegisterAs(name);
+
+  struct intandflag asdfasd;
+  Receive(&caller, (char *)&asdfasd, sizeof(struct intandflag));
+  void *notifier_code = (void *)asdfasd.val;
+  Reply(caller, 0, 0);
+
+  SetGlobalTID(&global_com2rcv, CreateSize(0, notifier_code, TASK_SIZE_TINY));
   char msg[3];
   cbuff content;
   cbinit(&content);
@@ -71,11 +83,18 @@ void uart_transmit_server(){
   Service();
   int caller, len;
   char tid;
-  RegisterAs("COM2tmt");
-
   int ready = 0;
 
-  int not_tid = CreateSize(0, uart_transmit_notifier, TASK_SIZE_TINY);
+  char name[8];
+  Receive(&caller, name, 8); // Must be null terminated
+  Reply(caller, 0, 0);
+
+  struct intandflag asdfasd;
+  Receive(&caller, (char *)&asdfasd, sizeof(struct intandflag));
+  void *notifier_code = (void *)asdfasd.val;
+  Reply(caller, 0, 0);
+
+  int not_tid = CreateSize(0, notifier_code, TASK_SIZE_TINY);
   SetGlobalTID(&global_com2tmt, not_tid);
   char msg[3];
   cbuff content;
@@ -83,6 +102,7 @@ void uart_transmit_server(){
   cbuff requests;
   cbinit(&requests);
   setuptransmit();
+  RegisterAs(name);
 
   while(1){
     len = Receive(&caller, msg, 1);

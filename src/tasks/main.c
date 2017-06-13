@@ -7,12 +7,25 @@ void main_task(void)
 	/*int cs_tid = CreateSize(0, clock_server, TASK_SIZE_TINY);
 	while(WhoIs("CLOCK") < 0)
 		Pass();*/
+	debugio_putstr("Creating rs\n\r");
 	int rs_tid = CreateSize(0, uart_recieve_server, TASK_SIZE_TINY);
-	while(WhoIs("COM2rcv") < 0)
+	char name[8] = "COM2rcv";
+	Send(rs_tid, name, 8, 0, 0);
+	struct intandflag msg;
+	msg.val = (int) uart_recieve_notifier;
+	Send(rs_tid, (char *) &msg, sizeof(struct intandflag), 0, 0);
+	debugio_putstr("Returned\n\r");
+	while(WhoIs(name) < 0)
 		Pass();
+	debugio_putstr("Creating ts\n\r");
 	int ts_tid = CreateSize(0, uart_transmit_server, TASK_SIZE_TINY);
+	char name2[] = "COM2tmt";
+	Send(ts_tid, name2, 8, 0, 0);
+	msg.val = (int) uart_transmit_notifier;
+	Send(ts_tid, (char *) &msg, sizeof(struct intandflag), 0, 0);
 	while(WhoIs("COM2tmt") < 0)
 		Pass();
+	debugio_putstr("Done initializing\n\r");
 	char ch[5];
 	for(int i = 0; i<5; i++){
 		ch[i] = Getc(rs_tid, 2);
