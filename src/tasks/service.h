@@ -23,7 +23,6 @@ MAKE_SERVICE(name)
 #define SERVICE_H
 
 /* Use this to ignore a required section of a template. */
-#define IGNORED char _unused;
 #define ENTRY static inline void
 
 #include "tasks.h"
