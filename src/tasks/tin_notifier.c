@@ -20,7 +20,9 @@ ENTRY initialize(struct Data *data)
 ENTRY work(struct Data *data)
 {
 	char send;
+	data->com1->ctrl |= 0x10;
 	AwaitEvent(EVENT_TYPE_UART1_RX);
+	data->com1->ctrl &= ~(0x10);
 	send = data->com1->data;
 	Send(data->parent, (char*)&send, sizeof(send), 0, 0);
 }

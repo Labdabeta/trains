@@ -20,8 +20,8 @@ void sensor_controller(void)
 		Putc(tout, 1, 133);
 
 		for (i = 0; i < 10; ++i) {
-			int senin = Getc(tin, 1);
-			dprintf("Sensor %d: %d\n\r", i, senin);
+			char senin = Getc(tin, 1);
+			//dprintf("Sensor %d: %x\n\r", i, (int)senin);
 			msg.marklin.data[i] = senin;
 		}
 
@@ -49,14 +49,14 @@ void keyboard_controller(void)
 	for (ever) {
 		char ch = Getc(cin, 2);
 		msg.echo.val = ch;
-		cmdline[addr++] = ch;
 		Send(mid, (char*)&msg, sizeof(msg), 0, 0);
-
 		if (ch == '\n' || ch == '\r') {
-			cmdline[addr] = 0; addr = 0;
-			parse_cmd(cmdline, &msg);
-			Send(mid, (char*)&msg, sizeof(msg), 0, 0);
+			cmdline[addr++] = 0; addr = 0;
+			if (parse_cmd(cmdline, &msg))
+				Send(mid, (char*)&msg, sizeof(msg), 0, 0);
 			msg.code = CODE_COM2byte;
+		} else {
+			cmdline[addr++] = ch;
 		}
 	}
 }

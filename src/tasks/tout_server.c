@@ -60,7 +60,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 
 				/* Copy remaining data. */
 				int idx = data->output_idx + data->output_size++;
-				data->outputs[idx % OUTPUT_BUFSIZE] = m->b1;
+				data->outputs[idx % OUTPUT_BUFSIZE] = m->b2;
 			} else {
 				/* Copy data. */
 				int idx = data->output_idx + data->output_size++;

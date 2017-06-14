@@ -11,8 +11,10 @@ void hello()
 	int ch = Getc(cin, 2);
 	Putc(cout, 2, ch);
 	Putc(tout, 1, 133);
-	ch = Getc(tin, 1);
-	Putc(cout, 2, ch);
+	for (int i = 0; i < 10; ++i) {
+		ch = Getc(tin, 1);
+		Putc(cout, 2, ch);
+	}
 	Delay(clock, 10);
 	Exit();
 }

@@ -36,5 +36,6 @@ void idle(void);
 
 
 #include "printf/printf.h"
+#include "main.h"
 
 #endif /* TASKS_H */

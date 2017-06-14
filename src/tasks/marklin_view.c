@@ -42,13 +42,13 @@ void train_state_view(){
 	rev_args.clock_tid = clock_tid;
 
 	char msg[3];
-	msg[0] = 'a';
+	msg[0] = 0;
 	msg[2] = 0;
 
 	int trainstates[81];
 	for(msg[1] = 1; msg[1] < 81; msg[1]++){
 		trainstates[(int) msg[1]] = 0; // NB check
-		Putstr(out_tid, 1, msg);
+        //tput2(0, msg[1]);
 	}
 
 	Receive(&caller, 0, 0);
@@ -60,9 +60,7 @@ void train_state_view(){
 		switch(request.type){
 			case TYPE_SetSpeed:
 				trainstates[request.args.speed.train] = request.args.speed.speed + (trainstates[request.args.speed.train] & 16);
-				msg[0] = trainstates[request.args.speed.train];
-				msg[1] = request.args.speed.train;
-				Putstr(out_tid, 1, msg);
+                tput2(trainstates[request.args.speed.train], request.args.speed.train);
 			break;
 
 			case TYPE_Reverse:
@@ -74,9 +72,7 @@ void train_state_view(){
 
 			case TYPE_Headlights:
 				trainstates[request.args.lights.train] ^= 16;
-				msg[0] = trainstates[request.args.lights.train];
-				msg[1] = request.args.lights.train;
-				Putstr(out_tid, 1, msg);
+                tput2(trainstates[request.args.lights.train], request.args.lights.train);
 			break;
 		}
 	}
@@ -89,12 +85,8 @@ void switch_coordinator(){
 	Receive(&caller, (char *) &flip_args, sizeof(struct switch_coordinator_args));
 	Reply(caller, 0, 0);
 
-	char msg[3];
-	msg[0] = flip_args.state;
-	msg[1] = flip_args.number;
-	msg[2] = 0;
-	Putstr(flip_args.out_tid, 1, msg);
-	Delay(flip_args.clock_tid, 5);
-	Putc(flip_args.out_tid, 1, 32);
+    tput2(flip_args.state, flip_args.number);
+	Delay(flip_args.clock_tid, 10);
+    tputc(32);
 	Exit();
 }

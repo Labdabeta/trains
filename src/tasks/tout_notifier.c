@@ -27,21 +27,20 @@ ENTRY initialize(struct Data *data)
 
 ENTRY work(struct Data *data)
 {
-	data->com1->ctrl |= 0x20;
 	AwaitEvent(EVENT_TYPE_UART1_INT);
 
-	if (data->com1->flag & 0x40) {
+	if (data->com1->cint & 0x2) {
 		// Oops, that's a receive
-	} else if (data->com1->flag & 0x1) {
-		// CTS
-		data->got_cts = 1;
-		data->com1->cint = 1;
-	} else if (data->com1->flag & 0x80) {
-		// Transmit empty
+	} else if (data->com1->cint & 0x4 && !data->got_tx) {
+		// Its a transmit
 		data->got_tx = 1;
-		data->com1->ctrl &= ~(0x20); /* disable TXFE */
+		data->com1->ctrl &= ~(0x20);
+	} else {
+		// Its a modem
+		if (data->com1->flag & 1)
+			data->got_cts = 1;
+		data->com1->cint = 1;
 	}
-
 	if (data->got_tx && data->got_cts) {
 		// ready to send!
 		char ch;
@@ -49,6 +48,7 @@ ENTRY work(struct Data *data)
 		data->got_cts = 0;
 		Send(data->parent, 0, 0, &ch, sizeof(ch));
 		data->com1->data = ch;
+		data->com1->ctrl |= 0x20;
 	}
 }
 
