@@ -49,6 +49,4 @@ static inline unsigned long long int t4t(void)
     return (*(unsigned long long int*)0x80810060) & 0xFFFFFFFFFFUL;
 }
 
-extern struct TaskDescriptor *event_blocks[EVENT_TYPE_MAX];
-
 #endif /* KERNEL_H */

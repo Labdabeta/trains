@@ -1,92 +1,109 @@
+#include <server.h>
 #include "model.h"
 #include "marklin_view.h"
+#include "terminal_view.h"
 
-void model()
-{
-	int caller, child_tid;
+struct Data {
+	int caller;
+	int child_tid;
 	struct A0_model_message msg;
 	struct Train_Command train_out;
 	struct switch_coordinator_args flip_out;
-	flip_out.out_tid = WhoIs("TOUT");
-	flip_out.clock_tid = WhoIs("CLOCK");
-
 	char sensors[10];
-	for(int i = 0; i < 10; i++)
-		sensors[i] = 0;
-
 	char switchstates[21];
-	for(int i = 0; i < 21; i++)
-		switchstates[i] = '?';
-
 	char space[8];
+	int marklin_tid;
+	int echo_tid;
+	int flip_tid;
+	int sensor_tid;
+};
 
-	int marklin_tid = CreateSize(1, train_state_view, TASK_SIZE_TINY);
-	Send(marklin_tid, 0, 0, 0, 0); //Returns after initialization
+ENTRY initialize(struct Data *data)
+{
+	int i;
+	dprintf("Model TID: %d\n\r", MyTid());
+	data->flip_out.out_tid = WhoIs("TOUT");
+	data->flip_out.clock_tid = WhoIs("CLOCK");
+	for (i = 0; i < 10; ++i)
+		data->sensors[i] = 0;
 
-	int echo_tid, flip_tid, sensor_tid;
+	for (i = 0; i < 21; ++i)
+		data->switchstates[i] = '?';
 
-	while(1){
-		Receive(&caller, (char *) &msg, sizeof(struct A0_model_message));
-		switch(msg.code){
-			case CODE_COM2byte:
-				space[0] = msg.echo.val;
-				Send(echo_tid, space, 1, 0, 0); //DOES NOT EXIST
-			break;
+	data->marklin_tid = CreateSize(1, train_state_view, TASK_SIZE_SMALL);
+	Send(data->marklin_tid, 0, 0, 0, 0); //Returns after initialization
 
-			case CODE_MarklinBytes:
-				for(int i = 0; i < 10; i++){
-					if(msg.marklin.data[i] != sensors[i]){
-						space[0] = i;
-						space[1] = msg.marklin.data[i] ^ sensors[i];
-						Send(sensor_tid, space, 2, 0, 0); //DOES NOT EXIST
-						sensors[i] = msg.marklin.data[i];
-					}
-				}
-			break;
+	i = CreateSize(1, setup_t, TASK_SIZE_SMALL);
+	Send(i, 0, 0, 0, 0); //Wait for the initial screen to print
 
-			case CODE_Command:
-				switch(msg.command.type){
-					case A0TYPE_SetSpeed:
-						train_out.type = TYPE_SetSpeed;
-						train_out.args.speed.train = msg.command.args.speed.train;
-						train_out.args.speed.speed = msg.command.args.speed.speed;
-					goto SendTrain;
-
-					case A0TYPE_Reverse:
-						train_out.type = TYPE_Reverse;
-						train_out.args.reverse.train = msg.command.args.reverse.train;
-					goto SendTrain;
-
-					case A0TYPE_Headlights:
-						train_out.type = TYPE_Headlights;
-						train_out.args.lights.train = msg.command.args.lights.train;
-					goto SendTrain;
-
-					SendTrain:
-					Send(marklin_tid, (char *) &train_out, sizeof(struct Train_Command), 0, 0);
-					break;
-
-					case A0TYPE_SwitchFlip:
-						if(switchstates[msg.command.args.flip.number] != msg.command.args.flip.state){
-							flip_out.number = msg.command.args.flip.number; // NB TRANSLATE!!!!
-							flip_out.state = msg.command.args.flip.state == 'S' ? 33 : 34;
-							child_tid = CreateSize(0, switch_coordinator, TASK_SIZE_TINY);
-							Send(child_tid, (char *) &flip_out, sizeof(struct switch_coordinator_args), 0, 0);
-							space[0] = msg.command.args.flip.number;
-							space[1] = msg.command.args.flip.state;
-							Send(flip_tid, space, 2, 0, 0); //DOES NOT EXIST
-							switchstates[msg.command.args.flip.number] = msg.command.args.flip.state;
-						}
-					break;
-
-					case A0TYPE_Quit:
-						KQuit();
-					break;
-				}
-			break;
-		}
-		Reply(caller, 0, 0);
-	}
-
-	//Flow should never reach the end
+	data->echo_tid = CreateSize(1, echo_view_t, TASK_SIZE_SMALL);
+	data->flip_tid = CreateSize(1, flip_view_t, TASK_SIZE_SMALL);
+	data->sensor_tid = CreateSize(1, sensor_view_t, TASK_SIZE_SMALL);
 }
+
+ENTRY handle(struct Data *data, int tid, struct A0_model_message *msg, int msg_size)
+{
+	(void)msg_size; // ignored
+	int i, child_tid;
+	switch (msg->code) {
+		case CODE_COM2byte:
+			data->space[0] = msg->echo.val;
+			Send(data->echo_tid, data->space, 1, 0, 0);
+			break;
+		case CODE_MarklinBytes:
+			for (i = 0; i < 10; ++i) {
+				if (msg->marklin.data[i] != data->sensors[i]) {
+					if(msg->marklin.data[i] & ~data->sensors[i]){
+						data->space[0] = i;
+						data->space[1] = msg->marklin.data[i] & ~data->sensors[i];
+						Send(data->sensor_tid, data->space, 2, 0, 0);
+					}
+					data->sensors[i] = msg->marklin.data[i];
+				}
+			}
+			break;
+		case CODE_Command:
+			switch (msg->command.type) {
+				case A0TYPE_SetSpeed:
+					data->train_out.type = TYPE_SetSpeed;
+					data->train_out.args.speed.train = msg->command.args.speed.train;
+					data->train_out.args.speed.speed = msg->command.args.speed.speed;
+					goto SendTrain;
+
+				case A0TYPE_Reverse:
+					data->train_out.type = TYPE_Reverse;
+					data->train_out.args.reverse.train = msg->command.args.reverse.train;
+					goto SendTrain;
+
+				case A0TYPE_Headlights:
+					data->train_out.type = TYPE_Headlights;
+					data->train_out.args.lights.train = msg->command.args.lights.train;
+					goto SendTrain;
+
+SendTrain:
+				Send(data->marklin_tid, (char *) &data->train_out, sizeof(struct Train_Command), 0, 0);
+				break;
+
+				case A0TYPE_SwitchFlip:
+					if (data->switchstates[msg->command.args.flip.number] != msg->command.args.flip.state) {
+						data->flip_out.number = msg->command.args.flip.number;
+						data->flip_out.state = msg->command.args.flip.state == 'S' ? 33 : 34;
+						child_tid = CreateSize(0, switch_coordinator, TASK_SIZE_TINY);
+						Send(child_tid, (char*)&data->flip_out, sizeof(struct switch_coordinator_args), 0, 0);
+						data->space[0] = msg->command.args.flip.number;
+						data->space[1] = msg->command.args.flip.state;
+						Send(data->flip_tid, data->space, 2, 0, 0);
+						data->switchstates[msg->command.args.flip.number] = msg->command.args.flip.state;
+					}
+					break;
+
+				case A0TYPE_Quit:
+					KQuit();
+					break;
+			}
+			break;
+	}
+	Reply(tid, 0, 0);
+}
+
+MAKE_SERVER_LONG(model, Data, A0_model_message, initialize, handle)

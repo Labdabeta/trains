@@ -39,6 +39,7 @@ struct UART {
 	volatile int lcrl;
 	volatile int ctrl;
 	volatile int flag;
+	volatile int cint;
 };
 
 #define UART_FIFOEN_MASK 0x10

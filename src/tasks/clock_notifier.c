@@ -13,7 +13,6 @@ ENTRY initialize(struct Data *data)
 
 	data->t1->load = 19;
 	data->t1->ctrl |= TIMER_ENABLE_MASK | TIMER_PERIODIC_MASK;
-	EnableEvent(EVENT_TYPE_TIMER_1);
 }
 
 ENTRY work(struct Data *data)

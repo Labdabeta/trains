@@ -132,27 +132,19 @@ int WhoIs(char *name)
 	return sendWhoIs(NAMESERVER_TID, name);
 }
 
-int AwaitEvent(EventType type)
+void AwaitEvent(EventType type)
 {
-	return asm_callSystemInterrupt(type, 0, 0, CODE_AWAIT);
+	(void)asm_callSystemInterrupt(type, 0, 0, CODE_AWAIT);
 }
 
-void EnableEvent(EventType type)
+void AwaitTransmission(EventType type, int value, int *addr)
 {
-	int code = (int)type;
-	if (code > 31)
-		ENABLE_INTERRUPT(2, code - 31);
-	else
-		ENABLE_INTERRUPT(1, code);
+    (void)asm_callSystemInterrupt(type, value, (int)addr, CODE_AWAIT_TX);
 }
 
-void DisableEvent(EventType type)
+int AwaitReceive(EventType type, int *addr)
 {
-	int code = (int)type;
-	if (code > 31)
-		DISABLE_INTERRUPT(2, code - 31);
-	else
-		DISABLE_INTERRUPT(1, code);
+    return asm_callSystemInterrupt(type, 0, (int)addr, CODE_AWAIT_RX);
 }
 
 int Time(int tid)
@@ -200,7 +192,11 @@ int Putc(int tid, int uart, char ch)
 int Putstr(int tid, int uart, char *str)
 {
 	if (uart == 1) {
-		sendToutBytePair(tid, str[0], str[1]);
+        char *ch;
+        for (ch = str; ch[0] && ch[1]; ch += 2)
+            sendToutBytePair(tid, ch[0], ch[1]);
+        if (ch[0])
+            sendToutByte(tid, *ch);
 		return 0;
 	}
 	sendCoutPutstr(tid, str);

@@ -11,20 +11,15 @@ ENTRY initialize(struct Data *data)
 	data->com2 = (struct UART*)UART2_BASE;
 	data->parent = MyParentTid();
 
-	data->com2->ctrl |= UART_FIFOEN_MASK;
-	EnableEvent(EVENT_TYPE_UART2_RX);
+	data->com2->ctrl |= 0x10;
 }
 
 ENTRY work(struct Data *data)
 {
 	int send;
 	AwaitEvent(EVENT_TYPE_UART2_RX);
-	if (!(data->com2->flag & 0x10)) {
-		send = data->com2->data;
-		Send(data->parent, (char*)&send, sizeof(send), 0, 0);
-	} else {
-		Pass();
-	}
+	send = data->com2->data;
+	Send(data->parent, (char*)&send, sizeof(send), 0, 0);
 }
 
 MAKE_SERVICE(cin_notifier)
