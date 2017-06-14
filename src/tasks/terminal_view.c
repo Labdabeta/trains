@@ -6,11 +6,31 @@ static inline void escape_jump(int x, int y){
 	printf(movcode, x, y);
 }
 
+void prettybox(int x1, int y1, int x2, int y2){
+	int out_tid = WhoIs("COUT");
+	int i;
+	escape_jump(x1, y1+1);
+	for(i=0; i < y2-y1 - 1; i++){
+		Putc(out_tid, 2 , '_');
+	}
+	for(i=1; i <= x2-x1; i++){
+		escape_jump(x1+i, y1);
+		Putc(out_tid, 2 , '|');
+		escape_jump(x1+i, y2);
+		Putc(out_tid, 2 , '|');
+	}
+	escape_jump(x2, y1+1);
+	for(i=0; i < y2-y1 - 1; i++){
+		Putc(out_tid, 2 , '_');
+	}
+}
+
+
 void setup_t(){
 	printf("\033[2J");
 	printf("\033[?25l");
-	prettybox(&t_out, 3, 3, 26, 46, codes);
-	prettybox(&t_out, 3, 46, 26, 68, codes);
+	prettybox(3, 3, 26, 46);
+	prettybox(3, 46, 26, 68);
 	escape_jump(2,18);
 	printf("\033[31m");
 	printf("Taggart Transcontinental Control Console");
@@ -97,8 +117,8 @@ void flip_view_t(){
 	 ypos[15] = 10; ypos[16] = 19; ypos[17] = 27; ypos[18] = 18;  ypos[19] = 23; ypos[20] = 23;
 
 	 char switchstates[21];
-	 for (i = 0; i < 21; ++i)
- 		data->switchstates[i] = '?';
+	 for (int i = 0; i < 21; ++i)
+ 		switchstates[i] = '?';
 
 	 int caller;
 	 char first, second;
@@ -145,13 +165,12 @@ void flip_view_t(){
 
 void sensor_view_t(){
 	int userheight = 0;
-	int sender;
+	int caller;
 	char msg[2];
-	int out_tid = WhoIs("COUT");
 	while(1){
 		Receive(&caller, msg, 2);
 		Reply(caller, 0, 0);
-		for(i = 0; i <= 7; i++){
+		for(int i = 0; i <= 7; i++){
        if(msg[1] & (1 << (7-i)) ){
 				 escape_jump(6 + userheight, 48);
          printf("%c%d    ",'A' + (msg[0] / 2), 1 + i + (msg[0] % 2)*8);
