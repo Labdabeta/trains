@@ -20,9 +20,17 @@ struct Train_Command {
 		struct Headlights{
 			int train;
 		} lights;
-	}
+	} args;
+};
+
+struct switch_coordinator_args{
+	int number;
+	int state;
+	int out_tid;
+	int clock_tid;
 };
 
 void train_state_view(void);
+void switch_coordinator(void);
 
 #endif

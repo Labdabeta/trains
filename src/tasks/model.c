@@ -1,32 +1,36 @@
 #include "model.h"
-#include "tasks.h"
 #include "marklin_view.h"
 
 void model()
 {
-	int caller;
+	int caller, child_tid;
 	struct A0_model_message msg;
 	struct Train_Command train_out;
+	struct switch_coordinator_args flip_out;
+	flip_out.out_tid = WhoIs("TOUT");
+	flip_out.clock_tid = WhoIs("CLOCK");
 
 	char sensors[10];
 	for(int i = 0; i < 10; i++)
-		switches[i] = 0;
+		sensors[i] = 0;
 
 	char switchstates[21];
 	for(int i = 0; i < 21; i++)
-		switches[i] = '?';
+		switchstates[i] = '?';
 
 	char space[8];
 
 	int marklin_tid = CreateSize(1, train_state_view, TASK_SIZE_TINY);
 	Send(marklin_tid, 0, 0, 0, 0); //Returns after initialization
 
+	int echo_tid, flip_tid, sensor_tid;
+
 	while(1){
-		Receive(&caller, &msg, sizeof(struct A0_model_message), 0, 0);
+		Receive(&caller, (char *) &msg, sizeof(struct A0_model_message));
 		switch(msg.code){
 			case CODE_COM2byte:
 				space[0] = msg.echo.val;
-				Send(echo_tid, space, 1); //DOES NOT EXIST
+				Send(echo_tid, space, 1, 0, 0); //DOES NOT EXIST
 			break;
 
 			case CODE_MarklinBytes:
@@ -34,7 +38,7 @@ void model()
 					if(msg.marklin.data[i] != sensors[i]){
 						space[0] = i;
 						space[1] = msg.marklin.data[i] ^ sensors[i];
-						Send(sensor_tid, space, 2); //DOES NOT EXIST
+						Send(sensor_tid, space, 2, 0, 0); //DOES NOT EXIST
 						sensors[i] = msg.marklin.data[i];
 					}
 				}
@@ -42,36 +46,40 @@ void model()
 
 			case CODE_Command:
 				switch(msg.command.type){
-					case TYPE_SetSpeed:
+					case A0TYPE_SetSpeed:
 						train_out.type = TYPE_SetSpeed;
-						train_out.speed.train = msg.command.speed.train;
-						train_out.speed.speed = msg.command.speed.speed;
-						goto SendTrain;
+						train_out.args.speed.train = msg.command.args.speed.train;
+						train_out.args.speed.speed = msg.command.args.speed.speed;
+					goto SendTrain;
 
-					case TYPE_Reverse:
+					case A0TYPE_Reverse:
 						train_out.type = TYPE_Reverse;
-						train_out.reverse.train = msg.command.reverse.train;
-						goto SendTrain;
+						train_out.args.reverse.train = msg.command.args.reverse.train;
+					goto SendTrain;
 
-					case TYPE_Headlights:
+					case A0TYPE_Headlights:
 						train_out.type = TYPE_Headlights;
-						train_out.lights.train = msg.command.lights.train;
-						goto SendTrain;
+						train_out.args.lights.train = msg.command.args.lights.train;
+					goto SendTrain;
 
-					label SendTrain:
-					Send(marklin_tid, &train_out, sizeof(struct Train_Command));
+					SendTrain:
+					Send(marklin_tid, (char *) &train_out, sizeof(struct Train_Command), 0, 0);
 					break;
 
-					case TYPE_SwitchFlip:
-						if(switchstates[msg.command.flip.number] != msg.command.flip.state){
-							space[0] = msg.command.flip.number;
-							space[1] = msg.command.flip.state;
-							Send(flip_tid, space, 2); //DOES NOT EXIST
-							switchstates[msg.command.flip.number] = msg.command.flip.state;
+					case A0TYPE_SwitchFlip:
+						if(switchstates[msg.command.args.flip.number] != msg.command.args.flip.state){
+							flip_out.number = msg.command.args.flip.number; // NB TRANSLATE!!!!
+							flip_out.state = msg.command.args.flip.state == 'S' ? 33 : 34;
+							child_tid = CreateSize(0, switch_coordinator, TASK_SIZE_TINY);
+							Send(child_tid, (char *) &flip_out, sizeof(struct switch_coordinator_args), 0, 0);
+							space[0] = msg.command.args.flip.number;
+							space[1] = msg.command.args.flip.state;
+							Send(flip_tid, space, 2, 0, 0); //DOES NOT EXIST
+							switchstates[msg.command.args.flip.number] = msg.command.args.flip.state;
 						}
 					break;
 
-					case TYPE_Quit:
+					case A0TYPE_Quit:
 						KQuit();
 					break;
 				}
