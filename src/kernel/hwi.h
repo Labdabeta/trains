@@ -1,11 +1,7 @@
 #ifndef HWI_H
 #define HWI_H
 
-#ifdef DEBUG_MODE
 #define HWI_STACK_SIZE 100
-#else
-#define HWI_STACK_SIZE 20
-#endif
 
 #include "syscall.h"
 #include "kernel.h"

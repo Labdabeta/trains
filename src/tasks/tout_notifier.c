@@ -3,7 +3,6 @@
 
 struct Data {
 	int parent;
-	int tin_c; /* We might accidentally grab a tin, so we need to know the tin courier too. */
 	int got_tx;
 	int got_cts;
 	volatile struct UART *com1;
@@ -13,7 +12,6 @@ ENTRY initialize(struct Data *data)
 {
 	data->com1 = (struct UART*)UART1_BASE;
 	data->parent = MyParentTid();
-	data->tin_c = WhoIs("TIN_C");
 	data->got_tx = 0;
 	data->got_cts = 0;
 

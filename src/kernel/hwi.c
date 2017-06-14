@@ -45,7 +45,7 @@ static inline void handleEvent(int event)
 
 void EnterHWI(void)
 {
-	int vic;
+	volatile int vic;
 	while ((vic = GET_INT(1)))
 		handleEvent(__builtin_ctz(vic));
 	while ((vic = GET_INT(2)))

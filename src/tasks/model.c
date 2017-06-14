@@ -99,6 +99,8 @@ SendTrain:
 					break;
 
 				case A0TYPE_Quit:
+					cputstr("\033[2J");
+					Delay(data->flip_out.clock_tid, 100);
 					KQuit();
 					break;
 			}

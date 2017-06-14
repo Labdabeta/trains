@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 			data.lasttick = data.tmp;
 #endif
 
-			//dprintf("Active tid: %d\n\r", active->tid);
+			//dprintf("Active tid: %d\tpc: %x\n\r", active->tid, active->data->pc);
 			enterTask(active);
 
 #ifdef DEBUG_MODE
