@@ -39,6 +39,7 @@ ENTRY initialize(struct Data *data)
 	data->echo_tid = CreateSize(1, echo_view_t, TASK_SIZE_SMALL);
 	data->flip_tid = CreateSize(1, flip_view_t, TASK_SIZE_SMALL);
 	data->sensor_tid = CreateSize(1, sensor_view_t, TASK_SIZE_SMALL);
+	CreateSize(1, time_view_t, TASK_SIZE_SMALL);
 }
 
 ENTRY handle(struct Data *data, int tid, struct A0_model_message *msg, int msg_size)

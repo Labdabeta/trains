@@ -181,3 +181,22 @@ void sensor_view_t(){
      }
 	}
 }
+
+void time_view_t(){
+	int curtime;
+	int hr, min, sec, msec;
+	hr=min=sec=msec=0;
+	int clock_tid = WhoIs("CLOCK");
+	while(1){
+		Delay(clock_tid, 1);
+		curtime = Time(clock_tid);
+		msec = curtime % 100;
+		curtime /= 100;
+		sec = curtime % 60;
+		curtime /= 60;
+		min = curtime % 60;
+		hr = curtime / 60;
+		escape_jump(4, 13);
+		printf("%04d:%02d:%02d:%02d", hr, min, sec, msec);
+	}
+}
