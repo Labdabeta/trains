@@ -20,7 +20,6 @@ ENTRY initialize(struct Data *data)
 ENTRY work(struct Data *data)
 {
 	int send;
-	dprintf("WAITING\n\r");
 	AwaitEvent(EVENT_TYPE_UART1_RX);
 	send = data->com1->data;
 	Send(data->parent, (char*)&send, sizeof(send), 0, 0);

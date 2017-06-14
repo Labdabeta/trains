@@ -28,23 +28,19 @@ ENTRY initialize(struct Data *data)
 ENTRY work(struct Data *data)
 {
 	data->com1->ctrl |= 0x20;
-	dprintf("WAITING\n\r");
 	AwaitEvent(EVENT_TYPE_UART1_INT);
 
 	if (data->com1->flag & 0x40) {
-		dprintf("Got a receive\n\r");
 		// Oops, that's a receive
 	} else if (data->com1->flag & 0x1) {
-		dprintf("Got a cts\n\r");
 		// CTS
 		data->got_cts = 1;
 		data->com1->cint = 1;
 	} else if (data->com1->flag & 0x80) {
-		dprintf("Got a transmit\n\r");
 		// Transmit empty
 		data->got_tx = 1;
 		data->com1->ctrl &= ~(0x20); /* disable TXFE */
-	} else { dprintf("Got a wtf\n\r"); }
+	}
 
 	if (data->got_tx && data->got_cts) {
 		// ready to send!
