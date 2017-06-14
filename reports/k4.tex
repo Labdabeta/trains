@@ -1,8 +1,17 @@
-\documentclass{amsart}
+\documentclass{article}
 \usepackage{amsmath}
 \usepackage{upgreek}
 \usepackage{amssymb}
 \usepackage{graphicx}
+
+\usepackage{titlesec}
+\titleformat{name=\section}{}{\thetitle.}{0.8em}{\centering\scshape}
+\titleformat{name=\subsection}[display]{}{\thetitle.}{0.5em}{\bfseries}
+\titleformat{name=\subsubsection}[runin]{}{\thetitle.}{0.5em}{\itshape}[.]
+\titleformat{name=\paragraph,numberless}[runin]{}{}{0em}{}[.]
+\titlespacing{\paragraph}{0em}{0em}{0.5em}
+\titleformat{name=\subparagraph,numberless}[runin]{}{}{0em}{}[.]
+\titlespacing{\subparagraph}{0em}{0em}{0.5em}
 
 \usepackage{enumerate}
 \usepackage[utf8]{inputenc}
@@ -496,7 +505,8 @@ Once the program has launched, the following five commands are available:
 \vspace{0.5cm}
 \textbf{4.} \texttt{sw <switch-number> <state>}
 
-\ \ \ \ \ Where \texttt{<switch-number>} $\in [1,18] \cup [153,156]$, and \texttt{<state>} $\in \set{\texttt{S}, \texttt{C}}$.
+\ \ \ \ \ Where \texttt{<switch-number>} $\in [1,18] \cup [153,156]$, and
+\texttt{<state>} $\in \left\{\texttt{S}, \texttt{C}\right\}$.
 
 \vspace{0.3cm}
 \textit{This command sets the state of a specified switch to either straight or curved, corresponding to arguments \texttt{`S'} and \texttt{`C'}, respectively. The four switches constituting the two three way branches must be referred to by their decimal values.}
@@ -505,39 +515,24 @@ Once the program has launched, the following five commands are available:
 \textbf{5.} \texttt{q}
 
 \vspace{0.3cm}
-\textit{This command terminates the program. Upon termination, the screen will clear, display an exit message, and state the maximum number of ticks $\bkt{\frac{1}{2} \text{msec} / \text{tick}}$ that any iteration of the pooling loop took to complete. This number is often $6$ if all commands are tested.}
+\textit{This command terminates the program. Upon termination, the screen will
+clear, display an exit message, and state the maximum number of ticks
+$\left(\frac{1}{2} \text{msec} / \text{tick}\right)$ that any iteration of the pooling loop took to complete. This number is often $6$ if all commands are tested.}
 
 \section*{Results}
 
-While unfortunately we did not have enough time to fully satisfy the
-requirements of this particular assignment, we are not disheartened by our
-shortcoming. Both of us were very busy over the past week and had very little
-time to meet and work together. In order to make up for this, we have already
-scheduled plenty of time in the coming week to revamp and refactor our kernel.
-Part of the delay came from an unwillingness to compromise on extensibility in
-our kernel. We were able to make a number of small demos that could have been
-patched together to produce a facade of a complete assignment. However such an
-effort would not be valuable use of our time, as the code would have little to
-no reusability. Instead our eyes remain on the horizon, looking to have a high
-quality kernel on which our train project can eventually run.
+While our submission technically meets the requirements of the assignment, it is
+much less robust than either of our original A0 submissions. The reason for this
+is that unlike most other groups we do not intend to continue to use a
+text-based interface for long. Instead we intend to implement a true graphical
+user interface as a separate executable on the linux machine. This will allow us
+to provide more visual feedback more quickly and finer grained control over
+input (e.g. clicking on an image of the track to stop a train there).
 
-What we do have working is both of the final two kernel primitives,
-\texttt{Getc} and \texttt{Putc} as well as a full printf implementation and a
-powerful debugging system. We can successfully transmit to and from the trains,
-though we have not yet implemented the logic to parse the response fully.
-
-Printing formatted text works without a problem, though is admittably slightly
-slower than we would like. In particular we are discussing possibly inlining
-some of the driver body to the hardware interrupt in an effort to trim a few
-message pass cycles from the critical execution path. Although we are also aware
-that there may be other, more prudent, avenues of exploration in this area.
-
-We also have the basic ability to read bytes from keyboard input, and can deal
-with a fairly rapid input speed without losing data.
-
-The primary shortcoming of our submission is a lack of product. We have all of
-the pieces of a submission working, but have yet to completely port our A0 code
-to the new kernel system.
+It is because of this that our A0 remake is not as full featured as it otherwise
+might be. The important thing is that we have reliable interrupt-driven
+communication working on both com ports and a robust interface for intertask
+communication and scheduling.
 
 \section*{SHA of commit}
 
