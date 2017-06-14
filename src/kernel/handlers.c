@@ -58,7 +58,9 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 	target->recvQueueTail = active;
 
 	/* Make sure the target isn't blocked. */
-	unblockTask(&data->scheduler, target);
+    dprintf("target->state = %d; target->tid = %d\n\r", target->state, target->tid);
+    if (target->state == STATE_RECV_BLOCKED)
+        unblockTask(&data->scheduler, target);
 
 	/* Set ourselves up for blocking. */
 	active->state = STATE_SEND_BLOCKED;

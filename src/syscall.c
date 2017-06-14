@@ -192,7 +192,11 @@ int Putc(int tid, int uart, char ch)
 int Putstr(int tid, int uart, char *str)
 {
 	if (uart == 1) {
-		sendToutBytePair(tid, str[0], str[1]);
+        char *ch;
+        for (ch = str; ch[0] && ch[1]; ch += 2)
+            sendToutBytePair(tid, ch[0], ch[1]);
+        if (ch[0])
+            sendToutByte(tid, *ch);
 		return 0;
 	}
 	sendCoutPutstr(tid, str);

@@ -23,7 +23,6 @@ void initEventBlocks(struct Scheduler *s)
 
 static inline void enableEventInterrupt(EventType type)
 {
-	dprintf("Enabling %d\n\r", type);
 	if (type > 31)
 		ENABLE_INTERRUPT(2, type - 32);
 	else
@@ -40,7 +39,6 @@ static inline void disableEventInterrupt(EventType type)
 
 static inline void handleEvent(int event)
 {
-	dprintf("Got event %d\n\r", event);
 	unblockTask(scheduler, event_blocks[event].task);
 	disableEventInterrupt(event);
 }
@@ -48,10 +46,6 @@ static inline void handleEvent(int event)
 void EnterHWI(void)
 {
 	int vic;
-	dprintf("VIC1: %x S, %x E, %x R\tVIC2: %x S, %x E, %x R\n\r",
-			GET_INT(1), GET_ENA(1), GET_RAW(1),
-			GET_INT(2), GET_ENA(2), GET_RAW(2));
-
 	while ((vic = GET_INT(1)))
 		handleEvent(__builtin_ctz(vic));
 	while ((vic = GET_INT(2)))
