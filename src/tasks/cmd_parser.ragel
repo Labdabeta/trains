@@ -1,0 +1,32 @@
+%%{
+	machine train_cmd;
+	write data;
+}%%
+
+static inline void parse_cmd(char *cmd, struct A0_model_message *msg)
+{
+	int cs;
+	char *p = cmd;
+	char *pe;
+	for (pe = p; *pe; ++pe);
+	char *eof = pe;
+	int num1, num2;
+	num1 = num2 = 0;
+	msg->code = CODE_Command;
+
+	%%{
+		action first_num { num1 *= 10; num1 += fc - '0'; }
+		action second_num { num2 *= 10; num2 += fc - '0'; }
+		first = ([0-9]+ $first_num);
+		second = ([0-9]+ $second_num);
+		second_chr = ([CcSs] ${num2 = fc;});
+		tr_cmd = [Tt][Rr] first second %{msg->command.type = A0TYPE_SetSpeed; msg->command.args.train = num1; msg->command.args.speed = num2; };
+		rv_cmd = [Rr][Vv] first %{msg->command.type = A0TYPE_Reverse; msg->command.args.reverse.train = num1; };
+		sw_cmd = [Ss][Ww] first second_chr %{msg->command.type = A0TYPE_SwitchFlip; msg->command.args.flip.number = num1; msg->command.args.flip.state = num2; };
+		q_cmd = [Qq] %{msg->command.type = A0TYPE_Quit;};
+		l_cmd = [Ll] first %{msg->command.type = A0TYPE_Headlights; msg->command.args.lights.train = num1;};
+		main := (tr_cmd | rv_cmd | sw_cmd | q_cmd | l_cmd);
+		write init;
+		write exec;
+	}%%
+}

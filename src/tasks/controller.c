@@ -29,6 +29,7 @@ void sensor_controller(void)
 	}
 }
 
+#include "cmd_parser.h"
 void keyboard_controller(void)
 {
 	Service();
@@ -36,6 +37,8 @@ void keyboard_controller(void)
 	int tid;
 	int cin = WhoIs("CIN");
 	struct A0_model_message msg;
+	char cmdline[100];
+	int addr = 0;
 	msg.code = CODE_COM2byte;
 
 	Receive(&tid, (char*)&mid, sizeof(mid));
@@ -46,7 +49,15 @@ void keyboard_controller(void)
 	for (ever) {
 		char ch = Getc(cin, 2);
 		msg.echo.val = ch;
+		cmdline[addr++] = ch;
 		Send(mid, (char*)&msg, sizeof(msg), 0, 0);
+
+		if (ch == '\n' || ch == '\r') {
+			cmdline[addr] = 0; addr = 0;
+			parse_cmd(cmdline, &msg);
+			Send(mid, (char*)&msg, sizeof(msg), 0, 0);
+			msg.code = CODE_COM2byte;
+		}
 	}
 }
 
