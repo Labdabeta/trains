@@ -50,7 +50,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 			}
 		}
 	} else {
-        dprintf("Got: %c\n\r", (char)m->data);
 		if (data->block_size) {
 			int task = data->blocked_tids[data->block_idx];
 			data->block_idx = (data->block_idx + 1) % BLOCK_BUFSIZE;

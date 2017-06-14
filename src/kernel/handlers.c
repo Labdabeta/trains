@@ -16,6 +16,8 @@ static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *a
 
 	int newid = newTID(data, size);
 
+	//dprintf("Creating at newid %d, with priority %d, size %d and code %x\n\r", newid, prio, size, code);
+
 	if (newid > 0) {
 		struct TaskDescriptor *newtask = &data->tasks[newid];
 		newtask->priority = prio;
@@ -58,9 +60,9 @@ static inline int handleSend(struct KernelData *data, struct TaskDescriptor *act
 	target->recvQueueTail = active;
 
 	/* Make sure the target isn't blocked. */
-    dprintf("target->state = %d; target->tid = %d\n\r", target->state, target->tid);
-    if (target->state == STATE_RECV_BLOCKED)
-        unblockTask(&data->scheduler, target);
+    //dprintf("target->state = %d; target->tid = %d\n\r", target->state, target->tid);
+	if (target->state == STATE_RECV_BLOCKED)
+		unblockTask(&data->scheduler, target);
 
 	/* Set ourselves up for blocking. */
 	active->state = STATE_SEND_BLOCKED;

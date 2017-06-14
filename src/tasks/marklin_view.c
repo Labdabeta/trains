@@ -42,7 +42,7 @@ void train_state_view(){
 	rev_args.clock_tid = clock_tid;
 
 	char msg[3];
-	msg[0] = 0;
+	msg[0] = 'a';
 	msg[2] = 0;
 
 	int trainstates[81];

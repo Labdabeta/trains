@@ -20,14 +20,14 @@ typedef enum A0_Command_type {
 } A0_Command_type;
 
 struct A0_model_message {
-  A0_model_message_code code;
-  union{
+	A0_model_message_code code;
+	union{
 		struct COM2byte{
 			char val;
 		} echo;
-    struct MarklinBytes{
-      char data[10];
-    } marklin;
+		struct MarklinBytes{
+			char data[10];
+		} marklin;
 		struct A0Command{
 			A0_Command_type type;
 			union{
@@ -50,7 +50,7 @@ struct A0_model_message {
 				} quit;
 			} args;
 		} command;
-  };
+	};
 };
 
 #endif
