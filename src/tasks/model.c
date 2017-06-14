@@ -45,7 +45,7 @@ ENTRY initialize(struct Data *data)
 ENTRY handle(struct Data *data, int tid, struct A0_model_message *msg, int msg_size)
 {
 	(void)msg_size; // ignored
-	int i, child_tid;
+	int i, child_tid, index;
 	switch (msg->code) {
 		case CODE_COM2byte:
 			data->space[0] = msg->echo.val;
@@ -86,15 +86,18 @@ SendTrain:
 				break;
 
 				case A0TYPE_SwitchFlip:
-					if (data->switchstates[msg->command.args.flip.number] != msg->command.args.flip.state) {
+					index = msg->command.args.flip.number;
+					if(index > 18)
+						index -= 134;
+					if (data->switchstates[index] != msg->command.args.flip.state) {
 						data->flip_out.number = msg->command.args.flip.number;
 						data->flip_out.state = msg->command.args.flip.state == 'S' ? 33 : 34;
 						child_tid = CreateSize(0, switch_coordinator, TASK_SIZE_TINY);
 						Send(child_tid, (char*)&data->flip_out, sizeof(struct switch_coordinator_args), 0, 0);
-						data->space[0] = msg->command.args.flip.number;
+						data->space[0] = index;
 						data->space[1] = msg->command.args.flip.state;
 						Send(data->flip_tid, data->space, 2, 0, 0);
-						data->switchstates[msg->command.args.flip.number] = msg->command.args.flip.state;
+						data->switchstates[index] = msg->command.args.flip.state;
 					}
 					break;
 

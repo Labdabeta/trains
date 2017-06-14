@@ -85,8 +85,9 @@ void switch_coordinator(){
 	Receive(&caller, (char *) &flip_args, sizeof(struct switch_coordinator_args));
 	Reply(caller, 0, 0);
 
-    tput2(flip_args.state, flip_args.number);
+	tput2(flip_args.state, flip_args.number);
 	Delay(flip_args.clock_tid, 10);
-    tputc(32);
+	tputc(32);
+	
 	Exit();
 }
