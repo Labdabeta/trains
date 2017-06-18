@@ -1,9 +1,10 @@
 #include "mlp.h"
+#include "noto.h"
 
-double log(double);
-double pow(double,double);
+double log(double x) { return __builtin_log(x); }
+double pow(double a,double b) { return __builtin_pow(a,b); }
 /* Euler's constant */
-#define M_E 	2.71828182845904523536
+#define M_E	2.71828182845904523536
 
 /* softmax is the integral of sigmoid */
 double softmax(double x) {

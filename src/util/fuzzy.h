@@ -13,7 +13,7 @@
  *         0 otherwise
  *
  *
- *  Invariant: s.l <= c.l <= c.r <= s.r
+ *  Invariant: INT_MIN < s.l <= c.l <= c.r <= s.r
  * */
 struct FuzzySet {
 	/* The area for which the function is non-zero. */
@@ -104,6 +104,16 @@ int fuzzy(int numRules,
           enum FuzzyImplication implication,
           enum Defuzzifier defuzzifier);
 
+// TODO: if necessary allow more advanced techniques. In order of how useful
+// they may be:
+//
+//  - defuzzification thresholding (to cull weak outputs)
+//  - gaussian +other membership functions
+//  - more tnorms
+//  - more implications
+//  - more defuzzifiers
+//  - fuzzy setwise operations
+
 #endif /* FUZZY_H */
 
 #if 0
@@ -146,10 +156,10 @@ int determineValveDiameter(int temp, int mass, int time) {
 
 	struct FuzzyRule rules[5] = {
 		{FRT_AND, .args = {&coldness, &farness}},
-		{hotness},
+		hotness,
 		{FRT_AND, .args = {&smallness, &nearness}},
 		{FRT_AND, .args = {&largeness, &farness}},
-		{nearness}};
+		nearness};
 
 	struct FuzzySet targets[5] = {increase, reduce, maintain, increase, reduce};
 
