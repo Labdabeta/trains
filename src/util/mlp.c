@@ -1,21 +1,22 @@
 #include "mlp.h"
 #include "noto.h"
 
-double log(double x) { return __builtin_log(x); }
-double pow(double a,double b) { return __builtin_pow(a,b); }
+#warning TODO: implement these!
+double log(double x) { return x; }
+double exp(double x) { return x; }
 /* Euler's constant */
 #define M_E	2.71828182845904523536
 
 /* softmax is the integral of sigmoid */
 double softmax(double x) {
-    double ret = log(1 + pow(M_E, x));
+	double ret = log(1 + exp(x));
     if (ret != ret)
         return 0.0;
     return ret;
 }
 
 double sigmoid(double x) {
-    double ret = 1.0 / (1.0 + pow(M_E, -x));
+	double ret = 1.0 / (1.0 + exp(-x));
     if (ret != ret)
         return 0.0;
     return ret;

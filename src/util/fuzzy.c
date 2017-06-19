@@ -330,6 +330,8 @@ static int centroid(int *xs, zto *ys, int bufsize)
 		}
 	}
 
+	if (!integral)
+		return ys[bufsize-1];
 	return cintegral / integral;
 }
 

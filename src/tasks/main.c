@@ -40,8 +40,8 @@ void main_task(void)
 	while (WhoIs("TOUT") < 0)
 		Pass();
 
-	Create(1, controller);
+	//Create(1, controller);
 
-    //Create(1, hello);
+    Create(1, hello);
 	Exit();
 }

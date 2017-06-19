@@ -44,7 +44,7 @@ void network_load(NeuralNetwork *nn, int *data); /* loads an initted network fro
 
 // output weight arrays
 double input_weights[260 * 11];
-double layer1_weights[11];
+double layer1_weights[11 * 3];
 double layer2_weights[4];
 
 // nodes
@@ -53,11 +53,11 @@ struct PerceptronNode layer2[3];
 struct PerceptronNode output_layer[2];
 
 NeuralNetwork nn;
+int layerSizes[] = {10, 3, 2};
+struct PerceptronNode *layers[] = {layer1, layer2, output_layer};
+double *weights[] = {input_weights, layer1_weights, layer2_weights};
+enum ActivationFunction activators[] = {AF_RELU, AF_RELU, AF_SOFTMAX};
 void initNN(void) {
-	int layerSizes[] = {10, 3, 2};
-	struct PerceptronNode *layers[] = {layer1, layer2, output_layer};
-	double *weights[] = {input_weights, layer1_weights, layer2_weights};
-	enum ActivationFunction activators[] = {AF_RELU, AF_RELU, AF_SOFTMAX};
 	mlpInit(&nn, 260, 3, layerSizes, activators, layers, weights);
 }
 
