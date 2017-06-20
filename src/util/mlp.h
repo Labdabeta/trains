@@ -3,16 +3,17 @@
 
 typedef struct PerceptronNode {
 	int size; /* Number of inputs. */
-	double *weights; /* One for each input +1 for bias. */
-	double last_output; /* The last value this node produced. */
-	double last_doutput; /* The derivative of the last value this node produced. */
+	float *weights; /* One for each input. */
+    float bias; /* Weight on the bias. */
+	float last_output; /* The last value this node produced. */
+	float last_doutput; /* The derivative of the last value this node produced. */
 } NNNode, *NNLayer;
 
 enum ActivationFunction {
 	AF_RELU, /* Rectifier linear */
-	AF_SOFTMAX, /* SoftMax */
+	AF_SOFTPLUS, /* SoftPlus */
 	AF_SIGMOID, /* Logistic */
-	AF_IDENTITY /* Identity */
+	AF_LINEAR /* Identity */
 };
 
 typedef struct MultilayerPerceptron {
@@ -25,9 +26,9 @@ typedef struct MultilayerPerceptron {
 	int maxLayer; /* Size of largest layer. */
 } NeuralNetwork;
 
-void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, enum	ActivationFunction *activators, NNLayer *layers, double **weights);
-void network_train(NeuralNetwork *nn, double *inputs, double *outputs, double *real_outputs, double eta);
-void network_value(NeuralNetwork *nn, double *inputs, double *outputs);
+void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, enum	ActivationFunction *activators, NNLayer *layers, float **weights);
+void network_train(NeuralNetwork *nn, float *inputs, float *outputs, float *real_outputs, float eta);
+void network_value(NeuralNetwork *nn, float *inputs, float *outputs);
 void network_dump(NeuralNetwork *nn); /* dprintfs a c int array that can be loaded. */
 void network_load(NeuralNetwork *nn, int *data); /* loads an initted network from its dumped array. */
 
@@ -43,9 +44,9 @@ void network_load(NeuralNetwork *nn, int *data); /* loads an initted network fro
 //          - esperanto
 
 // output weight arrays
-double input_weights[260 * 11];
-double layer1_weights[11 * 3];
-double layer2_weights[4];
+float input_weights[260 * 10];
+float layer1_weights[10 * 3];
+float layer2_weights[3 * 2];
 
 // nodes
 struct PerceptronNode layer1[10];
@@ -55,16 +56,24 @@ struct PerceptronNode output_layer[2];
 NeuralNetwork nn;
 int layerSizes[] = {10, 3, 2};
 struct PerceptronNode *layers[] = {layer1, layer2, output_layer};
-double *weights[] = {input_weights, layer1_weights, layer2_weights};
-enum ActivationFunction activators[] = {AF_RELU, AF_RELU, AF_SOFTMAX};
+float *weights[] = {input_weights, layer1_weights, layer2_weights};
+enum ActivationFunction activators[] = {AF_RELU, AF_RELU, AF_SIGMOID};
+
 void initNN(void) {
+	int i;
+	for (i = 0; i < 260*11; ++i)
+		input_weights[i] = 0.1;
+	for (i = 0; i < 11 * 3; ++i)
+		layer1_weights[i] = 0.1;
+	for (i = 0; i < 4 * 2; ++i)
+		layer2_weights[i] = 0.1;
 	mlpInit(&nn, 260, 3, layerSizes, activators, layers, weights);
 }
 
 /* 1 = esperanto, 0 = english. */
 int determineLanguage(char word[10]) {
 	int i;
-	double inputs[260];
+	float inputs[260];
 
 	for (i = 0; i < 10; ++i) {
 		int x;
@@ -76,8 +85,10 @@ int determineLanguage(char word[10]) {
 		}
 	}
 
-	double outputs[2];
+	float outputs[2];
 	network_value(&nn, inputs, outputs);
+
+    printf("English: %f, Esperanto: %f\n", outputs[0], outputs[1]);
 
 	if (outputs[1] > outputs[0])
 		return 1;
@@ -86,7 +97,7 @@ int determineLanguage(char word[10]) {
 
 void trainLanguage(char word[10], int isEnglish, int isEsperanto) {
 	int i;
-	double inputs[260];
+	float inputs[260];
 
 	for (i = 0; i < 10; ++i) {
 		int x;
@@ -98,10 +109,11 @@ void trainLanguage(char word[10], int isEnglish, int isEsperanto) {
 		}
 	}
 
-	double outputs[2];
+	float outputs[2];
 	outputs[0] = (isEnglish ? 1.0 : 0.0);
 	outputs[1] = (isEsperanto ? 1.0 : 0.0);
 
 	network_train(&nn, inputs, 0, outputs, 0.1);
 }
+
 #endif

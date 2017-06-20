@@ -1,35 +1,18 @@
 #include "mlp.h"
-#include "noto.h"
 
-#warning TODO: implement these!
-double log(double x) { return x; }
-double exp(double x) { return x; }
-/* Euler's constant */
-#define M_E	2.71828182845904523536
+/* Approximates ln(1+x) */
+float approx_ln1(float x) { return x - (x*x/2) + (x*x*x/3); }
+float approx_exp(float x) { return 1 + x + (x*x/2) + (x*x*x/6); }
 
-/* softmax is the integral of sigmoid */
-double softmax(double x) {
-	double ret = log(1 + exp(x));
-    if (ret != ret)
-        return 0.0;
-    return ret;
-}
+static inline float softplus(float x) { return approx_ln1(approx_exp(x)); }
+static inline float sigmoid(float x) { return 1.0 / (1.0 + approx_exp(-x)); }
+static inline float dsigmoid(float x) { return sigmoid(x)*(1.0-sigmoid(x)); }
+static inline float rectifier(float x) { return (x < 0.0) ? 0.0 : x; }
+static inline float step(float x) { return (x < 0.0) ? 0.0 : 1.0; }
+static inline float identity(float x) { return x; }
+static inline float unity(float x) { return 1.0; }
 
-double sigmoid(double x) {
-	double ret = 1.0 / (1.0 + exp(-x));
-    if (ret != ret)
-        return 0.0;
-    return ret;
-}
-
-double dsigmoid(double x) { return sigmoid(x)*(1.0-sigmoid(x)); }
-double rectifier(double x) { return (x < 0) ? 0 : x; }
-double step(double x) { return (x < 0) ? 0 : 1; }
-double identity(double x) { return x; }
-double unity(double x) { return 1.0; }
-
-
-void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, enum	ActivationFunction *activators, NNLayer *layers, double **weights)
+void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, enum	ActivationFunction *activators, NNLayer *layers, float **weights)
 {
 	int i, lastSize;
 	nn->maxLayer = numInputs; /* First guess at widest layer. */
@@ -45,10 +28,10 @@ void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, e
 	for (i = 0; i < numLayers; ++i) {
 		int n;
 
-		double *lastWeight = weights[i];
+		float *lastWeight = weights[i];
 		for (n = 0; n < nn->numNodes[i]; ++n) {
 			nn->layers[i][n].weights = lastWeight;
-			lastWeight += (lastSize+1);
+            lastWeight = &lastWeight[lastSize+1];
 			nn->layers[i][n].size = lastSize;
 			nn->layers[i][n].last_output = 0;
 			nn->layers[i][n].last_doutput = 0;
@@ -61,7 +44,7 @@ void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, e
 	}
 }
 
-static double node_output(struct PerceptronNode *n, double *inputs, enum ActivationFunction activator)
+static float node_output(struct PerceptronNode *n, float *inputs, enum ActivationFunction activator)
 {
 	int i;
 
@@ -75,15 +58,15 @@ static double node_output(struct PerceptronNode *n, double *inputs, enum Activat
 			n->last_doutput = step(n->last_output);
 			n->last_output = rectifier(n->last_output);
 			break;
-		case AF_SOFTMAX:
+		case AF_SOFTPLUS:
 			n->last_doutput = sigmoid(n->last_output);
-			n->last_output = softmax(n->last_output);
+			n->last_output = softplus(n->last_output);
 			break;
 		case AF_SIGMOID:
 			n->last_doutput = dsigmoid(n->last_output);
 			n->last_output = sigmoid(n->last_output);
 			break;
-		case AF_IDENTITY:
+		case AF_LINEAR:
 			n->last_doutput = unity(n->last_output);
 			n->last_output = identity(n->last_output);
 			break;
@@ -91,13 +74,13 @@ static double node_output(struct PerceptronNode *n, double *inputs, enum Activat
 	return n->last_output;
 }
 
-void network_value(NeuralNetwork *nn, double *inputs, double *outputs)
+void network_value(NeuralNetwork *nn, float *inputs, float *outputs)
 {
 	int i;
-	double values_array[nn->maxLayer];
-	double new_values_array[nn->maxLayer];
-	double *values;
-	double *new_values;
+	float values_array[nn->maxLayer];
+	float new_values_array[nn->maxLayer];
+	float *values;
+	float *new_values;
 	values = values_array;
 	new_values = new_values_array;
 
@@ -107,7 +90,7 @@ void network_value(NeuralNetwork *nn, double *inputs, double *outputs)
 
 	for (i = 0; i < nn->numLayers; ++i) {
 		int x;
-		double *swp;
+		float *swp;
 
 		for (x = 0; x < nn->numNodes[i]; ++x)
 			new_values[x] = node_output(&nn->layers[i][x], values, nn->activators[i]);
@@ -124,7 +107,7 @@ void network_value(NeuralNetwork *nn, double *inputs, double *outputs)
 	}
 }
 
-static double get_back_last_output(NeuralNetwork *nn, double *inputs, int layer, int weight)
+static float get_back_last_output(NeuralNetwork *nn, float *inputs, int layer, int weight)
 {
 	if (layer > 0) {
 		if (weight >= nn->numNodes[layer-1]) return 1;
@@ -135,10 +118,10 @@ static double get_back_last_output(NeuralNetwork *nn, double *inputs, int layer,
 	}
 }
 
-void network_train(NeuralNetwork *nn, double *inputs, double *outputs, double *real_outputs, double eta)
+void network_train(NeuralNetwork *nn, float *inputs, float *outputs, float *real_outputs, float eta)
 {
 	int layer, node;
-	double deltas[nn->numLayers][nn->maxLayer];
+	float deltas[nn->numLayers][nn->maxLayer+1];
 
 	/* Step 1: Forward propogation */
 	network_value(nn, inputs, outputs);
@@ -152,7 +135,7 @@ void network_train(NeuralNetwork *nn, double *inputs, double *outputs, double *r
 	/* Step 2a: Output layer deltas */
 	layer = nn->numLayers - 1;
 	for (node = 0; node < nn->numNodes[layer]; ++node) {
-		double val, dval, target;
+		float val, dval, target;
 
 		val = nn->layers[layer][node].last_output;
 		dval = nn->layers[layer][node].last_doutput;
@@ -164,7 +147,7 @@ void network_train(NeuralNetwork *nn, double *inputs, double *outputs, double *r
 	for (layer = nn->numLayers - 2; layer >= 0; --layer) {
 		for (node = 0; node < nn->numNodes[layer]; ++node) {
 			int w;
-			double delta;
+			float delta;
 
 			delta = 0.0;
 			for (w = 0; w < nn->numNodes[layer+1]; ++w)
@@ -176,18 +159,20 @@ void network_train(NeuralNetwork *nn, double *inputs, double *outputs, double *r
 
 	/* Step 3: Back propogation */
 	for (layer = 0; layer < nn->numLayers; ++layer) {
-		for (node = 0; node < nn->numNodes[layer]; ++node) {
+		for (node = 0;
+            node < nn->numNodes[layer];
+            ++node) {
 			int weight, num_weights;
 
 			num_weights = nn->layers[layer][node].size;
 			for (weight = 0; weight < num_weights-1; ++weight) {
-				double last_back_output = get_back_last_output(nn, inputs, layer, weight);
+				float last_back_output = get_back_last_output(nn, inputs, layer, weight);
 				nn->layers[layer][node].weights[weight] +=
 					(-1 * eta * deltas[layer][node] * last_back_output);
 			}
+
 			/* Update the bias weight */
-			nn->layers[layer][node].weights[num_weights-1] +=
-				(-1 * eta * deltas[layer][node]);
+            nn->layers[layer][node].bias += (-1 * eta * deltas[layer][node]);
 		}
 	}
 }
