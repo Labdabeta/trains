@@ -46,7 +46,7 @@ void conductor()
 				tput2(speed, 76);
 				if(speed == 0){
 					dprintf("Stopping at: %d\n\r", Time(clock_tid));
-					args.length = 400;
+					args.length = 399;
 					child_tid = CreateSize(0, delay_controller, TASK_SIZE_TINY);
 					Send(child_tid, (char *) &args, sizeof(struct delay_args), 0, 0);
 					speed = 10;

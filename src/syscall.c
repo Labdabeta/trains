@@ -154,12 +154,14 @@ int Time(int tid)
 
 void Delay(int tid, int ticks)
 {
-	sendDelay(tid, ticks);
+	if(ticks > 0)
+		sendDelay(tid, ticks);
 }
 
 void DelayUntil(int tid, int ticks)
 {
-	sendDelayUntil(tid, ticks);
+	if(ticks > 0)
+	 sendDelayUntil(tid, ticks);
 }
 
 unsigned long long int UTime(KernelTimer kt)
