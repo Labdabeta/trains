@@ -67,6 +67,7 @@ void conductor()
 				}
 			break;
 			case CODE_Timeout:
+				tput2(speed, 76);
 				if(speed == 0){
 					tput2(speed, 76);
 					dprintf("Stopping at: %d\n\r", Time(clock_tid));
