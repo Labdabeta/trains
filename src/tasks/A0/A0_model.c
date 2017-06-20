@@ -1,5 +1,5 @@
 #include <server.h>
-#include "model.h"
+#include "A0_model.h"
 #include "marklin_view.h"
 #include "terminal_view.h"
 
@@ -112,4 +112,4 @@ SendTrain:
 	Reply(tid, 0, 0);
 }
 
-MAKE_SERVER_LONG(model, Data, A0_model_message, initialize, handle)
+MAKE_SERVER_LONG(A0_model, Data, A0_model_message, initialize, handle)

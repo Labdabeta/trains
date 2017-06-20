@@ -18,7 +18,7 @@ debug:CFLAGS+=-g -DDEBUG_MODE
 
 GIT_STUFF="-DGIT_NAME=\"$(shell git log --pretty='%an %h %d' -n 1)\""
 
-CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/ -Isrc/tasks/ $(GIT_STUFF)
+CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/ -Isrc/tasks/ -Isrc/tasks/A0 -Isrc/tasks/drivers $(GIT_STUFF)
 ASFLAGS=-mcpu=arm920t -mapcs-32 -march=armv4t
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 

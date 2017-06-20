@@ -1,5 +1,5 @@
 #include "terminal_view.h"
-#include "model.h"
+#include "A0_model.h"
 
 #define MOVE(X, Y) "\033[" #X ";" #Y "H"
 

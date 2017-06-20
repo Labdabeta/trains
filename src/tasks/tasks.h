@@ -25,12 +25,8 @@ void main_task(void);
 	void tout_server(void);
 		void tout_courier(void);
 			void tout_notifier(void);
-	void controller(void);
-		void model(void);
-			void A0_initialization(void);
-			void echo_view(void);
-			void flip_view(void);
-			void sensor_view(void);
+	void A0_controller(void);
+	void test_controller(void);
 	void hello(void);
 void idle(void);
 

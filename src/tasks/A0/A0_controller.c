@@ -1,7 +1,7 @@
 #include "tasks.h"
-#include "model.h"
+#include "A0_model.h"
 
-void sensor_controller(void)
+void A0_sensor_controller(void)
 {
 	Service();
 	int i;
@@ -12,7 +12,7 @@ void sensor_controller(void)
 	Receive(&i, (char*)&mid, sizeof(mid));
 	Reply(i, 0, 0);
 
-	dprintf("Model TID: %d\n\r", mid);
+	dprintf("Sensor controller created");
 
 	msg.code = CODE_MarklinBytes;
 
@@ -21,7 +21,7 @@ void sensor_controller(void)
 
 		for (i = 0; i < 10; ++i) {
 			char senin = Getc(tin, 1);
-			//dprintf("Sensor %d: %x\n\r", i, (int)senin);
+			dprintf("Sensor %d: %x\n\r", i, (int)senin);
 			msg.marklin.data[i] = senin;
 		}
 
@@ -30,7 +30,7 @@ void sensor_controller(void)
 }
 
 #include "cmd_parser.h"
-void keyboard_controller(void)
+void A0_keyboard_controller(void)
 {
 	Service();
 	int mid;
@@ -61,13 +61,13 @@ void keyboard_controller(void)
 	}
 }
 
-void controller()
+void A0_controller()
 {
 	dprintf("Controller TID: %d\n\r", MyTid());
-	int mid = Create(1, model);
+	int mid = Create(1, A0_model);
 	dprintf("Model TID should be: %d\n\r", mid);
-	int sensors = Create(1, sensor_controller);
-	int keyboard = Create(1, keyboard_controller);
+	int sensors = Create(1, A0_sensor_controller);
+	int keyboard = Create(1, A0_keyboard_controller);
 	Send(sensors, (char*)&mid, sizeof(mid), 0, 0);
 	Send(keyboard, (char*)&mid, sizeof(mid), 0, 0);
 	Exit();

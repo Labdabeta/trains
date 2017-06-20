@@ -3,7 +3,7 @@
 
 #include "tasks.h"
 
-void model();
+void A0_model();
 
 typedef enum A0_model_message_code {
 	CODE_COM2byte = 0,

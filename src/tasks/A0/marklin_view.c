@@ -1,4 +1,4 @@
-#include "model.h"
+#include "A0_model.h"
 #include "marklin_view.h"
 #include "tasks.h"
 
@@ -88,6 +88,6 @@ void switch_coordinator(){
 	tput2(flip_args.state, flip_args.number);
 	Delay(flip_args.clock_tid, 10);
 	tputc(32);
-	
+
 	Exit();
 }
