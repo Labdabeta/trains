@@ -3,7 +3,7 @@
 #include "cout_server.h"
 
 /* These should both be multiples of 2 for decent performance. */
-#define OUTPUT_BUFSIZE 0x1000
+#define OUTPUT_BUFSIZE 0x10000
 
 struct Data {
 	/* Circular buffer of output blocked tasks. */
@@ -25,12 +25,12 @@ ENTRY initialize(struct Data *data)
 	data->ready = 0;
 
 	RegisterAs("COUT");
-	data->courier = CreateSize(1, cout_courier, TASK_SIZE_TINY);
+	data->courier = CreateSize(0, cout_courier, TASK_SIZE_TINY);
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *m)
+ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 {
-	if (m->data) {
+	if (size) {
 		if (data->ready) {
 			char *ch;
 			data->ready = 0;
@@ -65,10 +65,8 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 
 char sendCoutReady(int tid)
 {
-	struct Message msg;
 	char reply;
-	msg.data = 0;
-	Send(tid, (char*)&msg, sizeof(msg), &reply, sizeof(reply));
+	Send(tid, 0, 0, &reply, sizeof(reply));
 	return reply;
 }
 

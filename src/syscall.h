@@ -224,32 +224,32 @@ int WhoIs(char *name);
 
 /* Await the given event to occur.
  *
- * This event blocks the task then returns the value of the event, if it is
- * relevant.
+ * This event blocks the task to be unblocked by the given event.
  *
  * \param[in] type             The type of the event to wait for.
- *
- * \return The value of the event, if relevant.
  */
-int AwaitEvent(EventType type);
+void AwaitEvent(EventType type);
 
-/* Enables the given event.
+/* Await the given transmission event to occur.
  *
- * This doesn't even actually call the kernel, but it still references kernel
- * specific information.
+ * This event blocks the task then writes the given value to the given address.
  *
- * \param[in] type             The type of the event to enable.
+ * \param[in] type             The type of the event to wait for.
+ * \param[in] value            The value to write to the address.
+ * \param[in] addr             The address to write to.
  */
-void EnableEvent(EventType type);
+void AwaitTransmission(EventType type, int value, int *addr);
 
-/* Disable the given event.
+/* Await the given receive event to occur.
  *
- * This doesn't even actually call the kernel, but it still references kernel
- * specific information.
+ * This event blocks the task then returns the value at the given address.
  *
- * \param[in] type             The type of the event to disable.
+ * \param[in] type             The type of the event to wait for.
+ * \param[in] addr             The address to read from.
+ *
+ * \return The value in the given address, once the event occurs.
  */
-void DisableEvent(EventType type);
+int AwaitReceive(EventType type, int *addr);
 
 /* Returns the time in centiseconds since the program started.
  *

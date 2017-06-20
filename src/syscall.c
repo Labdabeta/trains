@@ -6,6 +6,8 @@
 #include "tasks/name_server.h"
 #include "tasks/cin_server.h"
 #include "tasks/cout_server.h"
+#include "tasks/tin_server.h"
+#include "tasks/tout_server.h"
 #include "ts7200.h"
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
@@ -130,27 +132,19 @@ int WhoIs(char *name)
 	return sendWhoIs(NAMESERVER_TID, name);
 }
 
-int AwaitEvent(EventType type)
+void AwaitEvent(EventType type)
 {
-	return asm_callSystemInterrupt(type, 0, 0, CODE_AWAIT);
+	(void)asm_callSystemInterrupt(type, 0, 0, CODE_AWAIT);
 }
 
-void EnableEvent(EventType type)
+void AwaitTransmission(EventType type, int value, int *addr)
 {
-	int code = (int)type;
-	if (code > 31)
-		ENABLE_INTERRUPT(2, code - 31);
-	else
-		ENABLE_INTERRUPT(1, code);
+    (void)asm_callSystemInterrupt(type, value, (int)addr, CODE_AWAIT_TX);
 }
 
-void DisableEvent(EventType type)
+int AwaitReceive(EventType type, int *addr)
 {
-	int code = (int)type;
-	if (code > 31)
-		DISABLE_INTERRUPT(2, code - 31);
-	else
-		DISABLE_INTERRUPT(1, code);
+    return asm_callSystemInterrupt(type, 0, (int)addr, CODE_AWAIT_RX);
 }
 
 int Time(int tid)
@@ -177,13 +171,17 @@ unsigned long long int UTime(KernelTimer kt)
 
 int Getc(int tid, int uart)
 {
-	(void)uart; // unused
+	if (uart == 1)
+		return sendTinGetc(tid);
 	return sendCinGetc(tid);
 }
 
 int Putc(int tid, int uart, char ch)
 {
-	(void)uart; // unused
+	if (uart == 1) {
+		sendToutByte(tid, ch);
+		return 0;
+	}
 	char msg[2];
 	msg[0] = ch;
 	msg[1] = 0;
@@ -193,7 +191,14 @@ int Putc(int tid, int uart, char ch)
 
 int Putstr(int tid, int uart, char *str)
 {
-	(void)uart; // unused
+	if (uart == 1) {
+        char *ch;
+        for (ch = str; ch[0] && ch[1]; ch += 2)
+            sendToutBytePair(tid, ch[0], ch[1]);
+        if (ch[0])
+            sendToutByte(tid, *ch);
+		return 0;
+	}
 	sendCoutPutstr(tid, str);
 	return 0;
 }

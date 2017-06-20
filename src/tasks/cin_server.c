@@ -33,8 +33,9 @@ ENTRY initialize(struct Data *data)
 	(void)CreateSize(1, cin_courier, TASK_SIZE_TINY);
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *m)
+ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 {
+	(void)size; /* unused */
 	if (m->data < 0) {
 		if (data->input_size) {
 			int reply = data->inputs[data->input_idx];

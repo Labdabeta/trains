@@ -39,6 +39,7 @@ struct UART {
 	volatile int lcrl;
 	volatile int ctrl;
 	volatile int flag;
+	volatile int cint;
 };
 
 #define UART_FIFOEN_MASK 0x10
@@ -48,10 +49,14 @@ struct UART {
 #define VIC1_BASE 0x800b0000
 #define VIC2_BASE 0x800c0000
 #define VIC_STATUS_OFFSET 0x00
+#define VIC_RAW_OFFSET 0x08
 #define VIC_ENABLE_OFFSET 0x10
 #define VIC_CLEAR_OFFSET 0x14
 
 #define ENABLE_INTERRUPT(VIC_NUM, INT_NUM) *(int*)(VIC##VIC_NUM##_BASE + VIC_ENABLE_OFFSET) |= (1 << (INT_NUM))
+#define GET_INT(VIC_NUM) (*(int*)(VIC##VIC_NUM##_BASE + VIC_STATUS_OFFSET))
+#define GET_ENA(VIC_NUM) (*(int*)(VIC##VIC_NUM##_BASE + VIC_ENABLE_OFFSET))
+#define GET_RAW(VIC_NUM) (*(int*)(VIC##VIC_NUM##_BASE + VIC_RAW_OFFSET))
 #define DISABLE_INTERRUPT(VIC_NUM, INT_NUM) *(int*)(VIC##VIC_NUM##_BASE + VIC_CLEAR_OFFSET) |= (1 << (INT_NUM))
 #define CHECK_INTERRUPT(VIC_NUM, INT_NUM) (*(int*)(VIC##VIC_NUM##_BASE + VIC_STATUS_OFFSET) | (1 << (INT_NUM)))
 

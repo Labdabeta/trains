@@ -18,7 +18,9 @@ typedef enum SyscallCode {
 	CODE_SHARE,
 	CODE_OBTAIN, /* 0 return -> call again */
 	CODE_RESPOND,
-	CODE_AWAIT,
+	CODE_AWAIT, /* Just add to await queue */
+    CODE_AWAIT_TX,
+    CODE_AWAIT_RX,
 	CODE_UTIME,
 	CODE_SERVICE,
 	CODE_QUIT

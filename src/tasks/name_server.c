@@ -18,8 +18,9 @@ ENTRY initialize(struct Data *data)
 	data->size = 0;
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *m)
+ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 {
+	(void)size; /* unused */
 	int reply;
 	if (m->isRegister) {
 		char *c,*n;
@@ -33,6 +34,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 		/* Copy the name */
 		n = &data->names[(data->size++)*MAX_NAME_LENGTH];
 		for (c = m->name; *c; ++c, ++n) *n = *c;
+        *n = 0;
 
 		reply = 0;
 		Reply(tid, (char*)&reply, sizeof(reply));
@@ -43,7 +45,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m)
 			char *c,*n;
 			int same = 1;
 			n = &data->names[i*MAX_NAME_LENGTH];
-			for (c = m->name; *c; ++c, ++n) {
+			for (c = m->name; *c || *n; ++c, ++n) {
 				if (*c != *n) {
 					same = 0;
 					break;

@@ -9,6 +9,10 @@ copied to the scp server and loaded on the RedBoot machines by issuing the
 command `load -b 0x100000 -h 10.15.167.5 "ARM/path/to/kernel.elf"`. This should
 run the kernel and produce the desired output.
 
+Note: the debug logs (which contain idle task usage) are only created if debug
+options are enabled. To see these logs on a production build run `make prodebug`
+to get optimization and debugging.
+
 ## Styleguide
 
 ### Tabs

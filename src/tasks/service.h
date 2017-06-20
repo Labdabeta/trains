@@ -23,7 +23,6 @@ MAKE_SERVICE(name)
 #define SERVICE_H
 
 /* Use this to ignore a required section of a template. */
-#define IGNORED char _unused;
 #define ENTRY static inline void
 
 #include "tasks.h"
@@ -31,7 +30,7 @@ MAKE_SERVICE(name)
 #define MAKE_SERVICE_LONG(name, d_str, init, work) void name(void) {\
 	struct d_str data; \
 	Service(); \
-	DEBUG_PRINT("Service %s created with tid %d.", #name, MyTid()); \
+	dprintf("Service %s created with tid %d.\n\r", #name, MyTid()); \
 	init(&data); \
 	for (ever) work(&data); \
 }
