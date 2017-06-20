@@ -14,3 +14,6 @@
 *.aux
 *.log
 *.out
+*.nav
+*.snm
+*.toc
