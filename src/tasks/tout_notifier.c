@@ -28,6 +28,7 @@ ENTRY work(struct Data *data)
 	AwaitEvent(EVENT_TYPE_UART1_INT);
 
 	if (data->com1->cint & 0x2) {
+        Pass();
 		// Oops, that's a receive
 	} else if (data->com1->cint & 0x4 && !data->got_tx) {
 		// Its a transmit
@@ -35,8 +36,9 @@ ENTRY work(struct Data *data)
 		data->com1->ctrl &= ~(0x20);
 	} else {
 		// Its a modem
-		if (data->com1->flag & 1)
+		if (data->com1->flag & 1) {
 			data->got_cts = 1;
+        }
 		data->com1->cint = 1;
 	}
 	if (data->got_tx && data->got_cts) {

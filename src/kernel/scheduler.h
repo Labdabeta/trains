@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include "task.h"
+#include "debugio.h"
 
 #define NUM_PRIORITIES 8
 
@@ -57,13 +58,17 @@ static inline struct TaskDescriptor *reschedule(struct Scheduler *state)
             if (state->active == initial)
                 return 0; /* No tasks found. */
         }
+        //dprintf("current: %d\tnext: %d\t", state->active->head->tid,
+                //(state->active->head->next?state->active->head->next->tid : -1));
         ret = state->active->head;
         state->active->head = state->active->head->next;
 
         /* Check if we need to block the task. */
         if (ret->state) {
             ret->next = (void*)1;
+            //dprintf("blocking: %d\n\r", ret->tid);
         } else {
+            //dprintf("returning: %d\n\r", ret->tid);
             scheduleTask(state,ret);
             return ret;
         }

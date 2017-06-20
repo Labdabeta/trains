@@ -17,14 +17,14 @@ ENTRY initialize(struct Data *data)
 ENTRY work(struct Data *data)
 {
 	int tid;
-	int ch;
+    char c;
 
 	/* Receive from the tin notifier. */
-	Receive(&tid, (char*)&ch, sizeof(ch));
+	Receive(&tid, (char*)&c, sizeof(c));
 	Reply(tid, 0, 0);
 
 	/* Send to the tin server. */
-	sendTinData(data->parent, ch);
+	sendTinData(data->parent, (int)c);
 }
 
 MAKE_SERVICE(tin_courier)

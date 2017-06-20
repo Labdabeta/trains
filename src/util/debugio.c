@@ -2,7 +2,7 @@
 #include "ts7200.h"
 #include "linker.h"
 
-static char *location;
+static volatile char *location;
 
 #define INIT_LOCATION 0x50000
 

@@ -55,8 +55,6 @@ int main(int argc, char *argv[])
 
 	init_debugio();
 	DEBUG_PRINT("%s", GIT_NAME);
-#undef DEBUG_PRINT
-#define DEBUG_PRINT(...)
 	initScheduler(&data.scheduler);
 
 	initEventBlocks(&data.scheduler);

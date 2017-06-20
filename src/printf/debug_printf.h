@@ -102,10 +102,10 @@ void tfp_dformat(void* putp,void (*putf) (void*,char),char *fmt, va_list va);
 
 #ifdef DEBUG_MODE
 #define DEBUG_PRINT(...) do { tfp_dprintf("%s@%s:%d\n\r", __FILE__, __func__, __LINE__); tfp_dprintf(__VA_ARGS__); tfp_dprintf("\n\r"); } while (0)
-#define dprintf tfp_dprintf
 #else
 #define DEBUG_PRINT(...)
-#define dprintf(...)
 #endif
+
+#define dprintf tfp_dprintf
 
 #endif

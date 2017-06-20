@@ -50,19 +50,17 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 			}
 		}
 	} else {
+        Reply(tid, 0, 0); /* Reply to courier ASAP */
 		if (data->block_size) {
 			int task = data->blocked_tids[data->block_idx];
 			data->block_idx = (data->block_idx + 1) % BLOCK_BUFSIZE;
 			data->block_size--;
 			Reply(task, (char*)&m->data, sizeof(m->data));
-			Reply(tid, 0, 0);
 		} else {
-			if (data->input_size == INPUT_BUFSIZE) {
-				Reply(tid, 0, 0);
-			} else {
+			if (data->input_size < INPUT_BUFSIZE) {
 				int idx = data->input_idx + data->input_size++;
 				data->inputs[idx % INPUT_BUFSIZE] = m->data;
-			}
+            }
 		}
 	}
 }
