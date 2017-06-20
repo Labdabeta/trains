@@ -43,6 +43,6 @@ void main_task(void)
 	//Create(1, A0_controller);
 	Create(1, test_controller);
 
-  //Create(1, hello);
+
 	Exit();
 }
