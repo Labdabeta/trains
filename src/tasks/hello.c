@@ -61,7 +61,6 @@ void hello()
 		trainIST(&n, &ni, 13); // This converges, 14 diverges!
 		dprintf("%d\n\r", getIST(&n, &ni));
 		++i;
-		dumpNetworkState(&n);
 	}
 
 	dumpNetworkState(&n);
