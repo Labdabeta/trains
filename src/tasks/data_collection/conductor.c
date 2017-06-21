@@ -2,6 +2,16 @@
 #include "path_finder.h"
 #include "tasks.h"
 
+static inline void get_dest(char *group, int *num){
+	*group = cgetc();
+	*num = cgetc();
+	*num = *num - '0' < 10 ? *num - '0' : *num - 'a';
+}
+
+static inline int index_sensor(char group, int number){
+	return 16 * (group-'A') + number - 1;
+}
+
 void conductor()
 {
 	int clock_tid = WhoIs("CLOCK");
@@ -14,14 +24,15 @@ void conductor()
 	struct delay_args args;
 	struct route_request route_req;
 	args.clock_tid = clock_tid;
-	char temp, group;
-	int number, child_tid;
+	char temp, group, destgroup;
+	int number, destnum, child_tid;
 	int speed = 0;
 	int length = 0;
 
-	//A10 to A7
+	//From A10
 	route_req.source = 9;
-	route_req.dest = 6;
+	get_dest(&destgroup, &destnum);
+	route_req.dest = index_sensor(destgroup, destnum);
 	Send(path_tid, (char *) &route_req, sizeof(struct route_request), 0, 0);
 	tput2(10, 76);
 
@@ -39,12 +50,12 @@ void conductor()
 									group = 'A' + (i / 2);
 									number = 1 + j + (i % 2)*8;
 									dprintf("Sensor %c%d at time %d\n\r", group, number, Time(clock_tid));
-									if(group == 'C' && number == 8){
+									if(group == destgroup && number == destnum){
 										args.length = length;
 										length += 30;
-										child_tid = CreateSize(0, delay_controller, TASK_SIZE_TINY);
+										child_tid = CreateSize(0, delay_controller, TASK_SIZE_NORMAL);
 										Send(child_tid, (char *) &args, sizeof(struct delay_args), 0, 0);
-										dprintf("Requesting stop\n\r");
+										dprintf("Requesting stop, tid: %d\n\r", child_tid);
 									}
 								}
 							}
@@ -54,15 +65,20 @@ void conductor()
 				}
 			break;
 			case CODE_Timeout:
-				tput2(speed, 76);
 				if(speed == 0){
+					tput2(speed, 76);
 					dprintf("Stopping at: %d\n\r", Time(clock_tid));
 					args.length = 399;
-					/*child_tid = CreateSize(0, delay_controller, TASK_SIZE_TINY);
-					Send(child_tid, (char *) &args, sizeof(struct delay_args), 0, 0);*/
+					child_tid = CreateSize(0, delay_controller, TASK_SIZE_NORMAL);
+					Send(child_tid, (char *) &args, sizeof(struct delay_args), 0, 0);
 					speed = 10;
 				} else{
+					route_req.source = route_req.dest;
+					get_dest(&destgroup, &destnum);
+					route_req.dest = index_sensor(destgroup, destnum);
+					Send(path_tid, (char *) &route_req, sizeof(struct route_request), 0, 0);
 					dprintf("Restarting at: %d\n\r", Time(clock_tid));
+					tput2(speed, 76);
 					speed = 0;
 				}
 			break;

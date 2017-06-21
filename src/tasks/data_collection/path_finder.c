@@ -34,6 +34,7 @@ void path_finder(){
 
   while(1){
 		Receive(&caller, (char *) &request, sizeof(struct route_request));
+		dprintf("Route request from %d to %d\n\r", request.source, request.dest);
     for(int i = 0; i < TRACK_MAX; ++i){
       distance[i] = 1 << 30;
       visited[i] = 0;
@@ -45,7 +46,6 @@ void path_finder(){
     //Djikstra's algorithm
     while(pqSize(&Q)){
       n1 = pqGetMin(&Q);
-			dprintf("Popping %d at priority %d\n\r", n1, pqGetMinPriority(&Q));
       pqPop(&Q);
 
       if(visited[n1])
@@ -70,12 +70,9 @@ void path_finder(){
           dhelper(dist, distance, prev, n1, n2, &Q);
         break;
 				default:
-					dprintf("Routing: Nothing to do.\n\r");
 				break;
       }
     }
-
-		dprintf("Done\n\r");
 
     if(!visited[request.dest]){
       dprintf("FATAL ERROR - PATH NOT FOUND\n\r");
@@ -90,14 +87,11 @@ void path_finder(){
 			n1 = request.source;
       while(n1 != request.dest){
         if(track[n1].type == NODE_BRANCH){
-					dprintf("n1: %d, sucess[n1]: %d, straight: %d, curved: %d\n\r", n1, sucess[n1], track_index(track[n1].edge[DIR_STRAIGHT].dest),track_index(track[n1].edge[DIR_CURVED].dest));
           if(sucess[n1] == track_index(track[n1].edge[DIR_STRAIGHT].dest)){
-						dprintf("Flipping %d to S\n\r", track[n1].num);
             tput2(33, track[n1].num);
           	Delay(clock_tid, 10);
           	tputc(32);
           } else{
-						dprintf("Flipping %d to C\n\r", track[n1].num);
             tput2(34, track[n1].num);
           	Delay(clock_tid, 10);
           	tputc(32);
