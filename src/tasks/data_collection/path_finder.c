@@ -1,10 +1,12 @@
 #include "track_data.h"
-#define PQ_CAPACITY TRACK_MAX
+#include "path_finder.h"
+#include "tasks.h"
+#define PQ_CAPACITY 300
 #include "pq.h"
 
-#define track_index(expr) ( (track - expr) / sizeof(track_node) )
+#define track_index(expr) (expr - track)
 
-static inline void d_helper(int dist, int * distance, int n1, int n2, PriorityQueue* Q){
+static inline void dhelper(int dist, int * distance, int * prev, int n1, int n2, PriorityQueue* Q){
   if(dist < distance[n2]){
     distance[n2] = dist;
     prev[n2] = n1;
@@ -17,12 +19,13 @@ void path_finder(){
 
   //Data for Djikstra
   track_node track[TRACK_MAX];
+	init_tracka(track);
   int distance[TRACK_MAX];
   int visited[TRACK_MAX];
   int prev[TRACK_MAX];
+	int sucess[TRACK_MAX];
   PriorityQueue Q;
   pqInit(&Q);
-  init_tracka(&track);
   int n1, n2, dist;
 
 	struct route_request request;
@@ -42,6 +45,7 @@ void path_finder(){
     //Djikstra's algorithm
     while(pqSize(&Q)){
       n1 = pqGetMin(&Q);
+			dprintf("Popping %d at priority %d\n\r", n1, pqGetMinPriority(&Q));
       pqPop(&Q);
 
       if(visited[n1])
@@ -50,43 +54,62 @@ void path_finder(){
 
       if(n1 == request.dest) // Terminate early
         break;
-
       switch(track[n1].type){
         case NODE_SENSOR:
         case NODE_MERGE:
           n2 = track_index(track[n1].edge[DIR_AHEAD].dest);
           dist = distance[n1] + track[n1].edge[DIR_AHEAD].dist;
-          dhelper(dist, distance, n1, n2, &Q);
+          dhelper(dist, distance, prev, n1, n2, &Q);
         break;
         case NODE_BRANCH:
           n2 = track_index(track[n1].edge[DIR_STRAIGHT].dest);
           dist = distance[n1] + track[n1].edge[DIR_STRAIGHT].dist;
-          dhelper(dist, distance, n1, n2, &Q);
+          dhelper(dist, distance, prev, n1, n2, &Q);
           n2 = track_index(track[n1].edge[DIR_CURVED].dest);
           dist = distance[n1] + track[n1].edge[DIR_CURVED].dist;
-          dhelper(dist, distance, n1, n2, &Q);
+          dhelper(dist, distance, prev, n1, n2, &Q);
         break;
+				default:
+					dprintf("Routing: Nothing to do.\n\r");
+				break;
       }
     }
 
-    if(!visited[request.source]){
+		dprintf("Done\n\r");
+
+    if(!visited[request.dest]){
       dprintf("FATAL ERROR - PATH NOT FOUND\n\r");
     } else{
-      n2 = request.dest;
-      while(n1 != request.source){
+      n1 = request.dest;
+			sucess[request.dest] = request.dest;
+			while(n1 != request.source){
+				sucess[prev[n1]] = n1;
+				n1 = prev[n1];
+			}
+
+			n1 = request.source;
+      while(n1 != request.dest){
         if(track[n1].type == NODE_BRANCH){
-          if(prev[n1] == track_index(track[n2].edge[DIR_STRAIGHT].dest)){
-            tput2(33, track[n1].number);
-          	Delay(ckock_tid, 10);
+					dprintf("n1: %d, sucess[n1]: %d, straight: %d, curved: %d\n\r", n1, sucess[n1], track_index(track[n1].edge[DIR_STRAIGHT].dest),track_index(track[n1].edge[DIR_CURVED].dest));
+          if(sucess[n1] == track_index(track[n1].edge[DIR_STRAIGHT].dest)){
+						dprintf("Flipping %d to S\n\r", track[n1].num);
+            tput2(33, track[n1].num);
+          	Delay(clock_tid, 10);
           	tputc(32);
           } else{
-            tput2(34, track[n1].number);
-          	Delay(ckock_tid, 10);
+						dprintf("Flipping %d to C\n\r", track[n1].num);
+            tput2(34, track[n1].num);
+          	Delay(clock_tid, 10);
           	tputc(32);
           }
         }
-        n1 = prev[n1];
+				if(track[n1].type == NODE_SENSOR || track[n1].type == NODE_ENTER || track[n1].type == NODE_EXIT){
+					dprintf("Path: %s\n\r", track[n1].name);
+				}
+        n1 = sucess[n1];
       }
+			dprintf("Path: %s\n\r", track[n1].name);
     }
+		Reply(caller, 0, 0);
   }
 }

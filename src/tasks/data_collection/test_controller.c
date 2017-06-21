@@ -28,6 +28,5 @@ void test_controller()
 	int model_tid = Create(1, conductor);
 	int sensors = Create(1, test_sensor_controller);
 	Send(sensors, (char*)&model_tid, sizeof(model_tid), 0, 0);
-	tput2(10, 76);
 	Exit();
 }

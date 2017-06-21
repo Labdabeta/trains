@@ -1,11 +1,22 @@
 #define PQ_CAPACITY 0 /* Null-column hack! */
 #include "pq.h"
+#include "debugio.h"
 
 #define SWAP(X,Y) do { \
 	struct PriorityQueueElement tmp = (X); \
 	X = (Y); \
 	Y = tmp; \
 } while (0)
+
+static inline void pq_swap(struct PriorityQueueElement *q1, struct PriorityQueueElement *q2)
+{
+	int temp = q1->priority;
+	q1->priority = q2->priority;
+	q2->priority = temp;
+	temp = q1->data;
+	q1->data = q2->data;
+	q2->data = temp;
+}
 
 static inline void bubbleDown(PriorityQueue *pq, int i)
 {
@@ -24,7 +35,7 @@ static inline void bubbleDown(PriorityQueue *pq, int i)
 			min = right;
 
 		if (min != i) {
-			SWAP(pq->data[i], pq->data[min]);
+			pq_swap(&pq->data[i], &pq->data[min]);
 			i = min;
 		}
 	}
@@ -34,7 +45,7 @@ void pqPop(PriorityQueue *pq)
 {
 	pq->size--;
 	if (pq->size) {
-		SWAP(pq->data[0], pq->data[pq->size]);
+		pq_swap(&pq->data[0], &pq->data[pq->size]);
 		bubbleDown(pq, 0);
 	}
 }
@@ -44,8 +55,8 @@ void pqInsert(PriorityQueue *pq, int prio, int data)
 	int nodeIndex = pq->size++;
 	pq->data[nodeIndex].priority = prio;
 	pq->data[nodeIndex].data = data;
-	while (prio < pq->data[(nodeIndex - 1)>>1].priority) {
-		SWAP(pq->data[nodeIndex], pq->data[(nodeIndex - 1)>>1]);
+	while (nodeIndex > 0 && prio < pq->data[(nodeIndex - 1)>>1].priority) {
+		pq_swap(&pq->data[nodeIndex], &pq->data[(nodeIndex - 1)>>1]);
 		nodeIndex = (nodeIndex - 1) >> 1;
 	}
 }
