@@ -4,67 +4,67 @@
 #include "tasks.h"
 #include "fuzzy.h"
 #include "rand.h"
+#include "intersensorTime.h"
 
-void sensorloop(void)
+static void dumpNetworkState(ISTNetwork *n)
 {
-    int tout = WhoIs("TOUT");
-    int tin = WhoIs("TIN");
+	int i;
+	dprintf("Network state:\n\r");
 
-    for (ever) {
-        Putc(tout, 1, 133);
+	dprintf("input_weights[] = {");
+	for (i = 0; i < NUM_INPUT_WEIGHTS; ++i)
+		dprintf("0x%x,",n->input_weights[i]);
 
-        for (int i = 0; i < 10; ++i) {
-            int val = Getc(tin, 1);
-            printf("%c%c%c%c%c%c%c%c",
-                    '0' + !!(val & 1),
-                    '0' + !!(val & 2),
-                    '0' + !!(val & 4),
-                    '0' + !!(val & 8),
-                    '0' + !!(val & 16),
-                    '0' + !!(val & 32),
-                    '0' + !!(val & 64),
-                    '0' + !!(val & 128));
-        }
-        printf("\n\r");
-    }
+	dprintf("\n\rlayer1_weights[] = {");
+	for (i = 0; i < NUM_LAYER_WEIGHTS; ++i)
+		dprintf("0x%x,",n->layer_weights[i]);
 }
 
-void cin_to_tout(void)
-{
-	int cin = WhoIs("CIN");
-	int tout = WhoIs("TOUT");
-
-    int byte = 0;
-    for (ever) {
-        int ch = Getc(cin, 2);
-
-        if (ch >= '0' && ch <= '9') {
-            byte *= 10;
-            byte += ch - '0';
-        } else if (ch == 'q' || ch == 'Q') {
-            Exit();
-        } else {
-            printf("Sending: %d\n\r", byte);
-            Putc(tout, 1, byte);
-            byte = 0;
-        }
-    }
-}
-
-void cout_to_tin(void)
-{
-    Service();
-	int tin = WhoIs("TIN");
-
-    for (ever)
-        printf("%d\n\r", 0xFF & Getc(tin, 1));
-}
+static float float_abs(float x) { if (x < 0.0) return -x; return x; }
 
 void hello()
 {
-    Create(1, sensorloop);
-    Create(1, cin_to_tout);
-    //Create(1, cout_to_tin);
+	int i;
+	int r = 10;
+	ISTNetwork n;
+	struct ISTNetworkInputs ni;
 
+	for (i = 0; i < NUM_INPUT_WEIGHTS; ++i)
+		n.input_weights[i] = float_abs((float)rand(r) / 2147483647.0);
+
+	for (i = 0; i < NUM_LAYER_WEIGHTS; ++i)
+		n.layer_weights[i] = float_abs((float)rand(r) / 2147483647.0);
+
+	dumpNetworkState(&n);
+
+	ni.isLast[0] = 1;
+	for (i = 0; i < NUM_SENSORS; ++i)
+		ni.isLast[i] = 0;
+	for (i = 0; i < NUM_SWITCHES; ++i)
+		ni.isCurved[i] = 0;
+	ni.isTrain[0] = 1;
+	for (i = 1; i < NUM_TRAINS; ++i)
+		ni.isTrain[i] = 0;
+	ni.isSpeed[NUM_SPEEDS-1] = 1;
+	for (i = 0; i < NUM_SPEEDS-1; ++i)
+		ni.isSpeed[i] = 0;
+
+	int clock = WhoIs("CLOCK");
+
+	int starttime = Time(clock);
+	int t;
+
+	initIST(&n);
+
+	i = 0;
+	while ((t = Time(clock)) < (starttime + 100)) {
+		trainIST(&n, &ni, 13); // This converges, 14 diverges!
+		dprintf("%d\n\r", getIST(&n, &ni));
+		++i;
+		dumpNetworkState(&n);
+	}
+
+	dumpNetworkState(&n);
+	dprintf("\n\rGot %d results.\n\r", i);
 	Exit();
 }

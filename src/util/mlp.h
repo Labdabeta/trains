@@ -29,8 +29,6 @@ typedef struct MultilayerPerceptron {
 void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, enum	ActivationFunction *activators, NNLayer *layers, float **weights);
 void network_train(NeuralNetwork *nn, float *inputs, float *outputs, float *real_outputs, float eta);
 void network_value(NeuralNetwork *nn, float *inputs, float *outputs);
-void network_dump(NeuralNetwork *nn); /* dprintfs a c int array that can be loaded. */
-void network_load(NeuralNetwork *nn, int *data); /* loads an initted network from its dumped array. */
 
 #endif /* MLP_H */
 

@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     for (ch = (char*)LOG_BASE; *ch; ++ch) {
         /* Busy wait until we can send what we want. */
         while (*flags & 0x20);
-        *data = *ch; /* enable lights */
+        *data = *ch;
     }
 
     return 0;

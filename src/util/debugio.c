@@ -10,7 +10,7 @@ void debug_putc(void *data, char ch)
 {
 	(void)data; // unused
 	*(location++) = ch;
-	if ((int)location > (int)&CODE_BASE)
+	if ((int)location > 0x100000)
 		location = (char*)INIT_LOCATION;
 	*location = 0;
 }

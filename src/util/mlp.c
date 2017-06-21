@@ -35,6 +35,7 @@ void mlpInit(NeuralNetwork *nn, int numInputs, int numLayers, int *layerSizes, e
 			nn->layers[i][n].size = lastSize;
 			nn->layers[i][n].last_output = 0;
 			nn->layers[i][n].last_doutput = 0;
+            nn->layers[i][n].bias = 0.0;
 		}
 
 		if (n > nn->maxLayer)
@@ -51,7 +52,7 @@ static float node_output(struct PerceptronNode *n, float *inputs, enum Activatio
 	n->last_output = 0;
 	for (i = 0; i < n->size; ++i)
 		n->last_output += n->weights[i] * inputs[i];
-	n->last_output += n->weights[n->size];
+    n->last_output += n->bias;
 
 	switch (activator) {
 		case AF_RELU:

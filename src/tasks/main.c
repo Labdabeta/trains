@@ -42,6 +42,6 @@ void main_task(void)
 
 	//Create(1, controller);
 
-    Create(1, hello);
+    CreateSize(5, hello, TASK_SIZE_GIANT);
 	Exit();
 }
