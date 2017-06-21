@@ -21,18 +21,17 @@ typedef struct track_edge track_edge;
 struct track_edge {
   track_edge *reverse;
   track_node *src, *dest;
-  int dist;             /* in millimetres */
+  int dist;
 };
 
 struct track_node {
   const char *name;
   node_type type;
-  int num;              /* sensor or switch number */
-  track_node *reverse;  /* same location, but opposite direction */
+  int num;
+  track_node *reverse;
   track_edge edge[2];
 };
 
-// The track initialization functions expect an array of this size.
 #define TRACK_MAX 144
 
 void init_tracka(track_node *track);

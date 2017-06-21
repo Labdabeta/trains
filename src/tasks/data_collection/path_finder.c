@@ -1,0 +1,92 @@
+#include "track_data.h"
+#define PQ_CAPACITY TRACK_MAX
+#include "pq.h"
+
+#define track_index(expr) ( (track - expr) / sizeof(track_node) )
+
+static inline void d_helper(int dist, int * distance, int n1, int n2, PriorityQueue* Q){
+  if(dist < distance[n2]){
+    distance[n2] = dist;
+    prev[n2] = n1;
+    pqInsert(Q, dist, n2);
+  }
+}
+
+void path_finder(){
+  Service();
+
+  //Data for Djikstra
+  track_node track[TRACK_MAX];
+  int distance[TRACK_MAX];
+  int visited[TRACK_MAX];
+  int prev[TRACK_MAX];
+  PriorityQueue Q;
+  pqInit(&Q);
+  init_tracka(&track);
+  int n1, n2, dist;
+
+	struct route_request request;
+  int caller;
+  int clock_tid = WhoIs("CLOCK");
+
+  while(1){
+		Receive(&caller, (char *) &request, sizeof(struct route_request));
+    for(int i = 0; i < TRACK_MAX; ++i){
+      distance[i] = 1 << 30;
+      visited[i] = 0;
+    }
+    distance[request.source] = 0;
+    prev[request.source] = request.source;
+    pqInsert(&Q, 0, request.source);
+
+    //Djikstra's algorithm
+    while(pqSize(&Q)){
+      n1 = pqGetMin(&Q);
+      pqPop(&Q);
+
+      if(visited[n1])
+        continue;
+      visited[n1] = 1;
+
+      if(n1 == request.dest) // Terminate early
+        break;
+
+      switch(track[n1].type){
+        case NODE_SENSOR:
+        case NODE_MERGE:
+          n2 = track_index(track[n1].edge[DIR_AHEAD].dest);
+          dist = distance[n1] + track[n1].edge[DIR_AHEAD].dist;
+          dhelper(dist, distance, n1, n2, &Q);
+        break;
+        case NODE_BRANCH:
+          n2 = track_index(track[n1].edge[DIR_STRAIGHT].dest);
+          dist = distance[n1] + track[n1].edge[DIR_STRAIGHT].dist;
+          dhelper(dist, distance, n1, n2, &Q);
+          n2 = track_index(track[n1].edge[DIR_CURVED].dest);
+          dist = distance[n1] + track[n1].edge[DIR_CURVED].dist;
+          dhelper(dist, distance, n1, n2, &Q);
+        break;
+      }
+    }
+
+    if(!visited[request.source]){
+      dprintf("FATAL ERROR - PATH NOT FOUND\n\r");
+    } else{
+      n2 = request.dest;
+      while(n1 != request.source){
+        if(track[n1].type == NODE_BRANCH){
+          if(prev[n1] == track_index(track[n2].edge[DIR_STRAIGHT].dest)){
+            tput2(33, track[n1].number);
+          	Delay(ckock_tid, 10);
+          	tputc(32);
+          } else{
+            tput2(34, track[n1].number);
+          	Delay(ckock_tid, 10);
+          	tputc(32);
+          }
+        }
+        n1 = prev[n1];
+      }
+    }
+  }
+}
