@@ -26,10 +26,10 @@ typedef struct ISTNetwork {
 } ISTNetwork;
 
 struct ISTNetworkInputs {
-	int isLast[NUM_SENSORS]; // It is assumed that this sensor was just triggered
-	int isCurved[NUM_SWITCHES];
-	int isTrain[NUM_TRAINS];
-	int isSpeed[NUM_SPEEDS];
+	unsigned int isLast : NUM_SENSORS;
+	unsigned int isCurved : NUM_SWITCHES;
+	unsigned int isTrain : NUM_TRAINS;
+	unsigned int isSpeed : NUM_SPEEDS;
 };
 
 /* Initializes the intersensor time network.

@@ -1,5 +1,8 @@
 #include "intersensorTime.h"
 
+/* time of 1 = 1 / DILATION_RATE ticks */
+#define DILATION_RATE 100.0
+
 void initIST(struct ISTNetwork *n)
 {
 	n->layerSizes[0] = NUM_LAYER_WEIGHTS;
@@ -27,7 +30,7 @@ void trainIST(struct ISTNetwork *n, struct ISTNetworkInputs *inputs, int realOut
 	for (i = 0; i < NUM_SPEEDS; ++i)
 		input[i + NUM_SENSORS + NUM_SWITCHES + NUM_TRAINS] = (inputs->isSpeed[i] ? 1.0 : 0.0);
 
-	float real = (float)realOutput;
+	float real = (float)realOutput / DILATION_RATE;
 	network_train(&n->nn, input, 0, &real, IST_ETA);
 }
 
@@ -47,5 +50,5 @@ int getIST(struct ISTNetwork *n, struct ISTNetworkInputs *inputs)
 	float output;
 	network_value(&n->nn, input, &output);
 
-	return (int)output;
+	return (int)(output * DILATION_RATE);
 }

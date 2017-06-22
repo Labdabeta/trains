@@ -10,7 +10,6 @@
 *.o
 *.elf
 *.bin
-*.pdf
 *.aux
 *.log
 *.out

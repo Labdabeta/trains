@@ -37,17 +37,10 @@ void hello()
 
 	dumpNetworkState(&n);
 
-	ni.isLast[0] = 1;
-	for (i = 0; i < NUM_SENSORS; ++i)
-		ni.isLast[i] = 0;
-	for (i = 0; i < NUM_SWITCHES; ++i)
-		ni.isCurved[i] = 0;
-	ni.isTrain[0] = 1;
-	for (i = 1; i < NUM_TRAINS; ++i)
-		ni.isTrain[i] = 0;
-	ni.isSpeed[NUM_SPEEDS-1] = 1;
-	for (i = 0; i < NUM_SPEEDS-1; ++i)
-		ni.isSpeed[i] = 0;
+	ni.isLast = 1;
+	ni.isCurved = 0;
+	ni.isTrain = 1;
+	ni.isSpeed = 1;
 
 	int clock = WhoIs("CLOCK");
 
