@@ -50,6 +50,7 @@ void conductor()
 									group = 'A' + (i / 2);
 									number = 1 + j + (i % 2)*8;
 									dprintf("Sensor %c%d at time %d\n\r", group, number, Time(clock_tid));
+#if 0
 									if(group == destgroup && number == destnum){
 										args.length = length;
 										length += 30;
@@ -57,6 +58,7 @@ void conductor()
 										Send(child_tid, (char *) &args, sizeof(struct delay_args), 0, 0);
 										dprintf("Requesting stop, tid: %d\n\r", child_tid);
 									}
+#endif
 								}
 							}
 						}
