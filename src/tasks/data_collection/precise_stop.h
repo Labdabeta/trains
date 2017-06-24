@@ -3,6 +3,8 @@
 
 #include "tasks.h"
 
+void precise_stop(void);
+
 typedef enum precise_code {
 	CODE_precise_Sensor,
 	CODE_precise_Timeout,
@@ -19,9 +21,14 @@ struct precise_msg {
 			EMPTY;
 		} p_timeout;
 		struct{
-			char bytes[10];
+			int result;
 		} p_queary;
 	} data;
+};
+
+struct delay_args{
+	int clock_tid;
+	int length;
 };
 
 #endif

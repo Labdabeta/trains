@@ -79,7 +79,7 @@ void path_finder(){
   PriorityQueue Q;
   pqInit(&Q);
 
-	int maker_tid = CreateSize(0, path_maker, TASK_SIZE_SMALL);
+	int maker_tid = CreateSize(0, path_maker, TASK_SIZE_TINY);
 
 	struct route_request request;
 	struct path sensor_route;

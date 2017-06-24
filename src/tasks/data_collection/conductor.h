@@ -16,9 +16,4 @@ struct test_message{
 	char bytes[10];
 };
 
-struct delay_args{
-	int clock_tid;
-	int length;
-};
-
 #endif

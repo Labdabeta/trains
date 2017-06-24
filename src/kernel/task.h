@@ -5,12 +5,12 @@
 #include "asm.h"
 
 /* Change these to increase tasks */
-#define NUM_SUPPORTED_TASKS 86
-#define NUM_GIANT_TASKS 4 /* 1 is kernel */
-#define NUM_BIG_TASKS 14
-#define NUM_NORMAL_TASKS 24
-#define NUM_SMALL_TASKS 28
-#define NUM_TINY_TASKS 16
+#define NUM_SUPPORTED_TASKS 75
+#define NUM_GIANT_TASKS 3 /* 1 is kernel */
+#define NUM_BIG_TASKS 10
+#define NUM_NORMAL_TASKS 15
+#define NUM_SMALL_TASKS 17
+#define NUM_TINY_TASKS 30
 
 /* Indices in the tid array */
 #define GIANT_TASK_INITIAL_IDX 0
