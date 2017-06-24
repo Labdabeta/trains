@@ -9,7 +9,7 @@ typedef struct SNetwork {
 } SNetwork;
 
 struct SNetworkInputs {
-	struct Position position; /* Where we want the train to stop. */
+	int sensorId;
 	int train; /* Which train */
 	int speed; /* The steady-state speed */
 };
