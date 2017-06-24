@@ -4,6 +4,7 @@
 #include "buffer.h"
 #include "asm.h"
 
+/* Change these to increase tasks */
 #define NUM_SUPPORTED_TASKS 86
 #define NUM_GIANT_TASKS 4 /* 1 is kernel */
 #define NUM_BIG_TASKS 14
@@ -13,10 +14,17 @@
 
 /* Indices in the tid array */
 #define GIANT_TASK_INITIAL_IDX 0
-#define BIG_TASK_INITIAL_IDX 4
-#define NORMAL_TASK_INITIAL_IDX 18
-#define SMALL_TASK_INITIAL_IDX 42
-#define TINY_TASK_INITIAL_IDX 70
+#define BIG_TASK_INITIAL_IDX NUM_GIANT_TASKS
+#define NORMAL_TASK_INITIAL_IDX BIG_TASK_INITIAL_IDX + NUM_BIG_TASKS
+#define SMALL_TASK_INITIAL_IDX NORMAL_TASK_INITIAL_IDX + NUM_NORMAL_TASKS
+#define TINY_TASK_INITIAL_IDX SMALL_TASK_INITIAL_IDX + NUM_SMALL_TASKS
+
+/* Size of each task type in addresses */
+#define GIANT_TASK_SIZE_BYTES 0x200000
+#define BIG_TASK_SIZE_BYTES 0x100000
+#define NORMAL_TASK_SIZE_BYTES 0x40000
+#define SMALL_TASK_SIZE_BYTES 0x10000
+#define TINY_TASK_SIZE_BYTES 0x4000
 
 #define SIZE_GIANT 0
 #define SIZE_BIG 1
