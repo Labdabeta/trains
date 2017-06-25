@@ -40,6 +40,7 @@ void main_task(void)
 	while (WhoIs("TOUT") < 0)
 		Pass();
 
+	dprintf("This is a line!\n\r");
 	//Create(1, A0_controller);
 	Create(1, test_controller);
 

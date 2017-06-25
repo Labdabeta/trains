@@ -4,6 +4,8 @@
 #include "buffer.h"
 #include "asm.h"
 
+/* Don't forget the hardcoded name server tid. */
+
 /* Change these to increase tasks */
 #define NUM_SUPPORTED_TASKS 75
 #define NUM_GIANT_TASKS 3 /* 1 is kernel */
