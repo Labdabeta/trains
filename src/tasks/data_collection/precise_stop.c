@@ -1,4 +1,5 @@
 #include "precise_stop.h"
+#include "conductor.h"
 #include "path_finder.h"
 
 void delay_percise(void);
@@ -10,7 +11,7 @@ typedef enum{
 } percise_state;
 
 #define p_SPEED 10
-#define p_TRAIN 76
+#define p_TRAIN 69
 
 void precise_stop(){
 	int caller, client;
@@ -25,9 +26,12 @@ void precise_stop(){
 	struct path pathBA;
 	struct precise_msg msg;
 	struct delay_args delay_a;
+	struct test_message cond;
+	cond.type = CODE_Queary;
 	delay_a.clock_tid = WhoIs("CLOCK");
 	int distAB, distBA;
 	int delay, overshot;
+	int result;
 	percise_state state = p_STATE_neither;
 
 	Receive(&client, (char *) &points, sizeof(struct route_request));
@@ -51,44 +55,43 @@ void precise_stop(){
 
 	while(1){
 		Receive(&caller, (char *) &msg, sizeof(struct precise_msg));
-		Reply(client, 0, 0);
+		Reply(caller, 0, 0);
 		switch(msg.code){
 			case CODE_precise_Sensor:
-				if(msg.p_sensor.number == args.source){
+				if(msg.number == points.source){
 					overshot = pathAB.length - 1;
 					state = p_STATE_stop;
 					child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
 					delay_a.length = delay;
-					Send(child_tid, (char *) &delay_a, sizeof(delay_args), 0, 0);
+					Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
 				}
 				overshot++;
-				position = msg.p_sensor.number;
+				dprintf("Sensor %c%d at time %d\n\r", 'A' + (msg.number / 16), msg.number % 16 + 1, Time(delay_a.clock_tid));
 			break;
 			case CODE_precise_Timeout:
 				switch(state){
 					case p_STATE_stop:
 						child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
 						delay_a.length = 200;
-						Send(child_tid, (char *) &delay_a, sizeof(delay_args), 0, 0);
+						Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
 						state = p_STATE_inspection;
 						tput2(0, p_TRAIN);
 						dprintf("Stopping train at time %d\n\r", Time(delay_a.clock_tid));
 					break;
 					case p_STATE_inspection:
-						//Request reading the sensors
+						state = p_STATE_neither;
+						cond.data.sensor = points.dest;
+						Send(client, (char *) &cond, sizeof(struct test_message), (char *) &result, sizeof(int));
+						if(result){
+							dprintf("Perfect landing @ delay=%d!\n\r", delay);
+						} else{
+							dprintf("Overshot val: %d\n\r", overshot);
+							delay = delay + (overshot < 0 ? 15 : -15);
+						}
+						tput2(p_SPEED, p_TRAIN);
+						dprintf("Starting train at time %d\n\r", Time(delay_a.clock_tid));
 					break;
 				}
-			break;
-			case CODE_precise_Queary_Result:
-				state = p_STATE_neither;
-				if(msg.p_queary.result){
-					dprintf("Perfect landing @ delay=%d!\n\r", delay);
-				} else{
-					dprintf("Overshot val: %d\n\r", overshot);
-					delay = delay + (overshot < 0 ? 15 : -15);
-				}
-				tput2(p_SPEED, p_TRAIN);
-				dprintf("Starting train at time %d\n\r", Time(delay_a.clock_tid));
 			break;
 		}
 	}
@@ -99,7 +102,7 @@ void delay_percise()
 	int caller;
 	struct delay_args args;
 	struct precise_msg msg;
-	msg.type = CODE_precise_Timeout;
+	msg.code = CODE_precise_Timeout;
 
 	Receive(&caller, (char *) &args, sizeof(struct delay_args));
 	Reply(caller, 0, 0);

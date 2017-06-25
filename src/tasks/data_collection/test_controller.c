@@ -17,7 +17,7 @@ void test_sensor_controller()
 	for (ever) {
 		Putc(tout, 1, 133);
 		for (parity = 0; parity < 10; ++parity) {
-			msg.bytes[parity] =  Getc(tin, 1);
+			msg.data.bytes[parity] =  Getc(tin, 1);
 		}
 		Send(model_tid, (char *) &msg, sizeof(struct test_message), 0, 0);
 	}

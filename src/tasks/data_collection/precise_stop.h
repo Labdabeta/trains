@@ -7,23 +7,12 @@ void precise_stop(void);
 
 typedef enum precise_code {
 	CODE_precise_Sensor,
-	CODE_precise_Timeout,
-	CODE_precise_Queary_Result
-} test_message_code;
+	CODE_precise_Timeout
+} precise_code;
 
 struct precise_msg {
 	precise_code code;
-	union {
-		struct{
-			int number;
-		} p_sensor;
-		struct{
-			EMPTY;
-		} p_timeout;
-		struct{
-			int result;
-		} p_queary;
-	} data;
+	int number;
 };
 
 struct delay_args{

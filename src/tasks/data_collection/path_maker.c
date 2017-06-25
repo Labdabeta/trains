@@ -9,10 +9,10 @@ void path_maker(void){
 	int clock_tid = WhoIs("CLOCK");
 
 	while(1){
-		Receive(&caller, (char *) &route, sizeof(struct path_positions));
+		Receive(&caller, (char *) &route, sizeof(struct path_sw_pos));
 		Reply(caller, 0, 0);
 
-		for(int i = 0; i < route.length){
+		for(int i = 0; i < route.length; i++){
 			tput2(route.positions[i], route.stations[i]);
 			Delay(clock_tid, 5);
 		}

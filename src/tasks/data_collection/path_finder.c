@@ -14,7 +14,7 @@ static inline void dhelper(int dist, int * distance, int * prev, int n1, int n2,
   }
 }
 
-int Djikstra(PriorityQueue *Q, int *visited, int *distance, track_node *track, int source, int dest)
+int Djikstra(PriorityQueue *Q, int *visited, int *prev, int *distance, track_node *track, int source, int dest)
 {
 	for(int i = 0; i < TRACK_MAX; ++i){
 		distance[i] = 1 << 30;
@@ -49,15 +49,15 @@ int Djikstra(PriorityQueue *Q, int *visited, int *distance, track_node *track, i
 			case NODE_MERGE:
 				n2 = track_index(track[n1].edge[DIR_AHEAD].dest);
 				dist = distance[n1] + track[n1].edge[DIR_AHEAD].dist;
-				dhelper(dist, distance, prev, n1, n2, &Q);
+				dhelper(dist, distance, prev, n1, n2, Q);
 			break;
 			case NODE_BRANCH:
 				n2 = track_index(track[n1].edge[DIR_STRAIGHT].dest);
 				dist = distance[n1] + track[n1].edge[DIR_STRAIGHT].dist;
-				dhelper(dist, distance, prev, n1, n2, &Q);
+				dhelper(dist, distance, prev, n1, n2, Q);
 				n2 = track_index(track[n1].edge[DIR_CURVED].dest);
 				dist = distance[n1] + track[n1].edge[DIR_CURVED].dist;
-				dhelper(dist, distance, prev, n1, n2, &Q);
+				dhelper(dist, distance, prev, n1, n2, Q);
 			break;
 			default:
 			break;
@@ -91,7 +91,7 @@ void path_finder(){
 		Receive(&caller, (char *) &request, sizeof(struct route_request));
 		dprintf("Route request from %d to %d\n\r", request.source, request.dest);
 
-		sensor_route.dist = Djikstra(&Q, visited, distance, track, request.source, request.dest);
+		sensor_route.dist = Djikstra(&Q, visited, prev, distance, track, request.source, request.dest);
 		sensor_route.length = 0;
 		switch_route.length = 0;
 
@@ -110,12 +110,12 @@ void path_finder(){
         if(track[n1].type == NODE_BRANCH){
 					switch_route.stations[switch_route.length] = track[n1].num;
 					switch_route.positions[switch_route.length] =
-						(successor[n1] == track_index(track[n1].edge[DIR_STRAIGHT].dest) ? 33 : 34;
+						(successor[n1] == track_index(track[n1].edge[DIR_STRAIGHT].dest)) ? 33 : 34;
 					switch_route.length++;
         }
 				if(track[n1].type == NODE_SENSOR || track[n1].type == NODE_ENTER || track[n1].type == NODE_EXIT){
 					dprintf("Path: %s\n\r", track[n1].name);
-					sensor_route.stations[sensor_route.length] = track[n1].name;
+					sensor_route.stations[sensor_route.length] = track[n1].num;
 					sensor_route.length++;
 				}
         n1 = successor[n1];

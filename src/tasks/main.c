@@ -22,7 +22,7 @@ void main_task(void)
 	while (WhoIs("CLOCK") < 0)
 		Pass();
 
-	_cin_tid = CreateSize(2, cin_server, TASK_SIZE_TINY);
+	_cin_tid = CreateSize(2, cin_server, TASK_SIZE_BIG);
 	while (WhoIs("CIN") < 0)
 		Pass();
 
