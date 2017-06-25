@@ -20,10 +20,12 @@ void initPositionCalculator(PositionCalculator *pc)
 	initIST(&pc->n);
 
 	pc->history_size = 0;
+	pc->history_idx = 0;
 }
 
-int registerSensorTrigger(PositionCalculator *pc, int sensor, int train, int time)
+int registerSensorTrigger(PositionCalculator *pc, int sensor, int train, int time, int learn)
 {
+	int i;
 	// Determine the delta
 	int delta = 0;
 	if (pc->expectedTimes[train] != -1)
@@ -31,26 +33,19 @@ int registerSensorTrigger(PositionCalculator *pc, int sensor, int train, int tim
 
 	// Load the neural input
 	struct ISTNetworkInputs inputs;
-	if (sensor > 0x40)
-		inputs.isLastE = 1 << (sensor & 0xF);
-	else if (sensor > 0x30)
-		inputs.isLastD = 1 << (sensor & 0xF);
-	else if (sensor > 0x20)
-		inputs.isLastC = 1 << (sensor & 0xF);
-	else if (sensor > 0x10)
-		inputs.isLastB = 1 << (sensor & 0xF);
-	else
-		inputs.isLastA = 1 << (sensor & 0xF);
-	inputs.isCurved = pc->switches;
-	inputs.isTrain = 1 << train;
-#warning TODO: use fuzzy logic on newSpeed|newSpeedTime|speed to get (and maybe update) a speed
-	inputs.isSpeed = 1 << pc->speed[train];
+	for (i = 0; i < NUM_SENSORS; ++i)
+		inputs.isLast[i] = (i == sensor ? 1.0f : 0.0f);
+	for (i = 0; i < NUM_SWITCHES; ++i)
+		inputs.isCurved[i] = (pc->switches & (1 << i) ? 1.0f : 0.0f);
+	for (i = 0; i < NUM_TRAINS; ++i)
+		inputs.isTrain[i] = (i == train ? 1.0f : 0.0f);
+	getEffectiveSpeeds(pc, train, time, inputs.isSpeed);
 
 	int exptime = getIST(&pc->n, &inputs);
 	pc->expectedTimes[train] = exptime + time;
 
 	// Should we add this to the training history?
-	if (pc->lastSensor[train] >= 0) {
+	if (pc->lastSensor[train] >= 0 && learn) {
 		int idx = (pc->history_size + pc->history_idx) % EPOCH_SIZE;
 		pc->history[idx].value = inputs;
 		pc->history[idx].time = time - pc->initTimes[train];
@@ -108,4 +103,10 @@ int getExpectedNextSensorTime(PositionCalculator *pc, int train)
 ISTNetwork *getPositionNetworkReference(PositionCalculator *pc)
 {
 	return &pc->n;
+}
+
+void getEffectiveSpeeds(PositionCalculator *pc, int train, int time, float *buf)
+{
+	buf[pc->newSpeed[train]] = 1.0;
+#warning TODO: use fuzzy logic on newSpeed|newSpeedTime|speed to get (and maybe update) a speed
 }

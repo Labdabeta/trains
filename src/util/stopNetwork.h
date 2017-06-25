@@ -32,14 +32,10 @@ typedef struct SNetwork {
 } SNetwork;
 
 struct SNetworkInputs {
-	unsigned int isLastA : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastB : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastC : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastD : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastE : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isCurved : NUM_SWITCHES;
-	unsigned int isTrain : NUM_TRAINS;
-	unsigned int isSpeed : NUM_SPEEDS;
+	float isStop[NUM_SENSORS];
+	float isCurved[NUM_SWITCHES];
+	float isTrain[NUM_TRAINS];
+	float isSpeed[NUM_SPEEDS];
 };
 
 /* Initializes the stop network.
@@ -67,7 +63,7 @@ void trainS(struct SNetwork *n, struct SNetworkInputs *inputs, int realOutput);
  * \param[in] n                The network to evaluate.
  * \param[in] inputs           The inputs to the network.
  *
- * \return The estimated stop position.
+ * \return The estimated stop time before sensor trigger.
  */
 int getS(struct SNetwork *n, struct SNetworkInputs *inputs);
 

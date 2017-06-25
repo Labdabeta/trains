@@ -6,7 +6,6 @@
 #define IST_ETA 0.01 // If too fast will kill nodes
 
 #define NUM_SENSORS 80
-#define NUM_SENSORS_PER_CLUSTER 0x10
 #define NUM_SWITCHES 22
 #define NUM_TRAINS 6
 #define NUM_SPEEDS 14
@@ -27,15 +26,10 @@ typedef struct ISTNetwork {
 } ISTNetwork;
 
 struct ISTNetworkInputs {
-    /* Set these bitfields via 1 << X */
-	unsigned int isLastA : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastB : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastC : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastD : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isLastE : NUM_SENSORS_PER_CLUSTER;
-	unsigned int isCurved : NUM_SWITCHES;
-	unsigned int isTrain : NUM_TRAINS;
-	unsigned int isSpeed : NUM_SPEEDS;
+	float isLast[NUM_SENSORS];
+	float isCurved[NUM_SWITCHES];
+	float isTrain[NUM_TRAINS];
+	float isSpeed[NUM_SPEEDS];
 };
 
 /* Initializes the intersensor time network.

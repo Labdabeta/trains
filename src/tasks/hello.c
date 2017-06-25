@@ -27,7 +27,6 @@ void hello()
 	int i;
 	int r = 10;
 	ISTNetwork n;
-	struct ISTNetworkInputs ni;
 
 	for (i = 0; i < NUM_INPUT_WEIGHTS; ++i)
 		n.input_weights[i] = float_abs((float)rand(r) / 2147483647.0);
@@ -37,14 +36,15 @@ void hello()
 
 	dumpNetworkState(&n);
 
-	ni.isLastA = 1;
-	ni.isLastB = 0;
-	ni.isLastC = 0;
-	ni.isLastD = 0;
-	ni.isLastE = 0;
-	ni.isCurved = 0;
-	ni.isTrain = 1;
-	ni.isSpeed = 1;
+	struct ISTNetworkInputs inputs;
+	for (i = 0; i < NUM_SENSORS; ++i)
+		inputs.isLast[i] = (i ? 1.0f : 0.0f);
+	for (i = 0; i < NUM_SWITCHES; ++i)
+		inputs.isCurved[i] = (i ? 1.0f : 0.0f);
+	for (i = 0; i < NUM_TRAINS; ++i)
+		inputs.isTrain[i] = (i ? 1.0f : 0.0f);
+	for (i = 0; i < NUM_SPEEDS; ++i)
+		inputs.isSpeed[i] = (i ? 1.0f : 0.0f);
 
 	int clock = WhoIs("CLOCK");
 
@@ -55,8 +55,8 @@ void hello()
 
 	i = 0;
 	while ((t = Time(clock)) < (starttime + 100)) {
-		trainIST(&n, &ni, 13); // This converges, 14 diverges!
-		dprintf("%d\n\r", getIST(&n, &ni));
+		trainIST(&n, &inputs, 13); // This converges, 14 diverges!
+		dprintf("%d\n\r", getIST(&n, &inputs));
 		++i;
 	}
 
