@@ -16,7 +16,7 @@ typedef struct StopCalculator {
 } StopCalculator;
 
 void initStopCalculator(StopCalculator *sc, PositionCalculator *pc);
-void registerAccurateStopPosition(StopCalculator *sc, int sensor, int train, int speed, struct Position pos);
+void registerAccurateStopPosition(StopCalculator *sc, int sensor, int train, int speed, int time);
 void learnStops(StopCalculator *sc);
 struct Position getStopPosition(StopCalculator *sc, struct Position pos, int train);
 

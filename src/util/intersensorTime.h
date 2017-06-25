@@ -3,9 +3,10 @@
 
 #include "mlp.h"
 
-#define IST_ETA 0.1 // If too fast will kill nodes
+#define IST_ETA 0.01 // If too fast will kill nodes
 
 #define NUM_SENSORS 80
+#define NUM_SENSORS_PER_CLUSTER 0x10
 #define NUM_SWITCHES 22
 #define NUM_TRAINS 6
 #define NUM_SPEEDS 14
@@ -26,7 +27,12 @@ typedef struct ISTNetwork {
 } ISTNetwork;
 
 struct ISTNetworkInputs {
-	unsigned int isLast : NUM_SENSORS;
+    /* Set these bitfields via 1 << X */
+	unsigned int isLastA : NUM_SENSORS_PER_CLUSTER;
+	unsigned int isLastB : NUM_SENSORS_PER_CLUSTER;
+	unsigned int isLastC : NUM_SENSORS_PER_CLUSTER;
+	unsigned int isLastD : NUM_SENSORS_PER_CLUSTER;
+	unsigned int isLastE : NUM_SENSORS_PER_CLUSTER;
 	unsigned int isCurved : NUM_SWITCHES;
 	unsigned int isTrain : NUM_TRAINS;
 	unsigned int isSpeed : NUM_SPEEDS;

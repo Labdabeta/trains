@@ -1,5 +1,8 @@
 #include "mlp.h"
 
+#define MAX_WEIGHT_VAL 10.0
+#define MIN_WEIGHT_VAL -10.0
+
 /* Approximates ln(1+x) */
 float approx_ln1(float x) { return x - (x*x/2) + (x*x*x/3); }
 float approx_exp(float x) { return 1 + x + (x*x/2) + (x*x*x/6); }
@@ -170,10 +173,18 @@ void network_train(NeuralNetwork *nn, float *inputs, float *outputs, float *real
 				float last_back_output = get_back_last_output(nn, inputs, layer, weight);
 				nn->layers[layer][node].weights[weight] +=
 					(-1 * eta * deltas[layer][node] * last_back_output);
+				if (nn->layers[layer][node].weights[weight] > MAX_WEIGHT_VAL)
+					nn->layers[layer][node].weights[weight] = MAX_WEIGHT_VAL;
+				if (nn->layers[layer][node].weights[weight] < MIN_WEIGHT_VAL)
+					nn->layers[layer][node].weights[weight] = MIN_WEIGHT_VAL;
 			}
 
 			/* Update the bias weight */
             nn->layers[layer][node].bias += (-1 * eta * deltas[layer][node]);
+			if (nn->layers[layer][node].bias > MAX_WEIGHT_VAL)
+				nn->layers[layer][node].bias = MAX_WEIGHT_VAL;
+			if (nn->layers[layer][node].bias < MIN_WEIGHT_VAL)
+				nn->layers[layer][node].bias = MIN_WEIGHT_VAL;
 		}
 	}
 }

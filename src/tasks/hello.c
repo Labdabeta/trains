@@ -37,7 +37,11 @@ void hello()
 
 	dumpNetworkState(&n);
 
-	ni.isLast = 1;
+	ni.isLastA = 1;
+	ni.isLastB = 0;
+	ni.isLastC = 0;
+	ni.isLastD = 0;
+	ni.isLastE = 0;
 	ni.isCurved = 0;
 	ni.isTrain = 1;
 	ni.isSpeed = 1;

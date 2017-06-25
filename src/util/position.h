@@ -18,14 +18,12 @@ typedef struct PositionCalculator {
 	int newSpeedTime[NUM_TRAINS]; // This is the time since the new speed was set
 	int expectedTimes[NUM_TRAINS];
 	int initTimes[NUM_TRAINS];
-	unsigned int switches : NUM_SENSORS;
+	unsigned int switches : NUM_SWITCHES;
 
 	// history is a circular buffer of data
 	struct PositionDatum history[EPOCH_SIZE];
 	int history_size;
 	int history_idx;
-
-	int cs_tid; // Clock server TID
 } PositionCalculator;
 
 struct Position {
@@ -36,10 +34,11 @@ struct Position {
 void initPositionCalculator(PositionCalculator *pc);
 /* Returns delta from expected. */
 int registerSensorTrigger(PositionCalculator *pc, int sensor, int train, int time);
-void registerTrainSpeed(PositionCalculator *pc, int train, int speed);
+void registerTrainSpeed(PositionCalculator *pc, int train, int speed, int time);
 void registerSwitchState(PositionCalculator *pc, int sw, int isCurved);
 void learnPositions(PositionCalculator *pc);
-struct Position getPosition(PositionCalculator *pc, int train);
-int getExpectedNextSensorTime(PositionCalculator *pc, int time);
+struct Position getPosition(PositionCalculator *pc, int train, int time);
+int getExpectedNextSensorTime(PositionCalculator *pc, int train);
+ISTNetwork *getPositionNetworkReference(PositionCalculator *pc);
 
 #endif /* POSITION_H */
