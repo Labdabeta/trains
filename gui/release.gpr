@@ -1,0 +1,23 @@
+project Release is
+    for Object_Dir use "objects_release";
+    for Main use ("Main");
+    for Exec_Dir use ".";
+
+    package Builder is
+        for Default_Switches ("Ada") use ("-d");
+        for Executable ("main.adb") use "trains";
+    end Builder;
+
+    package Compiler is
+        for Default_Switches ("Ada") use (
+            "-O2",                                  -- Optimize
+            "-eL",                                  -- Follow symbolic links
+            "-F",                                   -- Use full pathnames (simplifies vim :make)
+            "-gnatU",                               -- Tag errors with "error:"
+            "-gnatVa",                              -- Enable validity checking
+            "-gnatef",                              -- Use full pathnames in errors too
+            "-gnatwe",                              -- Treat warnings as errors
+            "-gnaty4aAbCdefhiklL12mM80noprStux");   -- Mandate style guide
+    end Compiler;
+end Release;
+

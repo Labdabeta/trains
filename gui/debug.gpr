@@ -1,0 +1,48 @@
+-- Style flags are:
+-- 4 - Proper indentation with tabs set at 4 spaces
+-- a - Proper attribute casing
+-- A - Clear array attributes (no index on 1D, full index on nD)
+-- b - No blanks at the end of statements
+-- C - Comments don't suck (and need 1 space)
+-- d - No DOS EOLs
+-- e - Ends/Exits must have labels
+-- f - No form feeds or vtabs
+-- h - No TAB characters
+-- i - If then layout must be decent
+-- k - All lowercase keywords
+-- l - Proper layout
+-- L12 - Can't nest deeper than 12 levels of nesting
+-- m - Sufficiently short lines
+-- M80 - Maximum line length is 80 characters
+-- n - Standard types are appropriately cased
+-- o - Subprograms are in alphabetical order
+-- p - Proper pragma casing
+-- r - Identifiers must stay the same case
+-- S - No statements on the same line as then or else
+-- -s - Everything has a spec (currently omitted)
+-- t - Super picky token spacing
+-- u - No unnecessary blank lines
+-- x - No extra parenthesis (especially if (x) style)
+project Debug is
+    for Object_Dir use "objects";
+    for Main use ("Main");
+    for Exec_Dir use ".";
+
+    package Builder is
+        for Default_Switches ("Ada") use ("-g", "-d"); -- Display progress
+        for Executable ("main.adb") use "trains";
+    end Builder;
+
+    package Compiler is
+        for Default_Switches ("Ada") use (
+            "-g",                                   -- Enable debugging symbols
+            "-eL",                                  -- Follow symbolic links
+            "-F",                                   -- Use full pathnames (simplifies vim :make)
+            "-gnatU",                               -- Tag errors with "error:"
+            "-gnatVa",                              -- Enable validity checking
+            "-gnatef",                              -- Use full pathnames in errors too
+            "-gnatwe",                              -- Treat warnings as errors
+            "-gnaty4aAbCdefhiklL12mM80noprStux");   -- Mandate style guide
+    end Compiler;
+end Debug;
+
