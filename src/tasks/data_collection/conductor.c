@@ -36,12 +36,11 @@ void conductor()
 	Send(percise_tid, (char *) &points, sizeof(struct route_request), 0, 0);
 
 	while(1){
-		Receive(&caller, (char *) &msg, sizeof(struct precise_msg));
+		Receive(&caller, (char *) &msg, sizeof(struct test_message));
 		switch(msg.type){
 			case CODE_SensorBytes:
 				Reply(caller, 0, 0);
 				for (int i = 0; i < 10; ++i) {
-					//dprintf("msg.data.bytes[i]: %x\tsensors[i]: %x\n\r", msg.data.bytes[i], sensors[i]);
 					if (msg.data.bytes[i] != sensors[i]) {
 
 						temp = msg.data.bytes[i] & ~sensors[i];
