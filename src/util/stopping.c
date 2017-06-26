@@ -30,6 +30,7 @@ void registerAccurateStopPosition(StopCalculator *sc, int sensor, int train, int
 
 struct Position getStopPosition(StopCalculator *sc, struct Position pos, int train)
 {
+	int i;
 	struct SNetworkInputs inputs;
 	for (i = 0; i < NUM_SENSORS; ++i)
 		inputs.isStop[i] = (i == pos.sensorId ? 1.0f : 0.0f);

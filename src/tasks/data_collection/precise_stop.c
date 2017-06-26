@@ -18,6 +18,7 @@ void precise_stop(){
 	int finder_tid, child_tid;
 
 	Receive(&caller, (char *) &finder_tid, sizeof(int));
+	dprintf("Finder tid: %d\n\r", finder_tid);
 	Reply(caller, 0, 0);
 
 	struct route_request points;
@@ -29,7 +30,6 @@ void precise_stop(){
 	struct test_message cond;
 	cond.type = CODE_Queary;
 	delay_a.clock_tid = WhoIs("CLOCK");
-	int distAB, distBA;
 	int delay, overshot;
 	int result;
 	percise_state state = p_STATE_neither;
@@ -38,28 +38,30 @@ void precise_stop(){
 	Reply(client, 0, 0);
 
 	args = points;
-	distAB = Send(finder_tid, (char *) &args, sizeof(struct route_request),
+	Send(finder_tid, (char *) &args, sizeof(struct route_request),
 		(char *) &pathAB, sizeof(struct path));
 
 	args.source = points.dest;
 	args.dest = points.source;
-	distBA = Send(finder_tid, (char *) &args, sizeof(struct route_request),
+	Delay(delay_a.clock_tid, 50);
+	Send(finder_tid, (char *) &args, sizeof(struct route_request),
 		(char *) &pathBA, sizeof(struct path));
-
-	delay = distAB / 5 - 30;
+	delay = pathAB.dist / 5 - 30;
 
 	dprintf("Welcome to the percise stopper!\n\r");
-	dprintf("Today, we will use train %d at speed %d.\n\r", p_SPEED, p_TRAIN);
-	dprintf("The distance from A to B is: %dmm\n\r", distAB);
-	dprintf("The distance from B to A is: %dmm\n\r", distBA);
+	dprintf("Today, we will use train %d at speed %d.\n\r", p_TRAIN, p_SPEED);
+	dprintf("The distance from A to B is: %dmm\n\r", pathAB.dist);
+	dprintf("The distance from B to A is: %dmm\n\r", pathBA.dist);
+	dprintf("We will try a delay of: %d*10ms\n\r", delay);
 
+	tput2(p_SPEED, p_TRAIN);
 	while(1){
 		Receive(&caller, (char *) &msg, sizeof(struct precise_msg));
 		Reply(caller, 0, 0);
 		switch(msg.code){
 			case CODE_precise_Sensor:
 				if(msg.number == points.source){
-					overshot = pathAB.length - 1;
+					overshot = 1 - pathAB.length;
 					state = p_STATE_stop;
 					child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
 					delay_a.length = delay;
@@ -91,6 +93,8 @@ void precise_stop(){
 						tput2(p_SPEED, p_TRAIN);
 						dprintf("Starting train at time %d\n\r", Time(delay_a.clock_tid));
 					break;
+					default:
+						dprintf("HUGE ERROR");
 				}
 			break;
 		}

@@ -49,6 +49,7 @@ ENTRY work(struct Data *data)
 		Send(data->parent, 0, 0, &ch, sizeof(ch));
 		data->com1->data = ch;
 		data->com1->ctrl |= 0x20;
+		dprintf("Put %d\n\r", (int)ch);
 	}
 }
 

@@ -29,9 +29,10 @@ int Djikstra(PriorityQueue *Q, int *visited, int *prev, int *distance, track_nod
 
 	while(pqSize(Q)){
 		n1 = pqGetMin(Q);
+		dist = pqGetMinPriority(Q);
 
 		if(n1 == dest){  // Terminate early
-			dist = pqGetMinPriority(Q);
+			visited[n1] = 1;
 			while(pqSize(Q)){
 				pqPop(Q);
 			}
