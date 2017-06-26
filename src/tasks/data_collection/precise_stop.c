@@ -56,7 +56,7 @@ void precise_stop(){
 
 	tput2(p_SPEED, p_TRAIN);
 	while(1){
-		Receive(&caller, (char *) &msg, sizeof(struct precise_msg));
+		Receive(&caller, (char *) &msg, sizeof(struct test_message));
 		Reply(caller, 0, 0);
 		switch(msg.code){
 			case CODE_precise_Sensor:
