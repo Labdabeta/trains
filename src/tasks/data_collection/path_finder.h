@@ -14,6 +14,7 @@ struct path{
 	int length;
 	int dist;
 	int stations[MAX_PATH_LENGTH];
+	int distances[MAX_PATH_LENGTH];
 };
 
 struct path_sw_pos{

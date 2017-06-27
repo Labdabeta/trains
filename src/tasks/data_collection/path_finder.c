@@ -117,6 +117,7 @@ void path_finder(){
 				if(track[n1].type == NODE_SENSOR || track[n1].type == NODE_ENTER || track[n1].type == NODE_EXIT){
 					dprintf("Path: %s\n\r", track[n1].name);
 					sensor_route.stations[sensor_route.length] = track[n1].num;
+					sensor_route.distances[sensor_route.length] = distance[n1];
 					sensor_route.length++;
 				}
         n1 = successor[n1];

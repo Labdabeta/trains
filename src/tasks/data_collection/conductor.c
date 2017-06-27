@@ -50,7 +50,6 @@ void conductor()
 								if(temp & (1 << (7-j)) ){
 									group = 'A' + (i / 2);
 									number = 1 + j + (i % 2)*8;
-									dprintf("Sensor %c%d\n\r", group, number);
 									p_stop.number = index_sensor(group, number);
 									Send(percise_tid, (char *) &p_stop, sizeof(struct precise_msg), 0, 0);
 								}

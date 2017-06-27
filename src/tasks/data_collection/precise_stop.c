@@ -46,7 +46,7 @@ void precise_stop(){
 	Delay(delay_a.clock_tid, 50);
 	Send(finder_tid, (char *) &args, sizeof(struct route_request),
 		(char *) &pathBA, sizeof(struct path));
-	delay = pathAB.dist / 5 - 30;
+	delay = pathAB.dist / 5 - 100;
 
 	dprintf("Welcome to the percise stopper!\n\r");
 	dprintf("Today, we will use train %d at speed %d.\n\r", p_TRAIN, p_SPEED);
@@ -61,7 +61,7 @@ void precise_stop(){
 		switch(msg.code){
 			case CODE_precise_Sensor:
 				if(msg.number == points.source){
-					overshot = 1 - pathAB.length;
+					overshot = 0 - pathAB.length;
 					state = p_STATE_stop;
 					child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
 					delay_a.length = delay;
@@ -74,7 +74,7 @@ void precise_stop(){
 				switch(state){
 					case p_STATE_stop:
 						child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
-						delay_a.length = 200;
+						delay_a.length = 500;
 						Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
 						state = p_STATE_inspection;
 						tput2(0, p_TRAIN);
@@ -88,7 +88,8 @@ void precise_stop(){
 							dprintf("Perfect landing @ delay=%d!\n\r", delay);
 						} else{
 							dprintf("Overshot val: %d\n\r", overshot);
-							delay = delay + (overshot < 0 ? 15 : -15);
+							delay = delay + (overshot < 0 ? 5 : -5);
+							dprintf("Delay set to: %d\n\r", delay);
 						}
 						tput2(p_SPEED, p_TRAIN);
 						dprintf("Starting train at time %d\n\r", Time(delay_a.clock_tid));
