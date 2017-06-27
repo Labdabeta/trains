@@ -72,7 +72,7 @@ void path_finder(){
 
   //Data for Djikstra
   track_node track[TRACK_MAX];
-	init_tracka(track);
+	init_tracka(track); //TRACK A SET HERE
   int distance[TRACK_MAX];
   int visited[TRACK_MAX];
   int prev[TRACK_MAX];
@@ -116,6 +116,7 @@ void path_finder(){
         }
 				if(track[n1].type == NODE_SENSOR || track[n1].type == NODE_ENTER || track[n1].type == NODE_EXIT){
 					dprintf("Path: %s\n\r", track[n1].name);
+					dprintf("Values; station %d, dist %d\n\r", track[n1].num, distance[n1]);
 					sensor_route.stations[sensor_route.length] = track[n1].num;
 					sensor_route.distances[sensor_route.length] = distance[n1];
 					sensor_route.length++;
