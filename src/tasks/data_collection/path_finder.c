@@ -90,7 +90,7 @@ void path_finder(){
 
   while(1){
 		Receive(&caller, (char *) &request, sizeof(struct route_request));
-		dprintf("Route request from %d to %d\n\r", request.source, request.dest);
+		//dprintf("Route request from %d to %d\n\r", request.source, request.dest);
 
 		sensor_route.dist = Djikstra(&Q, visited, prev, distance, track, request.source, request.dest);
 		sensor_route.length = 0;
@@ -115,8 +115,8 @@ void path_finder(){
 					switch_route.length++;
         }
 				if(track[n1].type == NODE_SENSOR || track[n1].type == NODE_ENTER || track[n1].type == NODE_EXIT){
-					dprintf("Path: %s\n\r", track[n1].name);
-					dprintf("Values; station %d, dist %d\n\r", track[n1].num, distance[n1]);
+					//dprintf("Path: %s\n\r", track[n1].name);
+					//dprintf("Values; station %d, dist %d\n\r", track[n1].num, distance[n1]);
 					sensor_route.stations[sensor_route.length] = track[n1].num;
 					sensor_route.distances[sensor_route.length] = distance[n1];
 					sensor_route.length++;

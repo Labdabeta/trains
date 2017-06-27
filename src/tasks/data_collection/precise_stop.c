@@ -37,6 +37,9 @@ void precise_stop(){
 	int Atime;
 	int prevtime;
 	int timetemp;
+	int stopping_index;
+	int stopping_dist_after;
+	int count = 0;
 	percise_state state = p_STATE_neither;
 
 	Receive(&client, (char *) &points, sizeof(struct route_request));
@@ -51,7 +54,7 @@ void precise_stop(){
 	Delay(delay_a.clock_tid, 50);
 	Send(finder_tid, (char *) &args, sizeof(struct route_request),
 		(char *) &pathBA, sizeof(struct path));
-	delay = pathAB.dist / 5 - 80;
+	delay = (pathAB.dist - 650) / 5;
 
 	dprintf("Welcome to the percise stopper!\n\r");
 	dprintf("Today, we will use train %d at speed %d.\n\r", p_TRAIN, p_SPEED);
@@ -84,13 +87,15 @@ void precise_stop(){
 						delay_a.length = 500;
 						Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
 						state = p_STATE_inspection;
-						tput2(0, p_TRAIN);
+						tput2(16, p_TRAIN);
 						timetemp = Time(delay_a.clock_tid);
 						dprintf("Stopping train at time %d\n\r", timetemp);
 						if(overshot <= 0){
-							dprintf("Previous sensor was %c%d\n\r", printf_sname(pathAB.stations[pathAB.length + overshot-1]));
-							dprintf("Speed %d mm/sec\n\r", (100 * pathAB.distances[pathAB.length + overshot-1]) / (prevtime - Atime));
-							dprintf("So I stopped %dmm after it.\n\r", (timetemp-prevtime) * pathAB.distances[pathAB.length + overshot-1] / (prevtime - Atime));
+							stopping_index = pathAB.length + overshot-1;
+							dprintf("Previous sensor was %c%d\n\r", printf_sname(pathAB.stations[stopping_index]));
+							dprintf("Speed %d mm/sec\n\r", (100 * pathAB.distances[stopping_index]) / (prevtime - Atime));
+							stopping_dist_after = (timetemp-prevtime) * pathAB.distances[stopping_index] / (prevtime - Atime);
+							dprintf("So I stopped %dmm after it.\n\r", stopping_dist_after);
 						}
 					break;
 					case p_STATE_inspection:
@@ -99,6 +104,13 @@ void precise_stop(){
 						Send(client, (char *) &cond, sizeof(struct test_message), (char *) &result, sizeof(int));
 						if(result){
 							dprintf("Perfect landing @ delay=%d!\n\r", delay);
+							dprintf("Stopping distance %dmm\n\r", pathAB.distances[pathAB.length-1] - pathAB.distances[stopping_index] - stopping_dist_after);
+							count++;
+							if(count == 2){
+								cond.data.sensor = -1337;
+								Send(client, (char *) &cond, sizeof(struct test_message), 0, 0);
+								Exit();
+							}
 						} else{
 							dprintf("Overshot val: %d\n\r", overshot);
 							delay = delay + (overshot < 0 ? 5 : -5);
