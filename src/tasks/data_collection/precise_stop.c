@@ -2,6 +2,8 @@
 #include "conductor.h"
 #include "path_finder.h"
 
+#define printf_sname(X) 'A' + (X / 16), X % 16 + 1
+
 void delay_percise(void);
 
 typedef enum{
@@ -11,7 +13,7 @@ typedef enum{
 } percise_state;
 
 #define p_SPEED 10
-#define p_TRAIN 69
+#define p_TRAIN 70
 
 void precise_stop(){
 	int caller, client;
@@ -32,6 +34,9 @@ void precise_stop(){
 	delay_a.clock_tid = WhoIs("CLOCK");
 	int delay, overshot;
 	int result;
+	int Atime;
+	int prevtime;
+	int timetemp;
 	percise_state state = p_STATE_neither;
 
 	Receive(&client, (char *) &points, sizeof(struct route_request));
@@ -46,7 +51,7 @@ void precise_stop(){
 	Delay(delay_a.clock_tid, 50);
 	Send(finder_tid, (char *) &args, sizeof(struct route_request),
 		(char *) &pathBA, sizeof(struct path));
-	delay = pathAB.dist / 5 - 100;
+	delay = pathAB.dist / 5 - 80;
 
 	dprintf("Welcome to the percise stopper!\n\r");
 	dprintf("Today, we will use train %d at speed %d.\n\r", p_TRAIN, p_SPEED);
@@ -60,15 +65,17 @@ void precise_stop(){
 		Reply(caller, 0, 0);
 		switch(msg.code){
 			case CODE_precise_Sensor:
+				prevtime = Time(delay_a.clock_tid);
+				dprintf("Sensor %c%d at time %d\n\r", printf_sname(msg.number), prevtime);
 				if(msg.number == points.source){
 					overshot = 0 - pathAB.length;
 					state = p_STATE_stop;
 					child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
 					delay_a.length = delay;
+					Atime = prevtime;
 					Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
 				}
 				overshot++;
-				dprintf("Sensor %c%d at time %d\n\r", 'A' + (msg.number / 16), msg.number % 16 + 1, Time(delay_a.clock_tid));
 			break;
 			case CODE_precise_Timeout:
 				switch(state){
@@ -78,7 +85,13 @@ void precise_stop(){
 						Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
 						state = p_STATE_inspection;
 						tput2(0, p_TRAIN);
-						dprintf("Stopping train at time %d\n\r", Time(delay_a.clock_tid));
+						timetemp = Time(delay_a.clock_tid);
+						dprintf("Stopping train at time %d\n\r", timetemp);
+						if(overshot <= 0){
+							dprintf("Previous sensor was %c%d\n\r", printf_sname(pathAB.stations[pathAB.length + overshot-1]));
+							dprintf("Speed %d mm/sec\n\r", (100 * pathAB.distances[pathAB.length + overshot-1]) / (prevtime - Atime));
+							dprintf("So I stopped %dmm after it.\n\r", (timetemp-prevtime) * pathAB.distances[pathAB.length + overshot-1] / (prevtime - Atime));
+						}
 					break;
 					case p_STATE_inspection:
 						state = p_STATE_neither;
@@ -89,7 +102,6 @@ void precise_stop(){
 						} else{
 							dprintf("Overshot val: %d\n\r", overshot);
 							delay = delay + (overshot < 0 ? 5 : -5);
-							dprintf("Delay set to: %d\n\r", delay);
 						}
 						tput2(p_SPEED, p_TRAIN);
 						dprintf("Starting train at time %d\n\r", Time(delay_a.clock_tid));
