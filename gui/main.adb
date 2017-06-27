@@ -1,17 +1,33 @@
 with GNAT.Serial_Communications; use GNAT.Serial_Communications;
 with Ada.Text_IO; use Ada.Text_IO;
-with Gtk.Main, Gtk.Window;
+with SDL; use SDL;
+with Interfaces.C.Strings; use Interfaces.C.Strings;
 
 procedure Main is
     Com2 : aliased Serial_Port;
     Load_Message : String := "load -h 10.15.167.5 " & ASCII.Quotation &
     "ARM/laburke/kernel.elf" & ASCII.Quotation & ASCII.CR;
-    Window : Gtk.Window.Gtk_Window;
+    Init_Error : chars_ptr;
+    Window_Title : chars_ptr :=
+        New_String ("Taggart Transcontinental Control Terminal");
+    Window_Width : constant := 1000;
+    Window_Height : constant := 600;
+    SDL_Error_Title : chars_ptr :=
+        New_String ("Error Initializing SDL");
 begin
-    Gtk.Main.Init;
-    Gtk.Window.Gtk_New (Window);
-    Gtk.Window.Show (Window);
-    Gtk.Main.Main;
+    Init_Error := Initialize;
+    if Init_Error /= Null_Ptr then
+        Error_Popup (
+            Title => SDL_Error_Title,
+            Message => Init_Error);
+        return;
+    end if;
+
+    Open_Window (
+        Width => Window_Width,
+        Height => Window_Height,
+        Title => Window_Title);
+
     Open (
         Port => Com2,
         Name => Name (1));
@@ -53,9 +69,14 @@ begin
     end;
 
     Close (Com2);
+    Finalize;
 
-    Qt_Ada.Application.Finalize;
 exception
     when Serial_Error =>
-        Put_Line ("Could not open port 1: is the serial line connected?");
+        Error_Popup (
+            Title => New_String ("COM Error"),
+            Message =>
+                New_String ("Could not open port 1: " &
+                    "is the serial line connected?"));
+        Finalize;
 end Main;

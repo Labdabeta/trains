@@ -1,7 +1,9 @@
 project Release is
+    for Languages use ("Ada", "C");
     for Object_Dir use "objects_release";
     for Main use ("Main");
     for Exec_Dir use ".";
+    for Source_Dirs use (".", "gui");
 
     package Builder is
         for Default_Switches ("Ada") use ("-d");
@@ -9,6 +11,10 @@ project Release is
     end Builder;
 
     package Compiler is
+        for Default_Switches ("C") use (
+            "-I/usr/include/SDL2", -- created from sdl2-config --cflags
+            "-D_REENTRANT", -- created from sdl2-config --cflags
+            "-g");
         for Default_Switches ("Ada") use (
             "-O2",                                  -- Optimize
             "-eL",                                  -- Follow symbolic links
@@ -19,5 +25,17 @@ project Release is
             "-gnatwe",                              -- Treat warnings as errors
             "-gnaty4aAbCdefhiklL12mM80noprStux");   -- Mandate style guide
     end Compiler;
+
+    package Linker is
+        for Default_Switches ("C") use (
+            "-L/usr/lib", -- created from sdl2-config --libs
+            "-lSDL2"); -- created from sdl2-config --libs
+        for Default_Switches ("Ada") use (
+            "-L/usr/lib", -- created from sdl2-config --libs
+            "-lSDL2", -- created from sdl2-config --libs
+            "-lSDL2_image",
+            "-lSDL2_ttf",
+            "-lSDL2_mixer");
+    end Linker;
 end Release;
 
