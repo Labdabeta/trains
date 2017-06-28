@@ -117,8 +117,9 @@ void precise_stop(){
 						if(overshot <= 0){
 							stopping_index = pathAB.length + overshot-1;
 							dprintf("Previous sensor was %c%d\n\r", printf_sname(pathAB.stations[stopping_index]));
-							dprintf("Speed %d mm/sec\n\r", (100 * pathAB.distances[stopping_index]) / (prevtime - Atime));
-							stopping_dist_after = (timetemp-prevtime) * pathAB.distances[stopping_index] / (prevtime - Atime);
+							int two_time = time_readings[(parity + 4) % 5] - time_readings[(parity + 2) % 5];
+							dprintf("Speed %d mm/sec\n\r", (100 * pathAB.distances[stopping_index]) / two_time);
+							stopping_dist_after = (timetemp-prevtime) * pathAB.distances[stopping_index] / two_time;
 							dprintf("So I stopped %dmm after it.\n\r", stopping_dist_after);
 						}
 					break;
@@ -128,9 +129,9 @@ void precise_stop(){
 						Send(client, (char *) &cond, sizeof(struct test_message), (char *) &result, sizeof(int));
 						if(result){
 							dprintf("Perfect landing @ delay=%d, speed %d!\n\r", delay, speed);
-							dprintf("Stopping distance %dmm\n\r", pathAB.distances[pathAB.length-1] - pathAB.distances[stopping_index] - stopping_dist_after);
+							dprintf("Stopping distance %dmm\n\r", pathAB.distances[stopping_index-2] - pathAB.distances[stopping_index] - stopping_dist_after);
 							count++;
-							if(count == 2){
+							if(count == 1){
 								count = 0;
 								if(speed == 7){
 									cond.data.sensor = -1337;

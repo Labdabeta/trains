@@ -35,6 +35,11 @@ void conductor()
 	As[7] = index_sensor('E', 1);
 	As[8] = index_sensor('C', 1);
 	As[9] = index_sensor('B', 4);
+	As[10] = index_sensor('C', 1);
+	As[11] = index_sensor('A', 3);
+	As[12] = index_sensor('A', 3);
+	As[13] = index_sensor('E', 5);
+	As[14] = index_sensor('E', 13);
 	int Bs[10];
 	Bs[0] = index_sensor('B', 2);
 	Bs[1] = index_sensor('C', 9);
@@ -43,9 +48,14 @@ void conductor()
 	Bs[4] = index_sensor('C', 11);
 	Bs[5] = index_sensor('B', 5);
 	Bs[6] = index_sensor('D', 3);
-	Bs[7] = index_sensor('C', 9);
-	Bs[8] = index_sensor('B', 15);
-	Bs[9] = index_sensor('A', 3);
+	Bs[7] = index_sensor('B', 15);
+	Bs[8] = index_sensor('A', 3);
+	Bs[9] = index_sensor('C', 11);
+	Bs[10] = index_sensor('C', 13); //Or 14?
+	Bs[11] = index_sensor('D', 8); // Or 7?
+	Bs[12] = index_sensor('E', 13);
+	Bs[13] = index_sensor('D', 16); // Or 15?
+	Bs[14] = index_sensor('E', 3); //Or E4?
 
 	points.source = As[index];
 	points.dest = Bs[index];
