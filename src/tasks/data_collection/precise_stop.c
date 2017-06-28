@@ -32,7 +32,8 @@ void precise_stop(){
 	struct test_message cond;
 	cond.type = CODE_Queary;
 	delay_a.clock_tid = WhoIs("CLOCK");
-	int delay, overshot;
+	int delay;
+	int overshot = 1;
 	int result;
 	int Atime;
 	int prevtime;
@@ -40,7 +41,12 @@ void precise_stop(){
 	int stopping_index;
 	int stopping_dist_after;
 	int count = 0;
+	int speed = p_SPEED;
+	int speed_temp = -1;
 	percise_state state = p_STATE_neither;
+
+	int parity = 0;
+	int time_readings[5];
 
 	Receive(&client, (char *) &points, sizeof(struct route_request));
 	Reply(client, 0, 0);
@@ -54,13 +60,12 @@ void precise_stop(){
 	Delay(delay_a.clock_tid, 50);
 	Send(finder_tid, (char *) &args, sizeof(struct route_request),
 		(char *) &pathBA, sizeof(struct path));
-	delay = (pathAB.dist - 650) / 5;
+	delay = -1;
 
 	dprintf("Welcome to the percise stopper!\n\r");
 	dprintf("Today, we will use train %d at speed %d.\n\r", p_TRAIN, p_SPEED);
-	dprintf("The distance from A to B is: %dmm\n\r", pathAB.dist);
-	dprintf("The distance from B to A is: %dmm\n\r", pathBA.dist);
-	dprintf("We will try a delay of: %d*10ms\n\r", delay);
+	dprintf("The distance from A to B is: %dmm\n\r", pathAB.distances[pathAB.length - 1]);
+	dprintf("The distance from B to A is: %dmm\n\r", pathBA.distances[pathBA.length - 1]);
 
 	tput2(p_SPEED, p_TRAIN);
 	while(1){
@@ -69,15 +74,34 @@ void precise_stop(){
 		switch(msg.code){
 			case CODE_precise_Sensor:
 				prevtime = Time(delay_a.clock_tid);
-				dprintf("Sensor %c%d at time %d\n\r", printf_sname(msg.number), prevtime);
+				//dprintf("Sensor %c%d at time %d\n\r", printf_sname(msg.number), prevtime);
+				time_readings[parity] = prevtime;
 				if(msg.number == points.source){
-					overshot = 0 - pathAB.length;
-					state = p_STATE_stop;
-					child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
-					delay_a.length = delay;
-					Atime = prevtime;
-					Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
+					overshot = -pathAB.length;
+					if(speed_temp > 0){
+						if(delay < 0){
+							int pred_stop_dist = (speed_temp*138-4760); // From my previous linear regression
+							delay = (pathAB.distances[pathAB.length - 1] * 100 - pred_stop_dist) / speed_temp;
+							dprintf("Speed: %d. Initial delay: %d*10ms\n\r", speed, delay);
+						}
+						state = p_STATE_stop;
+						child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
+						delay_a.length = delay;
+						Atime = prevtime;
+						Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
+					}
+				} else if(overshot < 0){
+					dprintf("%d:  ", pathAB.length + overshot);
+					for(int i = 1; i <= 4; i++){
+						if(overshot - i >= -pathAB.length){
+							speed_temp = pathAB.distances[pathAB.length + overshot] - pathAB.distances[pathAB.length + overshot - i];
+							speed_temp = 100 * speed_temp / (time_readings[parity] - time_readings[(parity + 5 - i) % 5]);
+							dprintf("%d seg, %dmm/sec.  ", i, speed_temp);
+						}
+					}
+					dprintf("\n\r");
 				}
+				parity = (parity + 1) % 5;
 				overshot++;
 			break;
 			case CODE_precise_Timeout:
@@ -103,19 +127,26 @@ void precise_stop(){
 						cond.data.sensor = points.dest;
 						Send(client, (char *) &cond, sizeof(struct test_message), (char *) &result, sizeof(int));
 						if(result){
-							dprintf("Perfect landing @ delay=%d!\n\r", delay);
+							dprintf("Perfect landing @ delay=%d, speed %d!\n\r", delay, speed);
 							dprintf("Stopping distance %dmm\n\r", pathAB.distances[pathAB.length-1] - pathAB.distances[stopping_index] - stopping_dist_after);
 							count++;
 							if(count == 2){
-								cond.data.sensor = -1337;
-								Send(client, (char *) &cond, sizeof(struct test_message), 0, 0);
-								Exit();
+								count = 0;
+								if(speed == 7){
+									cond.data.sensor = -1337;
+									Send(client, (char *) &cond, sizeof(struct test_message), 0, 0);
+									Exit();
+								} else{
+									speed--;
+									speed_temp = -1;
+									delay = -1;
+								}
 							}
 						} else{
 							dprintf("Overshot val: %d\n\r", overshot);
 							delay = delay + (overshot < 0 ? 5 : -5);
 						}
-						tput2(p_SPEED, p_TRAIN);
+						tput2(speed, p_TRAIN);
 						dprintf("Starting train at time %d\n\r", Time(delay_a.clock_tid));
 					break;
 					default:

@@ -92,7 +92,7 @@ void path_finder(){
 		Receive(&caller, (char *) &request, sizeof(struct route_request));
 		//dprintf("Route request from %d to %d\n\r", request.source, request.dest);
 
-		sensor_route.dist = Djikstra(&Q, visited, prev, distance, track, request.source, request.dest);
+		Djikstra(&Q, visited, prev, distance, track, request.source, request.dest);
 		sensor_route.length = 0;
 		switch_route.length = 0;
 
