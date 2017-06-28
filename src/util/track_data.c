@@ -2,13 +2,15 @@
 
 #include "track_data.h"
 
+track_node track[TRACK_MAX];
+
 static void *memset(void *s, int c, unsigned int n) {
   unsigned char *p = s;
   while(n --> 0) { *p++ = (unsigned char)c; }
   return s;
 }
 
-void init_tracka(track_node *track) {
+void init_tracka(void) {
   memset(track, 0, TRACK_MAX*sizeof(track_node));
   track[0].name = "A1";
   track[0].type = NODE_SENSOR;
@@ -1192,7 +1194,7 @@ void init_tracka(track_node *track) {
   track[143].reverse = &track[142];
 }
 
-void init_trackb(track_node *track) {
+void init_trackb(void) {
   memset(track, 0, TRACK_MAX*sizeof(track_node));
   track[0].name = "A1";
   track[0].type = NODE_SENSOR;

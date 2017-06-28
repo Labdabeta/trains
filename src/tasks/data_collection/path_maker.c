@@ -5,11 +5,13 @@ void path_maker(void){
 	Service();
 
 	int caller;
-	struct path_sw_pos route;
+	struct PathSwitchPositions route;
 	int clock_tid = WhoIs("CLOCK");
 
+	RegisterAs("PATH");
+
 	while(1){
-		Receive(&caller, (char *) &route, sizeof(struct path_sw_pos));
+		Receive(&caller, (char *) &route, sizeof(struct PathSwitchPositions));
 		Reply(caller, 0, 0);
 
 		for(int i = 0; i < route.length; i++){

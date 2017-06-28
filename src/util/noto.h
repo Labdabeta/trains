@@ -1,11 +1,11 @@
 #ifndef NOTO_H
 #define NOTO_H
 
+#include "limits.h"
+
 /* A noto is an approximated real number from -1 to 1 (inclusive). */
 typedef unsigned int noto;
 #define i64 long long int
-#define INT_MIN 0x80000000
-#define INT_MAX 0x7FFFFFFF
 #define noto_one 0x7FFFFFFF
 #define noto_zero 0
 

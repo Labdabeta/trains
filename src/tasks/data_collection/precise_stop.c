@@ -1,130 +1,135 @@
 #include "precise_stop.h"
-#include "conductor.h"
+#include <server.h> /* Though we aren't actually a server. */
+#include "sensors.h"
+#include "async_delay.h"
 #include "path_finder.h"
 
+#define DELAY_INCREMENT 5
+#define DELAY_OFFSET 80
 #define printf_sname(X) 'A' + (X / 16), X % 16 + 1
 
-void delay_percise(void);
+typedef enum PreciseState {
+	PS_NEITHER,
+	PS_STOP,
+	PS_INSPECT
+} PreciseState;
 
-typedef enum{
-	p_STATE_neither,
-	p_STATE_stop,
-	p_STATE_inspection
-} percise_state;
-
-#define p_SPEED 10
-#define p_TRAIN 70
-
-void precise_stop(){
-	int caller, client;
-	int finder_tid, child_tid;
-
-	Receive(&caller, (char *) &finder_tid, sizeof(int));
-	dprintf("Finder tid: %d\n\r", finder_tid);
-	Reply(caller, 0, 0);
-
-	struct route_request points;
-	struct route_request args;
-	struct path pathAB;
-	struct path pathBA;
-	struct precise_msg msg;
-	struct delay_args delay_a;
-	struct test_message cond;
-	cond.type = CODE_Queary;
-	delay_a.clock_tid = WhoIs("CLOCK");
-	int delay, overshot;
-	int result;
-	int Atime;
+struct Data {
+	int cid; /* Clock TID */
+	int sid; /* Sensor TID */
 	int prevtime;
-	int timetemp;
-	percise_state state = p_STATE_neither;
+	int source; /* -1 = no current source */
+	int destination;
+	int train;
+	int speed;
+	int overshot;
+	int delay;
+	int client;
+	struct PathSwitchPositions psp;
+	struct TrackPath path;
+	PreciseState state;
+};
 
-	Receive(&client, (char *) &points, sizeof(struct route_request));
-	Reply(client, 0, 0);
+struct Message {
+	int source;
+	int destination;
+	int train;
+	int speed;
+};
 
-	args = points;
-	Send(finder_tid, (char *) &args, sizeof(struct route_request),
-		(char *) &pathAB, sizeof(struct path));
+ENTRY initialize(struct Data *data)
+{
+	data->sid = WhoIs("SENSOR");
+	registerForSensorFlips(data->sid);
 
-	args.source = points.dest;
-	args.dest = points.source;
-	Delay(delay_a.clock_tid, 50);
-	Send(finder_tid, (char *) &args, sizeof(struct route_request),
-		(char *) &pathBA, sizeof(struct path));
-	delay = pathAB.dist / 5 - 80;
-
-	dprintf("Welcome to the percise stopper!\n\r");
-	dprintf("Today, we will use train %d at speed %d.\n\r", p_TRAIN, p_SPEED);
-	dprintf("The distance from A to B is: %dmm\n\r", pathAB.dist);
-	dprintf("The distance from B to A is: %dmm\n\r", pathBA.dist);
-	dprintf("We will try a delay of: %d*10ms\n\r", delay);
-
-	tput2(p_SPEED, p_TRAIN);
-	while(1){
-		Receive(&caller, (char *) &msg, sizeof(struct test_message));
-		Reply(caller, 0, 0);
-		switch(msg.code){
-			case CODE_precise_Sensor:
-				prevtime = Time(delay_a.clock_tid);
-				dprintf("Sensor %c%d at time %d\n\r", printf_sname(msg.number), prevtime);
-				if(msg.number == points.source){
-					overshot = 0 - pathAB.length;
-					state = p_STATE_stop;
-					child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
-					delay_a.length = delay;
-					Atime = prevtime;
-					Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
-				}
-				overshot++;
-			break;
-			case CODE_precise_Timeout:
-				switch(state){
-					case p_STATE_stop:
-						child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
-						delay_a.length = 500;
-						Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
-						state = p_STATE_inspection;
-						tput2(0, p_TRAIN);
-						timetemp = Time(delay_a.clock_tid);
-						dprintf("Stopping train at time %d\n\r", timetemp);
-						if(overshot <= 0){
-							dprintf("Previous sensor was %c%d\n\r", printf_sname(pathAB.stations[pathAB.length + overshot-1]));
-							dprintf("Speed %d mm/sec\n\r", (100 * pathAB.distances[pathAB.length + overshot-1]) / (prevtime - Atime));
-							dprintf("So I stopped %dmm after it.\n\r", (timetemp-prevtime) * pathAB.distances[pathAB.length + overshot-1] / (prevtime - Atime));
-						}
-					break;
-					case p_STATE_inspection:
-						state = p_STATE_neither;
-						cond.data.sensor = points.dest;
-						Send(client, (char *) &cond, sizeof(struct test_message), (char *) &result, sizeof(int));
-						if(result){
-							dprintf("Perfect landing @ delay=%d!\n\r", delay);
-						} else{
-							dprintf("Overshot val: %d\n\r", overshot);
-							delay = delay + (overshot < 0 ? 5 : -5);
-						}
-						tput2(p_SPEED, p_TRAIN);
-						dprintf("Starting train at time %d\n\r", Time(delay_a.clock_tid));
-					break;
-					default:
-						dprintf("HUGE ERROR");
-				}
-			break;
-		}
-	}
+	data->cid = WhoIs("CLOCK");
+	data->source = -1;
+	data->state = PS_NEITHER;
 }
 
-void delay_percise()
+struct delay_args{
+	int clock_tid;
+	int length;
+};
+
+static inline int handle(struct Data *data, int tid, struct Message *msg, int size)
 {
-	int caller;
-	struct delay_args args;
-	struct precise_msg msg;
-	msg.code = CODE_precise_Timeout;
+	if (size == sizeof(int)) { /* Sensor readback */
+		data->prevtime = Time(data->cid);
+		dprintf("Sensor %c%d at time %d\n\r", printf_sname(*(int*)msg), data->prevtime);
+		if (data->source >= 0 && *(int*)msg == data->source) {
+			data->overshot = -data->path.length;
+			data->state = PS_STOP;
+			async_delay(data->cid, data->delay, 0, 0);
+		}
+		data->overshot++;
+	} else if (size == 0) { /* Timeout */
+		switch (data->state) {
+			case PS_STOP:
+				async_delay(data->cid, 500, 0, 0);
+				data->state = PS_INSPECT;
+				tput2(0, data->train);
+				dprintf("Stopping train at time %d\n\r", Time(data->cid));
+				break;
+			case PS_INSPECT:
+				data->state = PS_NEITHER;
+				if (getSensorState(data->sid, data->destination)) {
+					Reply(data->client, (char*)&data->delay, sizeof(data->delay));
+					data->client = -1;
+					data->source = -1;
+					return 1;
+				} else {
+					data->delay = data->delay + (data->overshot < 0 ? DELAY_INCREMENT : -DELAY_INCREMENT);
+					tput2(data->speed, data->train);
+				}
+				break;
+			default:
+				dprintf("Got a timer return without an active job!\n\r");
+		}
+	} else { /* Request */
+		data->source = msg->source;
+		data->destination = msg->destination;
+		data->train = msg->train;
+		data->speed = msg->speed;
+		data->client = tid;
 
-	Receive(&caller, (char *) &args, sizeof(struct delay_args));
-	Reply(caller, 0, 0);
+		dprintf("Welcome to the percise stopper!\n\r");
+		dprintf("Today, we will use train %d at speed %d.\n\r", msg->train, msg->speed);
 
-	Delay(args.clock_tid, args.length);
-	Send(caller, (char *) &msg, sizeof(struct precise_msg), 0, 0);
-	Exit();
+		/* Determine the path, and set it up. */
+		int dist = findPath(data->source, data->destination, &data->path, &data->psp);
+		Send(WhoIs("PATH"), (char*)&data->psp, sizeof(data->psp), 0, 0);
+
+		data->delay = dist / DELAY_INCREMENT - DELAY_OFFSET;
+
+		dprintf("The distance from A to B is: %dmm\n\r", dist);
+		dprintf("We will try a delay of: %d*10ms\n\r", data->delay);
+
+		tput2(data->speed, data->train);
+	}
+	return 0;
+}
+
+void precise_stop_task(void)
+{
+	struct Data data;
+	struct Message msg;
+	int tid;
+	int datalen;
+	initialize(&data);
+
+	do {
+		datalen = Receive(&tid, (char*)&msg, sizeof(msg));
+	} while (!handle(&data, tid, &msg, datalen));
+
+	Exit(); /* This is similar to a server but it DOES die! */
+}
+
+int getAccurateStopTime(int sensor, int source, int train, int speed)
+{
+	struct Message msg = {source, sensor, train, speed};
+	int child = CreateSize(1, precise_stop_task, TASK_SIZE_TINY);
+	int answer;
+	Send(child, (char*)&msg, sizeof(msg), (char*)&answer, sizeof(answer));
+	return answer;
 }

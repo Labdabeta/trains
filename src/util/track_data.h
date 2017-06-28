@@ -34,7 +34,10 @@ struct track_node {
 
 #define TRACK_MAX 144
 
-void init_tracka(track_node *track);
-void init_trackb(track_node *track);
+void init_tracka(void);
+void init_trackb(void);
+
+/* THIS IS FAKE CONST, DON'T MODIFY AFTER INIT!!! */
+extern track_node track[TRACK_MAX];
 
 #endif

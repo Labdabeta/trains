@@ -25,8 +25,9 @@ void main_task(void);
 	void tout_server(void);
 		void tout_courier(void);
 			void tout_notifier(void);
+	void sensors(void);
 	void A0_controller(void);
-	void test_controller(void);
+	void conductor(void);
 	void hello(void);
 void idle(void);
 

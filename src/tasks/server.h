@@ -14,7 +14,7 @@ ENTRY initialize(struct Data *data)
 	/* Initialization code here. */
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *m)
+ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 {
 	/* Handle m here. */
 }

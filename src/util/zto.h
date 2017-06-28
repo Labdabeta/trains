@@ -1,10 +1,11 @@
 #ifndef ZTO_H
 #define ZTO_H
 
+#include "limits.h"
+
 /* A zto is an approximated real number from 0 to 1 (inclusive). */
 typedef unsigned int zto;
 #define u64 unsigned long long int
-#define UINT_MAX 0xFFFFFFFF
 #define UINT_HALF 0x7FFFFFFF
 #define zto_one 0xFFFFFFFF
 #define zto_zero 0
