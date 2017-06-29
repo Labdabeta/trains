@@ -105,4 +105,10 @@ package SDL is
 
     procedure Render_Present;
     pragma Import (C, Render_Present, "render_present_sdl");
+
+    function Get_Ticks return Uint32;
+    pragma Import (C, Get_Ticks, "get_ticks");
+
+    procedure Wait (Ticks : Uint32);
+    pragma Import (C, Wait, "delay");
 end SDL;

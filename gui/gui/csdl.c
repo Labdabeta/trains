@@ -182,3 +182,12 @@ void render_present_sdl(void)
     SDL_RenderPresent(renderer);
 }
 
+uint32_t get_ticks(void)
+{
+    return SDL_GetTicks();
+}
+
+void delay(uint32_t ticks)
+{
+    SDL_Delay(ticks);
+}

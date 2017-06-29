@@ -4,7 +4,7 @@ with SDL.Image;
 with Interfaces.C.Strings; use Interfaces.C.Strings;
 with Ada.Command_Line;
 with Ada.Text_IO; use Ada.Text_IO;
-with Controller;
+with Com;
 with Sensors;
 with Switches;
 
@@ -12,8 +12,13 @@ procedure Main is
     -- Our map is 1242 x 682
     Window_Width : constant := 1242;
     Window_Height : constant := 682;
+    Ticks_Per_Frame : constant := 1000 / 60; -- 60 fps
     Init_Error : chars_ptr;
     Background : SDL.Image.Image;
+    Quit : Boolean := False;
+    Last_Ticks : SDL.Uint32;
+    Current_Ticks : SDL.Uint32;
+    E : SDL.Event;
 begin
     if Ada.Command_Line.Argument_Count /= 3 then
         SDL.Error_Popup (
@@ -31,10 +36,13 @@ begin
         return;
     end if;
 
-    Controller.Initialize (
-        Name => GNAT.Serial_Communications.Port_Name (
-            Ada.Command_Line.Argument (3)),
-        Load => Ada.Command_Line.Argument (1));
+    Init_Error := Com.Initialize (New_String (Ada.Command_Line.Argument (3)));
+    if Init_Error /= Null_Ptr then
+        SDL.Error_Popup (
+            Title => New_String ("Error Initializing Com2"),
+            Message => Init_Error);
+        return;
+    end if;
 
     SDL.Open_Window (
         Width => Window_Width,
@@ -48,15 +56,14 @@ begin
     -- Switches.Initialize;
     Sensors.Initialize;
 
-    declare
-        Com_Control : Controller.Com_Controller;
-        Quit : Boolean := False;
-        E : SDL.Event;
-    begin
-        while not Quit loop
+    Last_Ticks := SDL.Get_Ticks;
+
+    while not Quit loop
+        loop
             SDL.Poll_Event (E => E);
             case E.Kind is
-                when SDL.NONE => null;
+                when SDL.NONE => exit;
+                when SDL.QUIT => Quit := True;
                 when SDL.QUIT => Quit := True; exit;
                 when SDL.KEYDOWN => null; -- TODO
                 when SDL.KEYUP => null; -- TODO
@@ -68,21 +75,30 @@ begin
                 when SDL.WHEELMOVE => null;
                 when SDL.UNKNOWN => null;
             end case;
-            SDL.Render_Clear;
-            SDL.Image.Draw (
-                Img => Background,
-                Top => 0,
-                Left => 0,
-                Height => SDL.Status.Window_Height,
-                Width => SDL.Status.Window_Width);
-            Sensors.Draw;
-            SDL.Render_Present;
-            delay 0.01;
         end loop;
-        Controller.Putc ('Q');
-    end;
 
-    Controller.Close;
+        -- TODO: poll com2
+
+        SDL.Render_Clear;
+        SDL.Image.Draw (
+            Img => Background,
+            Top => 0,
+            Left => 0,
+            Height => SDL.Status.Window_Height,
+            Width => SDL.Status.Window_Width);
+        Sensors.Draw;
+        SDL.Render_Present;
+
+        Current_Ticks := SDL.Get_Ticks - Last_Ticks;
+        Last_Ticks := SDL.Get_Ticks;
+        if Current_Ticks < Ticks_Per_Frame then
+            SDL.Wait (Ticks_Per_Frame - Current_Ticks);
+        end if;
+    end loop;
+
+    Com.Putc ('Q');
+
+    Com.Finalize;
 
     -- Switches.Finalize;
     Sensors.Finalize;
