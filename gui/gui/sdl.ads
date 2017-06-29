@@ -107,8 +107,8 @@ package SDL is
     pragma Import (C, Render_Present, "render_present_sdl");
 
     function Get_Ticks return Uint32;
-    pragma Import (C, Get_Ticks, "get_ticks");
+    pragma Import (C, Get_Ticks, "get_ticks_sdl");
 
-    procedure Wait (Ticks : Uint32);
-    pragma Import (C, Wait, "delay");
+    procedure Wait (Time : Uint32);
+    pragma Import (C, Wait, "delay_sdl");
 end SDL;

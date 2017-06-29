@@ -76,7 +76,7 @@ void info_popup_sdl(const char *title, const char *message);
 void render_clear_sdl(void);
 void render_present_sdl(void);
 
-uint32_t get_ticks(void);
-void delay(uint32_t ticks);
+uint32_t get_ticks_sdl(void);
+void delay_sdl(uint32_t delay);
 
 #endif /* C_SDL_H */

@@ -1,5 +1,5 @@
 with GNAT.Serial_Communications; use GNAT.Serial_Communications;
-with SDL;
+with SDL; use SDL;
 with SDL.Image;
 with Interfaces.C.Strings; use Interfaces.C.Strings;
 with Ada.Command_Line;
@@ -7,6 +7,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Com;
 with Sensors;
 with Switches;
+with Input_Processor;
 
 procedure Main is
     -- Our map is 1242 x 682
@@ -19,6 +20,8 @@ procedure Main is
     Last_Ticks : SDL.Uint32;
     Current_Ticks : SDL.Uint32;
     E : SDL.Event;
+    I : Integer;
+    Init : Boolean := False;
 begin
     if Ada.Command_Line.Argument_Count /= 3 then
         SDL.Error_Popup (
@@ -63,7 +66,6 @@ begin
             SDL.Poll_Event (E => E);
             case E.Kind is
                 when SDL.NONE => exit;
-                when SDL.QUIT => Quit := True;
                 when SDL.QUIT => Quit := True; exit;
                 when SDL.KEYDOWN => null; -- TODO
                 when SDL.KEYUP => null; -- TODO
@@ -77,7 +79,11 @@ begin
             end case;
         end loop;
 
-        -- TODO: poll com2
+        loop
+            I := Com.Getc;
+            exit when I < 0;
+            Input_Processor.Process (Character'Val (I));
+        end loop;
 
         SDL.Render_Clear;
         SDL.Image.Draw (
@@ -98,7 +104,13 @@ begin
 
     Com.Putc ('Q');
 
-    Com.Finalize;
+    Init_Error := Com.Finalize;
+    if Init_Error /= Null_Ptr then
+        SDL.Error_Popup (
+            Title => New_String ("Error Finalizing Com2"),
+            Message => Init_Error);
+        return;
+    end if;
 
     -- Switches.Finalize;
     Sensors.Finalize;
