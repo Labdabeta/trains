@@ -23,7 +23,7 @@ void conductor()
 	for(int i = 0; i < 10; ++i)
 		sensors[i] = 0;
 
-	int index = 5;
+	int index = 0;
 	int As[15];
 	As[0] = index_sensor('B', 5);
 	As[1] = index_sensor('D', 3);

@@ -12,7 +12,7 @@ typedef enum{
 	p_STATE_inspection
 } percise_state;
 
-#define p_SPEED 14
+#define p_SPEED 10
 #define p_TRAIN 70
 
 void precise_stop(){
@@ -77,26 +77,29 @@ void precise_stop(){
 			case CODE_precise_Sensor:
 				prevtime = Time(delay_a.clock_tid);
 				//dprintf("Sensor %c%d at time %d\n\r", printf_sname(msg.number), prevtime);
-				time_readings[parity] = prevtime;
 				if(msg.number == points.source){
+					time_readings[parity] = prevtime;
 					overshot = -pathAB.length;
+					Atime = prevtime;
 					if(speed_temp > 0){
 						if(delay < 0){
 							int two_dist = pathAB.distances[pathAB.length -1] - pathAB.distances[pathAB.length -3];
 							int two_time = time_readings[(parity + 4) % 5] - time_readings[(parity + 2) % 5];
-							speed_temp = two_dist / two_time;
+							speed_temp = two_dist*100 / two_time;
 							//int pred_stop_dist = (speed_temp*138-4760); // From my previous linear regression
 							int pred_stop_dist = (speed_temp*149-10224); // From my previous linear regression
+							dprintf("dist: %d, time: %d\n\r", two_dist, two_time);
 							delay = (pathAB.distances[pathAB.length - 1] * 100 - pred_stop_dist) / total_speed;
-							dprintf("Speed: %d. Initial delay: %d*10ms\n\r", total_speed, delay);
+							dprintf("Speed: %d, two: %d, Initial delay: %d*10ms\n\r", total_speed, speed_temp, delay);
 						}
 						state = p_STATE_stop;
 						child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
 						delay_a.length = delay;
-						Atime = prevtime;
 						Send(child_tid, (char *) &delay_a, sizeof(struct delay_args), 0, 0);
 					}
+					parity = (parity + 1) % 5;
 				} else if(overshot < 0){
+					time_readings[parity] = prevtime;
 					dprintf("%d:  ", pathAB.length + overshot);
 					for(int i = 1; i <= 4; i++){
 						if(overshot - i >= -pathAB.length){
@@ -106,11 +109,12 @@ void precise_stop(){
 						}
 					}
 					dprintf("\n\r");
+					parity = (parity + 1) % 5;
 				}
-				parity = (parity + 1) % 5;
 				overshot++;
 				if(overshot == 0 && delay < 0){
-					total_speed = pathAB.distances[pathAB.length -1] / (prevtime-Atime);
+					dprintf("Seeting total:%d / %d\n\r",pathAB.distances[pathAB.length -1], prevtime-Atime);
+					total_speed = pathAB.distances[pathAB.length -1]*100 / (prevtime-Atime);
 				}
 			break;
 			case CODE_precise_Timeout:
@@ -146,7 +150,7 @@ void precise_stop(){
 							count++;
 							if(count == 1){
 								count = 0;
-								if(speed == p_SPEED-7){
+								if(speed == p_SPEED){
 									cond.data.sensor = -1337;
 									Send(client, (char *) &cond, sizeof(struct test_message), 0, 0);
 									Exit();
