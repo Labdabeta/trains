@@ -29,6 +29,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int size)
 {
     int grn;
     Reply(tid, 0, 0);
+    dprintf("Got: %d\n\r", tid);
     if (msg->data < 0) {
         data->msg[0] = 'S';
         toGroupNumber(-msg->data, &data->msg[1], &grn);
@@ -36,7 +37,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int size)
             data->msg[2] = '0' + grn;
         else
             data->msg[2] = 'a' + grn - 10;
-    } else {
+    } else if (msg->data > 0) {
         data->msg[0] = 's';
         toGroupNumber(msg->data, &data->msg[1], &grn);
         if (grn < 10)

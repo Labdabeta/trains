@@ -73,7 +73,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 			break;
 		default: /* Update */
 			data->last_sensor = (data->last_sensor + 1) % NUM_SENSOR_BLOCKS;
-			sensor = m->query;
+			sensor = m->query & 0xFF;
 			tmp = data->sensors[data->last_sensor] & ~sensor;
 
 			if (tmp) {

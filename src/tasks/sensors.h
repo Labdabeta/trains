@@ -19,15 +19,16 @@ int getSensorState(int tid, int id);
 /* Translates a group and number into a sensor id. */
 static inline int toSensorId(char group, int number)
 {
-	return ((group - 'A') << 4) + number - 1;
+	return ((group - 'A') << 4) + number;
 }
 
 /* Translates a sensor id to a group and number. */
 static inline void toGroupNumber(int id, char *group, int *number)
 {
     if (id < 0) id = -id;
+    id--;
 	*group = (id >> 4) + 'A';
-	*number = id & 0xF;
+	*number = id & 0xF + 1;
 }
 
 #endif /* SENSORS_H */

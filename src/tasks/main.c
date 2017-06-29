@@ -63,7 +63,7 @@ void main_task(void)
 
 
     Create(1, gui);
-    Create(1, hello);
+    //Create(1, hello);
     //Create(1, exiter);
 	//Create(1, conductor);
 
