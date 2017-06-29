@@ -35,7 +35,7 @@ static void tc1_setup()
   cputstr("TC1");
   tc1_prettybox(5, 5, 11, 50);
   tc1_escape_jump(7, 8);
-  cputstr("Predictid stopping dist:");
+  cputstr("Predicted stopping dist:");
   tc1_escape_jump(9, 8);
   cputstr(">");
 }

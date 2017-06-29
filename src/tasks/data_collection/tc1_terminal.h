@@ -20,4 +20,6 @@ struct tc1_ter_msg{
 	} data;
 };
 
+void tc1_view(void);
+
 #endif

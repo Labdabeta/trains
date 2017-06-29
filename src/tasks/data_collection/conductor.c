@@ -2,6 +2,7 @@
 #include "precise_stop.h"
 #include "path_finder.h"
 #include "tasks.h"
+#include "tc1_terminal.h"
 
 static inline int index_sensor(char group, int number){
 	return 16 * (group-'A') + number - 1;
@@ -59,6 +60,8 @@ void conductor()
 
 	int finder_tid = CreateSize(1, path_finder, TASK_SIZE_TINY);
 	int percise_tid;
+
+	CreateSize(1, tc1_view, TASK_SIZE_TINY);
 
 	while(1){
 		Receive(&caller, (char *) &msg, sizeof(struct test_message));
