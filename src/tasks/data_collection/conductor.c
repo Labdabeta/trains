@@ -23,8 +23,8 @@ void conductor()
 	for(int i = 0; i < 10; ++i)
 		sensors[i] = 0;
 
-	int index = 0;
-	int As[15];
+	int index = -1;
+	int As[16];
 	As[0] = index_sensor('B', 5);
 	As[1] = index_sensor('D', 3);
 	As[2] = index_sensor('E', 5);
@@ -40,7 +40,7 @@ void conductor()
 	As[12] = index_sensor('A', 3);
 	As[13] = index_sensor('E', 5);
 	As[14] = index_sensor('E', 13);
-	int Bs[15];
+	int Bs[16];
 	Bs[0] = index_sensor('B', 2);
 	Bs[1] = index_sensor('C', 9);
 	Bs[2] = index_sensor('B', 15);
@@ -57,14 +57,8 @@ void conductor()
 	Bs[13] = index_sensor('D', 15); // Or 15?
 	Bs[14] = index_sensor('E', 4); //Or E4?
 
-	points.source = As[index];
-	points.dest = Bs[index];
-
 	int finder_tid = CreateSize(1, path_finder, TASK_SIZE_TINY);
-	int percise_tid = CreateSize(0, precise_stop, TASK_SIZE_TINY);
-
-	Send(percise_tid, (char *) &finder_tid, sizeof(int), 0, 0);
-	Send(percise_tid, (char *) &points, sizeof(struct route_request), 0, 0);
+	int percise_tid;
 
 	while(1){
 		Receive(&caller, (char *) &msg, sizeof(struct test_message));
@@ -73,16 +67,16 @@ void conductor()
 				Reply(caller, 0, 0);
 				for (int i = 0; i < 10; ++i) {
 					if (msg.data.bytes[i] != sensors[i]) {
-
-						temp = msg.data.bytes[i] & ~sensors[i];
-
-						if(temp){
-							for(int j = 0; j <= 7; j++){
-								if(temp & (1 << (7-j)) ){
-									group = 'A' + (i / 2);
-									number = 1 + j + (i % 2)*8;
-									p_stop.number = index_sensor(group, number);
-									Send(percise_tid, (char *) &p_stop, sizeof(struct precise_msg), 0, 0);
+						if(index != -1){
+							temp = msg.data.bytes[i] & ~sensors[i];
+							if(temp){
+								for(int j = 0; j <= 7; j++){
+									if(temp & (1 << (7-j)) ){
+										group = 'A' + (i / 2);
+										number = 1 + j + (i % 2)*8;
+										p_stop.number = index_sensor(group, number);
+										Send(percise_tid, (char *) &p_stop, sizeof(struct precise_msg), 0, 0);
+									}
 								}
 							}
 						}
@@ -96,14 +90,24 @@ void conductor()
 					Reply(caller, (char *) &result, sizeof(int));
 				} else{
 					Reply(caller, 0, 0);
-					percise_tid = CreateSize(0, precise_stop, TASK_SIZE_TINY);
-					index++;
-					points.source = As[index];
-					points.dest = Bs[index];
-					Send(percise_tid, (char *) &finder_tid, sizeof(int), 0, 0);
-					Send(percise_tid, (char *) &points, sizeof(struct route_request), 0, 0);
+					index = -1;
 				}
 			break;
+			case CODE_Index:
+				Reply(caller, 0, 0);
+				index = msg.data.index;
+				goto common;
+			case CODE_Pair:
+				Reply(caller, 0, 0);
+				index = 15;
+				As[15] = msg.data.pair.pointA;
+				Bs[15] = msg.data.pair.pointB;
+			common:
+			points.source = As[index];
+			points.dest = Bs[index];
+			percise_tid = CreateSize(0, precise_stop, TASK_SIZE_TINY);
+			Send(percise_tid, (char *) &finder_tid, sizeof(int), 0, 0);
+			Send(percise_tid, (char *) &points, sizeof(struct route_request), 0, 0);
 		}
 	}
 }

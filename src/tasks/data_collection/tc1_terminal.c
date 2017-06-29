@@ -31,24 +31,24 @@ static void tc1_setup()
 {
   cputstr("\033[2J");
   cputstr("\033[?25l");
-  escape_jump(3, 27);
+  tc1_escape_jump(3, 27);
   cputstr("TC1");
-  prettybox(5, 5, 11, 50);
-  escape_jump(7, 8);
+  tc1_prettybox(5, 5, 11, 50);
+  tc1_escape_jump(7, 8);
   cputstr("Predictid stopping dist:");
-  escape_jump(9, 8);
+  tc1_escape_jump(9, 8);
   cputstr(">");
 }
 
 void tc1_view()
 {
+	Service();
+	RegisterAs("TC1");
 	int past_speed[80];
 	for(int i = 0; i < 80; i++){
 		past_speed[i] = -1;
 	}
 	int caller;
-	int stopping = 1;
-
 	int dist = 0;
 	tc1_setup();
 	struct tc1_ter_msg msg;
@@ -57,30 +57,26 @@ void tc1_view()
 		Reply(caller, 0,0);
 		switch(msg.code){
 			case TC1Code_Echo:
-				escape_jump(13, 10+dist);
+				tc1_escape_jump(13, 10+dist);
 				cputc(msg.data.c);
 				dist++;
 			break;
 			case TC1Code_Clear:
-				escape_jump(13, 10);
+				tc1_escape_jump(13, 10);
 				cputstr("          ");
 				dist = 0;
 			break;
 			case TC1Code_Sensor:
-				if(!stopping){
+				if(past_speed[msg.data.tc1_sensor.cur_val] < msg.data.tc1_sensor.prev_velocity)
 					past_speed[msg.data.tc1_sensor.cur_val] = msg.data.tc1_sensor.prev_velocity;
-					if(past_speed[msg.data.tc1_sensor.next_val] != -1){
-						int stopping_dist = (past_speed[msg.data.tc1_sensor.next_val]*149-10224) / 100;
-						escape_jump(7, 20);
-						printf("%d", stopping_dist);
-					}
+				if(past_speed[msg.data.tc1_sensor.next_val] != -1){
+					int stopping_dist = (past_speed[msg.data.tc1_sensor.next_val]*149-10224) / 100;
+					tc1_escape_jump(7, 20);
+					printf("%d", stopping_dist);
 				} else{
-					escape_jump(7, 20);
+					tc1_escape_jump(7, 20);
 					printf("    ");
 				}
-			break;
-			case TC1Code_Toggle_Stop:
-				stopping = !stopping;
 			break;
 		}
 	}

@@ -4,8 +4,7 @@
 typedef enum tc1_ter_code {
 	TC1Code_Echo,
 	TC1Code_Clear,
-	TC1Code_Sensor,
-	TC1Code_Toggle_Stop
+	TC1Code_Sensor
 } tc1_ter_code;
 
 struct tc1_ter_msg{

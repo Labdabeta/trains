@@ -1,6 +1,7 @@
 #include "precise_stop.h"
 #include "conductor.h"
 #include "path_finder.h"
+#include "tc1_terminal.h"
 
 #define printf_sname(X) 'A' + (X / 16), X % 16 + 1
 
@@ -45,6 +46,9 @@ void precise_stop(){
 	int speed_temp = -1;
 	int after_time, after_which, velocity_in;
 	int total_speed;
+	int view_tid = WhoIs("TC1");
+	struct tc1_ter_msg t_msg;
+	t_msg.code = TC1Code_Sensor;
 	percise_state state = p_STATE_neither;
 
 	int parity = 0;
