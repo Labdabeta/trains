@@ -2,6 +2,8 @@
 #include "linker.h"
 #include "tout_server.h"
 
+void gui(void);
+
 static int _cout_tid;
 static int _tout_tid;
 static int _cin_tid;
@@ -60,6 +62,7 @@ void main_task(void)
         Pass();
 
 
+    Create(1, gui);
     Create(1, hello);
     //Create(1, exiter);
 	//Create(1, conductor);

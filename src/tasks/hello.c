@@ -18,7 +18,7 @@ void hello()
     Create(1, helper);
     for (ever) {
         Send(pos, 0, 0, (char*)&p, sizeof(p));
-        printf("Expected position: %d ticks after sensor %d\n\r", p.distance, p.sensorId);
+        dprintf("Expected position: %d ticks after sensor %d\n\r", p.distance, p.sensorId);
         Delay(cid, 100);
     }
 }

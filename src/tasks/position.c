@@ -55,9 +55,9 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int size)
     if (size == 4) { // Sensor update
         Reply(tid, 0, 0);
         if (msg->sensor > 0) {
-            printf("Hit %d at %d\n\r", msg->sensor, Time(data->clock));
+            dprintf("Hit %d at %d\n\r", msg->sensor, Time(data->clock));
             registerSensorTrigger(&data->pc, msg->sensor-1, TRAIN_NR, Time(data->clock), 1);
-            printf("Expect to hit next sensor at t+%d\n\r", getExpectedNextSensorTime(&data->pc, TRAIN_NR));
+            dprintf("Expect to hit next sensor at t+%d\n\r", getExpectedNextSensorTime(&data->pc, TRAIN_NR));
         }
     } else if (size == 2) { // Switch update
         registerSwitchState(&data->pc, msg->sensor & 0xFF, msg->sensor & 0x100);
