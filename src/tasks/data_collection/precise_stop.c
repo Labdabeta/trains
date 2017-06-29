@@ -43,6 +43,7 @@ void precise_stop(){
 	int count = 0;
 	int speed = p_SPEED;
 	int speed_temp = -1;
+	int after_time, after_which, velocity_in;
 	percise_state state = p_STATE_neither;
 
 	int parity = 0;
@@ -116,10 +117,13 @@ void precise_stop(){
 						dprintf("Stopping train at time %d\n\r", timetemp);
 						if(overshot <= 0){
 							stopping_index = pathAB.length + overshot-1;
-							dprintf("Previous sensor was %c%d\n\r", printf_sname(pathAB.stations[stopping_index]));
+							after_which = pathAB.stations[stopping_index];
+							dprintf("Previous sensor was %c%d\n\r", printf_sname(after_which));
 							int two_time = time_readings[(parity + 4) % 5] - time_readings[(parity + 2) % 5];
-							dprintf("Speed %d mm/sec\n\r", (100 * pathAB.distances[stopping_index]) / two_time);
-							stopping_dist_after = (timetemp-prevtime) * pathAB.distances[stopping_index] / two_time;
+							velocity_in = 100 * (pathAB.distances[stopping_index] - pathAB.distances[stopping_index-2]) / two_time;
+							dprintf("Speed %d mm/sec\n\r", velocity_in);
+							stopping_dist_after = (timetemp-prevtime) * velocity_in / 100;
+							after_time = timetemp-prevtime;
 							dprintf("So I stopped %dmm after it.\n\r", stopping_dist_after);
 						}
 					break;
@@ -129,11 +133,12 @@ void precise_stop(){
 						Send(client, (char *) &cond, sizeof(struct test_message), (char *) &result, sizeof(int));
 						if(result){
 							dprintf("Perfect landing @ delay=%d, speed %d!\n\r", delay, speed);
-							dprintf("Stopping distance %dmm\n\r", pathAB.distances[stopping_index-2] - pathAB.distances[stopping_index] - stopping_dist_after);
+							dprintf("DATA: %d, %d, %d, %d\n\r", after_time, after_which, velocity_in, stopping_index);
+							dprintf("Stopping distance %dmm\n\r", pathAB.distances[pathAB.length-1] - pathAB.distances[stopping_index] - stopping_dist_after);
 							count++;
 							if(count == 1){
 								count = 0;
-								if(speed == 7){
+								if(speed == 10){
 									cond.data.sensor = -1337;
 									Send(client, (char *) &cond, sizeof(struct test_message), 0, 0);
 									Exit();
