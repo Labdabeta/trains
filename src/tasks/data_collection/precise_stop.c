@@ -133,7 +133,7 @@ void precise_stop(){
 						Send(client, (char *) &cond, sizeof(struct test_message), (char *) &result, sizeof(int));
 						if(result){
 							dprintf("Perfect landing @ delay=%d, speed %d!\n\r", delay, speed);
-							dprintf("DATA: %d, %d, %d, %d\n\r", after_time, after_which, velocity_in, stopping_index);
+							dprintf("DATA: %d, %d, %d, %d, %d\n\r", after_time, after_which, velocity_in, stopping_index, points.dest);
 							dprintf("Stopping distance %dmm\n\r", pathAB.distances[pathAB.length-1] - pathAB.distances[stopping_index] - stopping_dist_after);
 							count++;
 							if(count == 1){
