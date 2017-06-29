@@ -133,7 +133,16 @@ void open_window_sdl(int width, int height, const char *title)
 {
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+
+    if (!window) {
+        error_popup_sdl("Window creation failed!", SDL_GetError());
+    }
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    if (!renderer) {
+        error_popup_sdl("Renderer creation failed!", SDL_GetError());
+    }
 
     status.win_width = width;
     status.win_height = height;

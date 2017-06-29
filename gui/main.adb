@@ -1,82 +1,99 @@
 with GNAT.Serial_Communications; use GNAT.Serial_Communications;
-with Ada.Text_IO; use Ada.Text_IO;
-with SDL; use SDL;
+with SDL;
+with SDL.Image;
 with Interfaces.C.Strings; use Interfaces.C.Strings;
+with Ada.Command_Line;
+with Ada.Text_IO; use Ada.Text_IO;
+with Controller;
+with Sensors;
+with Switches;
 
 procedure Main is
-    Com2 : aliased Serial_Port;
-    Load_Message : String := "load -h 10.15.167.5 " & ASCII.Quotation &
-    "ARM/laburke/kernel.elf" & ASCII.Quotation & ASCII.CR;
+    -- Our map is 2483 x 1363
+    -- Window_Width : constant := 2483;
+    -- Window_Height : constant := 1363;
+    Window_Width : constant := 2000;
+    Window_Height : constant := 1200;
     Init_Error : chars_ptr;
-    Window_Title : chars_ptr :=
-        New_String ("Taggart Transcontinental Control Terminal");
-    Window_Width : constant := 1000;
-    Window_Height : constant := 600;
-    SDL_Error_Title : chars_ptr :=
-        New_String ("Error Initializing SDL");
+    Background : SDL.Image.Image;
 begin
-    Init_Error := Initialize;
+    if Ada.Command_Line.Argument_Count /= 3 then
+        SDL.Error_Popup (
+            Title => New_String ("Invalid arguments"),
+            Message => New_String ("Please provide 3 arguments: " &
+                "a load string, a window title, and a serial port number."));
+        return;
+    end if;
+
+    Init_Error := SDL.Initialize;
     if Init_Error /= Null_Ptr then
-        Error_Popup (
-            Title => SDL_Error_Title,
+        SDL.Error_Popup (
+            Title => New_String ("Error Initializing SDL"),
             Message => Init_Error);
         return;
     end if;
 
-    Open_Window (
+    Controller.Initialize (
+        Name => GNAT.Serial_Communications.Port_Name (
+            Ada.Command_Line.Argument (3)),
+        Load => Ada.Command_Line.Argument (1));
+
+    SDL.Open_Window (
         Width => Window_Width,
         Height => Window_Height,
-        Title => Window_Title);
+        Title => New_String (Ada.Command_Line.Argument (2)));
 
-    Open (
-        Port => Com2,
-        Name => Name (1));
-    Set (
-        Port => Com2,
-        Rate => B115200,
-        Bits => CS8,
-        Stop_Bits => One,
-        Parity => None,
-        Block => True);
+    SDL.Image.Open (
+        Fname => New_String ("res/track_a.png"),
+        Img => Background);
 
-    String'Write (Com2'Access, Load_Message);
+    -- Switches.Initialize;
+    Sensors.Initialize;
+
     declare
-        task Reader;
-        task Writer;
-
-        task body Reader is
-            C : Character;
-        begin
-            loop
-                Character'Read (Com2'Access, C);
-                Put (C);
-            end loop;
-        end Reader;
-
-        task body Writer is
-            C : Character;
-            A : Boolean;
-        begin
-            loop
-                Get_Immediate (C, A);
-                if A then
-                    Character'Write (Com2'Access, C);
-                end if;
-            end loop;
-        end Writer;
+        Com_Control : Controller.Com_Controller;
+        Quit : Boolean := False;
+        E : SDL.Event;
     begin
-        null;
+        while not Quit loop
+            SDL.Poll_Event (E => E);
+            case E.Kind is
+                when SDL.NONE => null;
+                when SDL.QUIT => Quit := True; exit;
+                when SDL.KEYDOWN => null; -- TODO
+                when SDL.KEYUP => null; -- TODO
+                when SDL.MOUSEMOVE => null;
+                when SDL.MOUSEDOWN => null;
+                when SDL.MOUSEUP => Put_Line ("Mouse up at: (" &
+                    SDL.Sint32'Image (SDL.Status.Mouse_X) & "," &
+                    SDL.Sint32'Image (SDL.Status.Mouse_Y) & ")");
+                when SDL.WHEELMOVE => null;
+                when SDL.UNKNOWN => null;
+            end case;
+            SDL.Render_Clear;
+            SDL.Image.Draw (
+                Img => Background,
+                Top => 0,
+                Left => 0,
+                Height => SDL.Status.Window_Height,
+                Width => SDL.Status.Window_Width);
+            Sensors.Draw;
+            SDL.Render_Present;
+        end loop;
+        Controller.Putc ('Q');
     end;
 
-    Close (Com2);
-    Finalize;
+    Controller.Close;
 
-exception
-    when Serial_Error =>
-        Error_Popup (
-            Title => New_String ("COM Error"),
-            Message =>
-                New_String ("Could not open port 1: " &
-                    "is the serial line connected?"));
-        Finalize;
+    -- Switches.Finalize;
+    Sensors.Finalize;
+    SDL.Finalize;
+
+    exception
+        when Serial_Error =>
+            SDL.Error_Popup (
+                Title => New_String ("COM Error"),
+                Message =>
+                    New_String ("Could not open port 1: " &
+                        "is the serial line connected?"));
 end Main;

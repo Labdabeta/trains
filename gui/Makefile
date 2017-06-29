@@ -1,6 +1,6 @@
-prod:
-    gnatmake -P release.gpr main
-
 debug:
-    gnatmake -P debug.gpr main
+	gnatmake -P debug.gpr main
+
+prod:
+	gnatmake -P release.gpr main
 

@@ -1,15 +1,17 @@
 package body SDL.Image is
     procedure Draw_Bounds (
-        img : in Image;
-        bounds : in SDL.Rectangle) is
+        Img : in Image;
+        Bounds : in SDL.Rectangle) is
     begin
         Draw (
-            img => img,
-            top => Sint32 (Float (bounds.top) * Float (SDL.Status.win_height)),
-            left => Sint32 (Float (bounds.left) * Float (SDL.Status.win_width)),
-            height => Sint32 (Float (bounds.height) * Float
-                (SDL.Status.win_height)),
-            width => Sint32 (Float (bounds.width) * Float
-                (SDL.Status.win_width)));
+            Img => Img,
+            Top => Sint32 (Float (Bounds.Top) *
+                Float (SDL.Status.Window_Height)),
+            Left => Sint32 (Float (Bounds.Left) *
+                Float (SDL.Status.Window_Width)),
+            Height => Sint32 (Float (Bounds.Height) * Float
+                (SDL.Status.Window_Height)),
+            Width => Sint32 (Float (Bounds.Width) * Float
+                (SDL.Status.Window_Width)));
     end Draw_Bounds;
 end SDL.Image;
