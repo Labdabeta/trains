@@ -82,7 +82,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 				for (bit = 0; bit < 8; ++bit) {
 				   if (tmp & mask) {
 					   int reply = toSensorId('A' + (data->last_sensor / 2),
-							   1 + bit + ((data->last_sensor & 1) << 3));
+							   1 + bit + ((data->last_sensor & 1) << 3)) + 1;
 					   int client;
 					   for (client = 0; client < data->num_clients; ++client)
 						   Send(data->client_tids[client], (char*)&reply, sizeof(reply), 0, 0);
@@ -97,8 +97,8 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 				int mask = 1 << 7;
 				for (bit = 0; bit < 8; ++bit) {
 				   if (tmp & mask) {
-					   int reply = -toSensorId('A' + (data->last_sensor / 2),
-							   1 + bit + ((data->last_sensor & 1) << 3));
+					   int reply = -(toSensorId('A' + (data->last_sensor / 2),
+							   1 + bit + ((data->last_sensor & 1) << 3)) + 1);
 					   int client;
 					   for (client = 0; client < data->num_clients; ++client)
 						   Send(data->client_tids[client], (char*)&reply, sizeof(reply), 0, 0);

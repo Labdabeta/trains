@@ -1,28 +1,24 @@
 #include "tasks.h"
-#include "sensors.h"
+#include "position.h"
+
+#define END_POINT 20
+#define START_POINT 10
+#define TRAIN_NR 70
+#define SPEED 10
+
+void helper(void) {
+    (void)getAccurateStopTime(END_POINT, START_POINT, TRAIN_NR, SPEED);
+}
 
 void hello()
 {
-    // Connect to the UI
-    cputc(2);
-
-    registerForSensorFlips(WhoIs("SENSOR"));
-    char msg[4] = {0};
-    msg[3] = 0; // just to be sure
-
+    int cid = WhoIs("CLOCK");
+    int pos = WhoIs("POSITION");
+    struct Position p;
+    Create(1, helper);
     for (ever) {
-        int sensor, tid, num;
-        Receive(&tid, (char*)&sensor, sizeof(sensor));
-        Reply(tid, 0, 0);
-        dprintf("Got: %d\n\r", sensor);
-        msg[0] = 's';
-        if (sensor < 0) {
-            sensor = -sensor;
-            msg[0] = 'S';
-        }
-        toGroupNumber(sensor, &msg[1], &num);
-        msg[2] = (num < 10 ? '0' + num : 'a' + num - 10);
-        dprintf("Sending: %s\n\r", msg);
-        cputstr(msg);
+        Send(pos, 0, 0, (char*)&p, sizeof(p));
+        printf("Expected position: %d ticks after sensor %d\n\r", p.distance, p.sensorId);
+        Delay(cid, 100);
     }
 }

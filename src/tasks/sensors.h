@@ -6,12 +6,10 @@
 /* Task which maintains the state of the sensors. */
 void sensors(void);
 
-void gotSensors(char sensors[NUM_SENSOR_BLOCKS]);
-
 /* Registers your task to be called whenever a sensor is flipped.
  *
  * Whenever a sensor is flipped your task will receive a message containing 1
- * word - the sensor id. Please reply hastily with a zero-sized message.
+ * word - the sensor id + 1. Please reply hastily with a zero-sized message.
  * If the word is negative it indicates that the sensor was un-triggered. */
 void registerForSensorFlips(int tid);
 

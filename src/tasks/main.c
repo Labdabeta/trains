@@ -51,8 +51,17 @@ void main_task(void)
 	while (WhoIs("SENSOR") < 0)
 		Pass();
 
+    CreateSize(3, switches, TASK_SIZE_TINY);
+    while (WhoIs("SWITCH") < 0)
+        Pass();
+
+    CreateSize(3, position_server, TASK_SIZE_NORMAL);
+    while (WhoIs("POSITION") < 0)
+        Pass();
+
+
     Create(1, hello);
-    Create(1, exiter);
+    //Create(1, exiter);
 	//Create(1, conductor);
 
 	Exit();
