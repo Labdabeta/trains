@@ -60,7 +60,7 @@ begin
         Com.Putc (Ada.Command_Line.Argument (1)(Index));
     end loop;
 
-    -- Switches.Initialize;
+    Switches.Initialize;
     Sensors.Initialize;
 
     Last_Ticks := SDL.Get_Ticks;
@@ -96,6 +96,7 @@ begin
             Left => 0,
             Height => SDL.Status.Window_Height,
             Width => SDL.Status.Window_Width);
+        Switches.Draw;
         Sensors.Draw;
         SDL.Render_Present;
 
@@ -116,7 +117,7 @@ begin
         return;
     end if;
 
-    -- Switches.Finalize;
+    Switches.Finalize;
     Sensors.Finalize;
     SDL.Finalize;
 

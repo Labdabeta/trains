@@ -56,6 +56,13 @@ package body Input_Processor is
             Active => False);
     end Do_Sensor_Up;
 
+    procedure Erase_Data is begin
+        Command := ASCII.NUL;
+        Args (1) := ASCII.NUL;
+        Args (2) := ASCII.NUL;
+        Args (3) := ASCII.NUL;
+    end Erase_Data;
+
     procedure Process (C : Character) is
     begin
         if not Init then
@@ -77,16 +84,16 @@ package body Input_Processor is
                     Args (1) := C;
                 elsif Args (2) = ASCII.NUL then
                     Args (2) := C;
-                else
                     Do_Sensor_Up;
+                    Erase_Data;
                 end if;
             when 's' =>
                 if Args (1) = ASCII.NUL then
                     Args (1) := C;
                 elsif Args (2) = ASCII.NUL then
                     Args (2) := C;
-                else
                     Do_Sensor_Down;
+                    Erase_Data;
                 end if;
             when others =>
                 Put_Line ("Unknown character: " & Character'Image (C));
