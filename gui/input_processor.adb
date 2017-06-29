@@ -61,6 +61,7 @@ package body Input_Processor is
         if not Init then
             if C = ASCII.STX then
                 Init := True;
+                Put_Line ("Connection established...");
             end if;
             return;
         end if;

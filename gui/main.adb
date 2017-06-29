@@ -56,6 +56,10 @@ begin
         Fname => New_String ("res/track_a.png"),
         Img => Background);
 
+    for Index in Ada.Command_Line.Argument (1)'Range loop
+        Com.Putc (Ada.Command_Line.Argument (1)(Index));
+    end loop;
+
     -- Switches.Initialize;
     Sensors.Initialize;
 
