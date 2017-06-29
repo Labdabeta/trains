@@ -12,7 +12,7 @@ typedef enum{
 	p_STATE_inspection
 } percise_state;
 
-#define p_SPEED 10
+#define p_SPEED 14
 #define p_TRAIN 70
 
 void precise_stop(){
@@ -138,7 +138,7 @@ void precise_stop(){
 							count++;
 							if(count == 1){
 								count = 0;
-								if(speed == 10){
+								if(speed == p_SPEED-7){
 									cond.data.sensor = -1337;
 									Send(client, (char *) &cond, sizeof(struct test_message), 0, 0);
 									Exit();
