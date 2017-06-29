@@ -9,11 +9,9 @@ with Sensors;
 with Switches;
 
 procedure Main is
-    -- Our map is 2483 x 1363
-    -- Window_Width : constant := 2483;
-    -- Window_Height : constant := 1363;
-    Window_Width : constant := 2000;
-    Window_Height : constant := 1200;
+    -- Our map is 1242 x 682
+    Window_Width : constant := 1242;
+    Window_Height : constant := 682;
     Init_Error : chars_ptr;
     Background : SDL.Image.Image;
 begin
@@ -79,6 +77,7 @@ begin
                 Width => SDL.Status.Window_Width);
             Sensors.Draw;
             SDL.Render_Present;
+            delay 0.01;
         end loop;
         Controller.Putc ('Q');
     end;

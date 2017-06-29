@@ -1,17 +1,19 @@
 with Interfaces.C.Strings; use Interfaces.C.Strings;
 with GNAT.Serial_Communications;
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Exceptions;
 with Sensors; use Sensors;
 with Switches;
 
 package body Controller is
     procedure Close is begin
+        Put_Line ("Closing serial port.");
         GNAT.Serial_Communications.Close (Com);
     end Close;
     task body Com_Controller is
         C : Character;
         Quit : Boolean := False;
-        Init : Boolean := True; -- Change to false to force connection
+        Init : Boolean := False; -- Change to false to force connection
 
         function Read_Sensor (
             Group : out Sensors.SensorGroup;
@@ -20,18 +22,11 @@ package body Controller is
         function Get_A_Char return Character is
             Ch : Character;
         begin
+            Put_Line ("Reading...");
             Character'Read (Com'Access, Ch);
-            Put (Ch);
+            Put_Line ("Got: " & Integer'Image (Character'Pos (Ch)));
             return Ch;
         end Get_A_Char;
-
-        function Get_An_Int return Integer is
-            Int : Integer;
-        begin
-            Integer'Read (Com'Access, Int);
-            Put (Integer'Image (Int));
-            return Int;
-        end Get_An_Int;
 
         procedure Process_Sensor_Down is
             Group : Sensors.SensorGroup;
@@ -102,7 +97,7 @@ package body Controller is
             C := Get_A_Char;
             if Init then
                 case C is
-                    when ASCII.NUL => Quit := True;
+                    -- when ASCII.NUL => Quit := True;
                     when 'S' => Process_Sensor_Up;
                     when 's' => Process_Sensor_Down;
                     when others => Put_Line ("Unexpected character: " &
@@ -115,6 +110,12 @@ package body Controller is
                 end if;
             end if;
         end loop;
+    exception
+        when The_Error : others =>
+            Ada.Text_IO.Put_Line ("Unexpected error.");
+            Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information
+                (The_Error));
+            Ada.Text_IO.Skip_Line;
     end Com_Controller;
 
     procedure Initialize (
