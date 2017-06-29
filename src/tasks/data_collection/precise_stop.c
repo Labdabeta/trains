@@ -44,6 +44,7 @@ void precise_stop(){
 	int speed = p_SPEED;
 	int speed_temp = -1;
 	int after_time, after_which, velocity_in;
+	int total_speed;
 	percise_state state = p_STATE_neither;
 
 	int parity = 0;
@@ -81,9 +82,13 @@ void precise_stop(){
 					overshot = -pathAB.length;
 					if(speed_temp > 0){
 						if(delay < 0){
-							int pred_stop_dist = (speed_temp*138-4760); // From my previous linear regression
-							delay = (pathAB.distances[pathAB.length - 1] * 100 - pred_stop_dist) / speed_temp;
-							dprintf("Speed: %d. Initial delay: %d*10ms\n\r", speed, delay);
+							int two_dist = pathAB.distances[pathAB.length -1] - pathAB.distances[pathAB.length -3];
+							int two_time = time_readings[(parity + 4) % 5] - time_readings[(parity + 2) % 5];
+							speed_temp = two_dist / two_time;
+							//int pred_stop_dist = (speed_temp*138-4760); // From my previous linear regression
+							int pred_stop_dist = (speed_temp*149-10224); // From my previous linear regression
+							delay = (pathAB.distances[pathAB.length - 1] * 100 - pred_stop_dist) / total_speed;
+							dprintf("Speed: %d. Initial delay: %d*10ms\n\r", total_speed, delay);
 						}
 						state = p_STATE_stop;
 						child_tid = CreateSize(0, delay_percise, TASK_SIZE_TINY);
@@ -104,6 +109,9 @@ void precise_stop(){
 				}
 				parity = (parity + 1) % 5;
 				overshot++;
+				if(overshot == 0 && delay < 0){
+					total_speed = pathAB.distances[pathAB.length -1] / (prevtime-Atime);
+				}
 			break;
 			case CODE_precise_Timeout:
 				switch(state){
