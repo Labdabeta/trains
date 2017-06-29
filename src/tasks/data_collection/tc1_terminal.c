@@ -40,10 +40,15 @@ static void tc1_setup()
   cputstr(">");
 }
 
+void tc1_controller(void);
+
 void tc1_view()
 {
 	Service();
 	RegisterAs("TC1");
+	int parent_tid = MyParentTid();
+	int child_tid = CreateSize(1, tc1_controller, TASK_SIZE_TINY);
+	Send(child_tid, (char*)&parent_tid, sizeof(parent_tid), 0, 0);
 	int past_speed[80];
 	for(int i = 0; i < 80; i++){
 		past_speed[i] = -1;
@@ -57,12 +62,12 @@ void tc1_view()
 		Reply(caller, 0,0);
 		switch(msg.code){
 			case TC1Code_Echo:
-				tc1_escape_jump(13, 10+dist);
+				tc1_escape_jump(9, 10+dist);
 				cputc(msg.data.c);
 				dist++;
 			break;
 			case TC1Code_Clear:
-				tc1_escape_jump(13, 10);
+				tc1_escape_jump(9, 10);
 				cputstr("          ");
 				dist = 0;
 			break;

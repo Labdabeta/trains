@@ -111,6 +111,7 @@ void conductor()
 			percise_tid = CreateSize(0, precise_stop, TASK_SIZE_TINY);
 			Send(percise_tid, (char *) &finder_tid, sizeof(int), 0, 0);
 			Send(percise_tid, (char *) &points, sizeof(struct route_request), 0, 0);
+			dprintf("Created with index %d\n\r", index);
 		}
 	}
 }
