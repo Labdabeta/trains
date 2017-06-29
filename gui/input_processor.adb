@@ -36,10 +36,10 @@ package body Input_Processor is
         if Args (2) <= '9' then
             Id := Sensors.SensorId (Character'Pos (Args (2)) -
                 Character'Pos ('0'));
-        elsif Args (2) >= 'A' and Args (2) <= 'F' then
+        elsif Args (2) >= 'A' and Args (2) <= 'G' then
             Id := Sensors.SensorId (10 + Character'Pos (Args (2)) -
                 Character'Pos ('A'));
-        elsif Args (2) >= 'a' and Args (2) <= 'f' then
+        elsif Args (2) >= 'a' and Args (2) <= 'g' then
             Id := Sensors.SensorId (10 + Character'Pos (Args (2)) -
                 Character'Pos ('a'));
         end if;
