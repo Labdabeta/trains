@@ -54,7 +54,7 @@ log: log.c
 push:
 	./push_kernel.sh
 
-report: reports/k1.pdf reports/k2.pdf reports/k3.pdf reports/k4.pdf reports/ai.pdf
+report: reports/k1.pdf reports/k2.pdf reports/k3.pdf reports/k4.pdf reports/ai.pdf reports/tc1.pdf
 
 reports/%.pdf: reports/%.tex
 	cd reports && sed "s/{{{commit hash}}}/$(shell git rev-parse HEAD)/g" < $*.tex > real.tex && lualatex --jobname=$* real.tex && rm real.tex
