@@ -16,13 +16,6 @@ void tputc(char ch) { Putc(_tout_tid, 1, ch); }
 void tput2(char a, char b) { sendToutBytePair(_tout_tid, a, b); }
 void printf_putc(void *unused, char ch) { (void)unused; cputc(ch); }
 
-
-void exiter(void)
-{
-    while (cgetc() != 'Q');
-    KQuit();
-}
-
 void main_task(void)
 {
 	CreateSize(2, name_server, TASK_SIZE_NORMAL);

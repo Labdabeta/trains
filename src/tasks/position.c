@@ -1,6 +1,6 @@
 #include <server.h>
-#include "position.h"
-#include "rand.h"
+#include "ai/position.h"
+#include "math/rand.h"
 #include "sensors.h"
 #include "switches.h"
 
@@ -14,20 +14,6 @@ struct Data {
 struct Message {
     int sensor; // one byte = query, 2 bytes = switch
 };
-
-static void dumpNetworkState(ISTNetwork *n)
-{
-        int i;
-        dprintf("Network state:\n\r");
-
-        dprintf("input_weights[] = {");
-        for (i = 0; i < NUM_INPUT_WEIGHTS; ++i)
-                dprintf("0x%x,",n->input_weights[i]);
-
-        dprintf("\n\rlayer1_weights[] = {");
-        for (i = 0; i < NUM_LAYER_WEIGHTS; ++i)
-                dprintf("0x%x,",n->layer_weights[i]);
-}
 
 static float float_abs(float x) { if (x < 0.0) return -x; return x; }
 

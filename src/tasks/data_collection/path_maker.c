@@ -1,4 +1,4 @@
-#include "path_finder.h"
+#include "trains/path_finder.h"
 #include "tasks.h"
 
 void path_maker(void){

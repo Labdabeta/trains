@@ -3,7 +3,7 @@
 #include "clock_server.h"
 
 #define PQ_CAPACITY NUM_SUPPORTED_TASKS
-#include "pq.h"
+#include "data/pq.h"
 
 struct Data {
 	int ticks;

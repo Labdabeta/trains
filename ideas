@@ -1,0 +1,9 @@
+Maintain a 'next sensor' for each train.
+When a switch is flipped possibly update 'next sensor'.
+When two trains are in the same segment, only the first one has a next sensor...
+The second one has to wait until the previous train goes by.
+
+Options - queue of trains per sensor | *next sensor at each train*
+
+Thus the track notifier is registered for both sensor and switch flips.
+

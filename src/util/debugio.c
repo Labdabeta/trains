@@ -1,5 +1,5 @@
 #include "debugio.h"
-#include "ts7200.h"
+#include "trains/ts7200.h"
 #include "linker.h"
 
 static volatile char *location;

@@ -1,5 +1,5 @@
 #include <service.h>
-#include "ts7200.h"
+#include "trains/ts7200.h"
 
 struct Data {
 	int parent;

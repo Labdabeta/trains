@@ -37,8 +37,9 @@ prod:$(TARGETS)
 prodebug:$(TARGETS)
 small:$(TARGETS)
 
-%.s: %.c
-	$(CC) $(CFLAGS) $< -S -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) $< -S -o $*.s
+	$(AS) $(ASFLAGS) $*.s -o $@
 
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@

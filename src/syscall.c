@@ -3,12 +3,12 @@
 #include "kernel/handlers.h" /* Kernel space breach */
 #include "tasks/tasks.h"
 #include "tasks/drivers/clock_server.h"
-#include "tasks/drivers/name_server.h"
+#include "tasks/util/name_server.h"
 #include "tasks/drivers/cin_server.h"
 #include "tasks/drivers/cout_server.h"
 #include "tasks/drivers/tin_server.h"
 #include "tasks/drivers/tout_server.h"
-#include "ts7200.h"
+#include "trains/ts7200.h"
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
 

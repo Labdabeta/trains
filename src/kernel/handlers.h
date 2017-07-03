@@ -1,7 +1,7 @@
 #ifndef HANDLERS_H
 #define HANDLERS_H
 
-#include "buffer.h"
+#include "data/buffer.h"
 
 struct KernelData;
 struct TaskDescriptor;

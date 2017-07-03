@@ -1,7 +1,7 @@
 #ifndef SETUP_H
 #define SETUP_H
 
-#include "ts7200.h"
+#include "trains/ts7200.h"
 
 static inline void cleanupTimer1(){
 	volatile struct Timer *t1 = (struct Timer*)TIMER1_BASE;

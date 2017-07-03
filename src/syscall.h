@@ -1,7 +1,7 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 
-#include "buffer.h"
+#include "data/buffer.h"
 #define NAMESERVER_TID 13 /* Magic number. */
 #define MAX_NAME_LENGTH 32
 

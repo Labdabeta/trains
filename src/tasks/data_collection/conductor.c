@@ -1,6 +1,6 @@
 #include "conductor.h"
 #include "precise_stop.h"
-#include "path_finder.h"
+#include "trains/path_finder.h"
 #include "tasks.h"
 
 #define pointA 20

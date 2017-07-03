@@ -24,7 +24,7 @@ SECTIONS
 		src/kernel/scheduler.o(.text)
 		src/kernel/context_switch.o(.text)
 		src/kernel/handlers.o(.text)
-		src/util/buffer.o(.text)
+		src/util/data/buffer.o(.text)
 		src/memcpy.o(.text)
 		src/syscall.o(.text)
 	} >ram /* Put it in ram */

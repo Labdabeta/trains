@@ -28,7 +28,7 @@ static inline void toGroupNumber(int id, char *group, int *number)
     if (id < 0) id = -id;
     id--;
 	*group = (id >> 4) + 'A';
-	*number = id & 0xF + 1;
+	*number = (id & 0xF) + 1;
 }
 
 #endif /* SENSORS_H */

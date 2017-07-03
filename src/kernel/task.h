@@ -1,7 +1,7 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include "buffer.h"
+#include "data/buffer.h"
 #include "asm.h"
 
 /* Don't forget the hardcoded name server tid. */

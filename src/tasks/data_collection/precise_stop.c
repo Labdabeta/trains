@@ -1,8 +1,8 @@
 #include "precise_stop.h"
 #include <server.h> /* Though we aren't actually a server. */
 #include "sensors.h"
-#include "async_delay.h"
-#include "path_finder.h"
+#include "util/async_delay.h"
+#include "trains/path_finder.h"
 
 #define DELAY_INCREMENT 5
 #define DELAY_OFFSET 80
