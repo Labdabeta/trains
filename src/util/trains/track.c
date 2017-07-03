@@ -154,5 +154,6 @@ int getTrainVelocity(const struct Track *track, int train, int time)
 {
     (void)time; // unused for now
 
+    // TODO: interpolate speeds
     return track->velocity[train][track->speed[train]];
 }
