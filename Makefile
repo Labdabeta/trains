@@ -40,6 +40,7 @@ small:$(TARGETS)
 %.o: %.c
 	$(CC) $(CFLAGS) $< -S -o $*.s
 	$(AS) $(ASFLAGS) $*.s -o $@
+	rm $*.s
 
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@
