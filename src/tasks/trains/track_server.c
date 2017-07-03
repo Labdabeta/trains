@@ -173,10 +173,12 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
     if (tid == data->sensorTid) {
         int delta, sensor;
         data->last_sensor = (data->last_sensor + 1) % 10;
+        Reply(tid, 0, 0);
         sensor = msg->datum & 0xFF;
+        dprintf("Sensor: %x\tData->Sensors: %x\n\r", sensor, data->sensors[data->last_sensor]);
 
         // Downs
-        delta = data->sensors[data->last_sensor] & ~sensor;
+        delta = ~data->sensors[data->last_sensor] & sensor;
         if (delta) {
             int bit;
             int mask = 1 << 7;
@@ -188,11 +190,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     reply.group = data->last_sensor / 2;
                     reply.id = bit;
 
-                    message.type = TSMT_SENSOR_DOWN;
-                    message.data.sensor = reply;
-
                     if (data->last_sensor & 1)
                         reply.id += 8;
+
+                    message.type = TSMT_SENSOR_DOWN;
+                    message.data.sensor = reply;
 
                     train = saveSensorFlip(&data->track, reply, Time(data->cid));
 
@@ -213,11 +215,12 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     for (client = 0; client < data->num_sendown_clients[TRAIN_MAX]; ++client)
                         Send(data->sendown_clients[TRAIN_MAX][client], (char*)&message, sizeof(message), 0, 0);
                 }
+                mask >>= 1;
             }
         }
 
         // Ups
-        delta = ~data->sensors[data->last_sensor] & sensor;
+        delta = data->sensors[data->last_sensor] & ~sensor;
         if (delta) {
             int bit;
             int mask = 1 << 7;
@@ -229,11 +232,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     reply.group = data->last_sensor / 2;
                     reply.id = bit;
 
-                    message.type = TSMT_SENSOR_UP;
-                    message.data.sensor = reply;
-
                     if (data->last_sensor & 1)
                         reply.id += 8;
+
+                    message.type = TSMT_SENSOR_UP;
+                    message.data.sensor = reply;
 
                     train = saveSensorUnflip(&data->track, reply, Time(data->cid));
 
@@ -254,8 +257,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     for (client = 0; client < data->num_senup_clients[TRAIN_MAX]; ++client)
                         Send(data->senup_clients[TRAIN_MAX][client], (char*)&message, sizeof(message), 0, 0);
                 }
+                mask >>= 1;
             }
         }
+
+        data->sensors[data->last_sensor] = sensor;
         return;
     }
 
