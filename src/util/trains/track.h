@@ -34,6 +34,7 @@ int addTrain(struct Track *track, int id, struct Sensor location);
 
 /* Returns which train must have flipped the sensor. */
 int saveSensorFlip(struct Track *track, struct Sensor sensor, int time);
+int saveSensorUnflip(struct Track *track, struct Sensor sensor, int time);
 void saveSwitchFlip(struct Track *track, int sw, int isCurved);
 void saveSpeedChange(struct Track *track, int train, int speed, int time);
 

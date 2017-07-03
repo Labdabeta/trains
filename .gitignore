@@ -16,3 +16,6 @@
 *.nav
 *.snm
 *.toc
+
+# Test files
+src/util/test

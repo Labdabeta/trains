@@ -3,14 +3,37 @@
 
 #define TRACK_SERVER_NAME "TRACK"
 
-#include "track.h"
+#include "trains/track.h"
 
-void registerForSensorDown(int tid, train_id train);
-void registerForSensorUp(int tid, train_id train);
+typedef enum TrackServerMessageType {
+    TSMT_SENSOR_DOWN,
+    TSMT_SENSOR_UP,
+    TSMT_SWITCH_FLIP
+} TrackServerMessageType;
+
+// This is what you get when you register. NOT when you wait.
+struct TrackServerMessage {
+    TrackServerMessageType type;
+    union {
+        switch_state switches;
+        struct Sensor sensor;
+    } data;
+};
+
+// -1 => any train
+void registerForSensorDown(int tid, int train);
+void registerForSensorUp(int tid, int train);
 void registerForSwitch(int tid);
-void waitForSensorDown(int tid, train_id train);
-void waitForSensorUp(int tid, train_id train);
-void waitForSwitch(int tid);
+
+struct Sensor waitForSensorDown(int tid, int train);
+struct Sensor waitForSensorUp(int tid, int train);
+switch_state waitForSwitch(int tid);
+
 int querySwitch(int tid, int sw);
+struct Position queryPosition(int tid, int train);
+int queryVelocity(int tid, int train);
+
+void notifySwitch(int tid, int sw, int isCurved);
+void notifySpeed(int tid, int train, int speed);
 
 #endif /* TRACK_SERVER_H */

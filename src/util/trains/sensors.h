@@ -16,11 +16,6 @@ struct Sensor {
 #define SG_PREV(X) (((X) + 4) % 5)
 #define S_NONE (struct Sensor){SG_N,-1}
 
-#define S_NAME(X) ((char[]){ \
-        'A' + (X).group, \
-        ((X) > 8 ? 'A' + (X) - 9 : '1' + (X)), \
-        0})
-
 #define S_ID(X) (((int)((X).group) << 4) | (X).id)
 
 #define S_MAKE(A,B) (struct Sensor){#A[0] - 'A', B - 1}

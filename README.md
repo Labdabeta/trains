@@ -6,7 +6,7 @@ To build the kernel merely clone the repository and run `make` (or `make prod`
 for `-O2` optimization, or `make small` for `-Os` optimization). This will
 produce a file called "kernel.elf" in the base directory. This file can be
 copied to the scp server and loaded on the RedBoot machines by issuing the
-command `load -b 0x100000 -h 10.15.167.5 "ARM/path/to/kernel.elf"`. This should
+command `load -h 10.15.167.5 "ARM/path/to/kernel.elf"`. This should
 run the kernel and produce the desired output.
 
 Note: the debug logs (which contain idle task usage) are only created if debug

@@ -1,6 +1,8 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include "linker.h"
+
 /* DO NOT directly accesses these fields. Treat this object as opaque! */
 typedef struct Buffer {
 	void *data;

@@ -8,15 +8,19 @@ static volatile char *location;
 
 void debug_putc(void *data, char ch)
 {
+#ifndef REMOTE
 	(void)data; // unused
 	*(location++) = ch;
 	if ((int)location > 0x100000)
 		location = (char*)INIT_LOCATION;
 	*location = 0;
+#endif
 }
 
 void init_debugio(void)
 {
+#ifndef REMOTE
 	location = (char*)INIT_LOCATION;
 	init_dprintf(0, fn_ptr(debug_putc));
+#endif
 }

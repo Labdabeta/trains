@@ -1,8 +1,11 @@
 #include "tasks.h"
 #include "linker.h"
 #include "tout_server.h"
+#include "trains/track_server.h"
+#include "gui.h"
 
 void gui(void);
+void conductor(void);
 
 static int _cout_tid;
 static int _tout_tid;
@@ -42,23 +45,15 @@ void main_task(void)
 	while (WhoIs("TOUT") < 0)
 		Pass();
 
-	CreateSize(3, sensors, TASK_SIZE_TINY);
-	while (WhoIs("SENSOR") < 0)
-		Pass();
-
-    CreateSize(3, switches, TASK_SIZE_TINY);
-    while (WhoIs("SWITCH") < 0)
+    CreateSize(3, track_server, TASK_SIZE_NORMAL);
+    while (WhoIs(TRACK_SERVER_NAME) < 0)
         Pass();
 
-    CreateSize(3, position_server, TASK_SIZE_NORMAL);
-    while (WhoIs("POSITION") < 0)
+    CreateSize(2, gui, TASK_SIZE_TINY);
+    while (WhoIs(GUI_SERVER_NAME) < 0)
         Pass();
 
-
-    Create(1, gui);
-    //Create(1, hello);
-    //Create(1, exiter);
-	//Create(1, conductor);
+    Create(1, conductor);
 
 	Exit();
 }

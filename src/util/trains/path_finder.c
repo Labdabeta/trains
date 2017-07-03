@@ -1,6 +1,5 @@
 #include "path_finder.h"
 #include "limits.h"
-#include "debugio.h"
 
 #define PQ_CAPACITY 300
 #include "data/pq.h"
@@ -42,8 +41,6 @@ static inline void compileRoute(int *distance,
 		} else if (track_nodes[current].type == NODE_SENSOR ||
 				   track_nodes[current].type == NODE_ENTER ||
 				   track_nodes[current].type == NODE_EXIT) {
-			dprintf("Path: %s\n\r", track_nodes[current].name);
-			dprintf("Values; station %d, dist %d\n\r", track_nodes[current].num, distance[current]);
 			path->stations[path->length] = track_nodes[current].num;
 			path->distances[path->length++] = distance[current];
 		}

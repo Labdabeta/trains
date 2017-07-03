@@ -1,5 +1,9 @@
 .PHONY: clean default all debug prod push report small prodebug log
 .SUFFIXES:
+.PRECIOUS:%.o
+
+# make TRACK=b to change track to b
+TRACK?=a
 
 CC=res/bin/arm-none-eabi-gcc --prefix=./res/6.3.1
 AS=res/bin/arm-none-eabi-as
@@ -18,12 +22,12 @@ debug:CFLAGS+=-g -DDEBUG_MODE
 
 GIT_STUFF="-DGIT_NAME=\"$(shell git log --pretty='%an %h %d' -n 1)\""
 
-CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/ -Isrc/tasks/ -Isrc/tasks/A0 -Isrc/tasks/drivers $(GIT_STUFF)
+CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsize_t="unsigned int" -Dever=";;" -nostdlib -Isrc -Isrc/util/ -Isrc/tasks/ -Isrc/tasks/A0 -Isrc/tasks/drivers $(GIT_STUFF) -DTRACK_$(TRACK)
 ASFLAGS=-mcpu=arm920t -mapcs-32 -march=armv4t
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 
 TARGETS=kernel.elf
-SOURCES=$(shell find src -name '*.c')
+SOURCES=$(shell find src -name '*.c' -not -name 'test.c')
 MODULES=$(filder-out main.c,$(SOURCES))
 OBJECTS=$(patsubst %.c,%.o,$(SOURCES)) src/kernel/context_switch.o
 HEADERS=$(patsubst %.c,%.h,$(MODULES))
@@ -46,7 +50,7 @@ small:$(TARGETS)
 	$(AS) $(ASFLAGS) $< -o $@
 
 %.elf: $(OBJECTS)
-	$(LD) $(LDFLAGS) -Map $*.map -o $@ $^ $(CLIBS)
+	$(LD) $(LDFLAGS) -Map $*.map -o $@ $(OBJECTS) $(CLIBS)
 
 log: log.c
 	$(CC) $(CFLAGS) -Os log.c -S -o log.s

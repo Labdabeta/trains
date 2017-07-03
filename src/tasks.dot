@@ -1,15 +1,40 @@
 digraph Tasks {
+    compound=true;
+
     /* The tasks */
     main;
     name_server;
-    clock_server; clock_courier; clock_notifier;
-    cin_server; cin_courier; cin_notifier;
-    cout_server; cout_courier; cout_notifier;
-    tin_server; tin_courier; tin_notifier;
-    tout_server; tout_courier; tout_notifier;
+
+    subgraph cluster_clock {
+        clock_server; clock_courier; clock_notifier;
+        label="Clock";
+    }
+
+    subgraph cluster_cin {
+        cin_server; cin_courier; cin_notifier;
+        label="Cin";
+    }
+
+    subgraph cluster_cout {
+        cout_server; cout_courier; cout_notifier;
+        label="Cout";
+    }
+
+    subgraph cluster_tin {
+        tin_server; tin_courier; tin_notifier;
+        label="Tin";
+    }
+
+    subgraph cluster_tout {
+        tout_server; tout_courier; tout_notifier;
+        label="Tout";
+    }
+
     routing_server;
     track_server; sensor_courier;
     gui;
+    conductor[color=red];
+    idle;
 
     /* Creations */
     edge [style=bold, color=blue];
@@ -20,7 +45,9 @@ digraph Tasks {
     main -> tin_server;
     main -> tout_server;
     main -> routing_server;
+    main -> train_server;
     main -> gui;
+    main -> conductor;
     clock_server -> clock_courier;
     cin_server -> cin_courier;
     cout_server -> cout_courier;
@@ -40,6 +67,8 @@ digraph Tasks {
     routing_server -> tout_server;
     cin_server -> gui;
     gui -> cout_server;
-    /* TODO */
+    gui -> conductor;
+    conductor -> routing_server;
+    track_server -> gui;
 }
 

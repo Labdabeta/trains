@@ -4,11 +4,15 @@
 
 track_node track_nodes[TRACK_MAX];
 
+#ifndef REMOTE
 static void *memset(void *s, int c, unsigned int n) {
   unsigned char *p = s;
   while(n --> 0) { *p++ = (unsigned char)c; }
   return s;
 }
+#else
+#include <string.h>
+#endif
 
 void init_tracka(void) {
   memset(track_nodes, 0, TRACK_MAX*sizeof(track_node));

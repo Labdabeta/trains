@@ -108,6 +108,21 @@ int saveSensorFlip(struct Track *track, struct Sensor sensor, int time)
             return i;
         } else if (S_EQUAL(track->nextLocation[i][1], sensor)) {
             track->nextLocation[i][0] = track->nextLocation[i][1];
+            doSensorHit(track, i, time);
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int saveSensorUnflip(struct Track *track, struct Sensor sensor, int time)
+{
+    int i;
+
+    for (i = 0; i < TRAIN_MAX; ++i) {
+        if (S_EQUAL(track->lastLocation[i], sensor)) {
+            track->lastRegister[i] = time;
             return i;
         }
     }
