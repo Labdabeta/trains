@@ -13,10 +13,6 @@ struct Track {
     struct Sensor nextLocation[TRAIN_MAX][2];
     int lastRegister[TRAIN_MAX];
     int realId[TRAIN_MAX];
-    int speed[TRAIN_MAX]; // as 0->14
-    int whenSpeed[TRAIN_MAX];
-    int velocity[TRAIN_MAX][SPEED_MAX+1]; // in mm/sec
-    int isData[TRAIN_MAX]; // 0 means that this datum would be useless
     switch_state switches;
 };
 
@@ -36,9 +32,5 @@ int addTrain(struct Track *track, int id, struct Sensor location);
 int saveSensorFlip(struct Track *track, struct Sensor sensor, int time);
 int saveSensorUnflip(struct Track *track, struct Sensor sensor, int time);
 void saveSwitchFlip(struct Track *track, int sw, int isCurved);
-void saveSpeedChange(struct Track *track, int train, int speed, int time);
-
-struct Position getTrainPosition(const struct Track *track, int train, int time);
-int getTrainVelocity(const struct Track *track, int train, int time);
 
 #endif /* TRACK_H */

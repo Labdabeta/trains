@@ -30,10 +30,7 @@ struct Sensor waitForSensorUp(int tid, int train);
 switch_state waitForSwitch(int tid);
 
 int querySwitch(int tid, int sw);
-struct Position queryPosition(int tid, int train);
-int queryVelocity(int tid, int train);
 
 void notifySwitch(int tid, int sw, int isCurved);
-void notifySpeed(int tid, int train, int speed);
 
 #endif /* TRACK_SERVER_H */

@@ -12,24 +12,6 @@ static void initTrack(struct Track *track)
         track->nextLocation[i][1] = S_NONE;
         track->lastRegister[i] = -1;
         track->realId[i] = -1;
-        track->speed[i] = 0;
-        track->isData[i] = 0;
-        // TODO: give these sensible defaults
-        track->velocity[i][0] = 0;
-        track->velocity[i][1] = 0;
-        track->velocity[i][2] = 0;
-        track->velocity[i][3] = 0;
-        track->velocity[i][4] = 0;
-        track->velocity[i][5] = 0;
-        track->velocity[i][6] = 0;
-        track->velocity[i][7] = 0;
-        track->velocity[i][8] = 0;
-        track->velocity[i][9] = 0;
-        track->velocity[i][10] = 0;
-        track->velocity[i][11] = 0;
-        track->velocity[i][12] = 0;
-        track->velocity[i][13] = 0;
-        track->velocity[i][14] = 0;
     }
 
     track->switches = SWITCH_STATE_CURVED;
@@ -57,17 +39,10 @@ static void doSensorHit(struct Track *track, int train, int time)
     int distance = getDistanceToNext(track->lastLocation[train], track->switches);
     int duration = time - track->lastRegister[train];
 
-    if (track->isData[train]) {
-        // TODO: do this more gently
-        track->velocity[train][track->speed[train]] = duration / distance;
-        track->lastLocation[train] = track->nextLocation[train][0];
-        track->nextLocation[train][0] = getNextLocation(track, track->lastLocation[train]);
-        track->nextLocation[train][1] = track->nextLocation[train][0];
-        track->lastRegister[train] = time;
-    } else {
-        // TODO: maybe deal with this more gently too?
-        track->isData[train] = 1;
-    }
+    track->lastLocation[train] = track->nextLocation[train][0];
+    track->nextLocation[train][0] = getNextLocation(track, track->lastLocation[train]);
+    track->nextLocation[train][1] = track->nextLocation[train][0];
+    track->lastRegister[train] = time;
 }
 
 void initTrackA(struct Track *track)
@@ -142,33 +117,4 @@ void saveSwitchFlip(struct Track *track, int sw, int isCurved)
         track->nextLocation[i][0] = getNextSensor(track->nextLocation[i][0], track->switches);
         track->nextLocation[i][1] = getNextSensor(track->nextLocation[i][1], track->switches);
     }
-}
-
-void saveSpeedChange(struct Track *track, int train, int speed, int time)
-{
-    track->speed[train] = speed;
-    track->whenSpeed[train] = time;
-    track->isData[train] = 0;
-}
-
-struct Position getTrainPosition(const struct Track *track, int train, int time)
-{
-    struct Position ret;
-
-    ret.lastSensor = track->lastLocation[train];
-    // TODO: do this more gently
-    int dtime = time - track->lastRegister[train];
-    ret.distanceFromLast = (track->velocity[train][track->speed[train]] * dtime) / TICKS_PER_SEC;
-    ret.nextSensor[0] = track->nextLocation[train][0];
-    ret.nextSensor[1] = track->nextLocation[train][1];
-
-    return ret;
-}
-
-int getTrainVelocity(const struct Track *track, int train, int time)
-{
-    (void)time; // unused for now
-
-    // TODO: interpolate speeds
-    return track->velocity[train][track->speed[train]];
 }

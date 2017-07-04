@@ -32,10 +32,7 @@ enum TrackMessage {
     TM_WAIT_UP,
     TM_WAIT_SWITCH,
     TM_QUERY_SWITCH,
-    TM_QUERY_POSITION,
-    TM_QUERY_VELOCITY,
-    TM_NOTIFY_SWITCH,
-    TM_NOTIFY_SPEED
+    TM_NOTIFY_SWITCH
 };
 
 struct Message {
@@ -147,26 +144,6 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
         Send(data->switch_clients[client], (char*)&reply, sizeof(reply), 0, 0);
 }
 
-static inline void handleQueryPosition(struct Data *data, int tid, int train)
-{
-    struct Position reply;
-    reply = getTrainPosition(&data->track, train, Time(data->cid));
-    Reply(tid, (char*)&reply, sizeof(reply));
-}
-
-static inline void handleQueryVelocity(struct Data *data, int tid, int train)
-{
-    int reply;
-    reply = getTrainVelocity(&data->track, train, Time(data->cid));
-    Reply(tid, (char*)&reply, sizeof(reply));
-}
-
-static inline void handleNotifySpeed(struct Data *data, int tid, int train, int speed)
-{
-    saveSpeedChange(&data->track, train, speed, Time(data->cid));
-    Reply(tid, 0, 0);
-}
-
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     (void)msg_size; // unused
@@ -273,16 +250,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case TM_WAIT_UP: handleWaitUp(data, tid, msg->datum); break;
         case TM_WAIT_SWITCH: handleWaitSwitch(data, tid); break;
         case TM_QUERY_SWITCH: handleQuerySwitch(data, tid, msg->datum); break;
-        case TM_QUERY_POSITION: handleQueryPosition(data, tid, msg->datum); break;
-        case TM_QUERY_VELOCITY: handleQueryVelocity(data, tid, msg->datum); break;
         case TM_NOTIFY_SWITCH:
             if (msg->datum < 0)
                 handleNotifySwitch(data, tid, -msg->datum, 1);
             else
                 handleNotifySwitch(data, tid, msg->datum, 0);
-            break;
-        case TM_NOTIFY_SPEED:
-            handleNotifySpeed(data, tid, msg->datum & 0x1F, msg->datum >> 5);
             break;
     }
 }
@@ -349,42 +321,6 @@ int querySwitch(int tid, int sw)
     msg.type = TM_QUERY_SWITCH;
     Send(tid, (char*)&msg, sizeof(msg), (char*)&rpl, sizeof(rpl));
     return (int)rpl;
-}
-
-struct Position queryPosition(int tid, int train)
-{
-    struct Message msg;
-    struct Position rpl;
-    msg.datum = train;
-    msg.type = TM_QUERY_POSITION;
-    Send(tid, (char*)&msg, sizeof(msg), (char*)&rpl, sizeof(rpl));
-    return rpl;
-}
-
-int queryVelocity(int tid, int train)
-{
-    struct Message msg;
-    int rpl;
-    msg.datum = train;
-    msg.type = TM_QUERY_VELOCITY;
-    Send(tid, (char*)&msg, sizeof(msg), (char*)&rpl, sizeof(rpl));
-    return rpl;
-}
-
-void notifySwitch(int tid, int sw, int isCurved)
-{
-    struct Message msg;
-    msg.datum = (isCurved ? -sw : sw);
-    msg.type = TM_NOTIFY_SWITCH;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
-}
-
-void notifySpeed(int tid, int train, int speed)
-{
-    struct Message msg;
-    msg.datum = train | (speed << 5);
-    msg.type = TM_NOTIFY_SPEED;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 MAKE_SERVER(track_server)
