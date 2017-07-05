@@ -2,6 +2,8 @@
 #define PATH_FINDER_H
 
 #include "track_data.h"
+#include "sensors.h"
+#include "switches.h"
 
 #define MAX_PATH_LENGTH 20
 
@@ -15,6 +17,18 @@ struct PathSwitchPositions {
 	int length;
 	int stations[MAX_PATH_LENGTH];
 	int positions[MAX_PATH_LENGTH];
+};
+
+struct RestrictedPath {
+    int length;
+    int distances[MAX_PATH_LENGTH];
+    struct Sensor sensors[MAX_PATH_LENGTH];
+    switch_state states[MAX_PATH_LENGTH];
+    switch_state masks[MAX_PATH_LENGTH]; // we only care about the masked switches
+};
+
+struct Restrictions {
+    int isEnabled[TRACK_MAX];
 };
 
 /* Finds a path on the track from the source node to the destination node.
@@ -32,5 +46,11 @@ int findPath(int source,
              int destination,
              struct TrackPath *path,
              struct PathSwitchPositions *switches);
+
+int findRestrictedPath(int source,
+                       int destination,
+                       struct Restrictions *rest,
+                       struct RestrictedPath *path);
+
 
 #endif /* PATH_FINDER_H */
