@@ -5,7 +5,7 @@
 #include "sensors.h"
 #include "switches.h"
 
-#define MAX_PATH_LENGTH 20
+#define MAX_PATH_LENGTH 0x40
 
 struct TrackPath {
 	int length;
@@ -20,6 +20,7 @@ struct PathSwitchPositions {
 };
 
 struct RestrictedPath {
+    int trueLength;
     int length;
     int distances[MAX_PATH_LENGTH];
     struct Sensor sensors[MAX_PATH_LENGTH];

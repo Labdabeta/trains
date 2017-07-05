@@ -122,12 +122,15 @@ static inline void visitRestricted(const track_edge *edge, PriorityQueue *q,
         pqInsert(q, new_dist, destination_id);
     }
 
-    destination_id = edge->reverse->dest - track_nodes;
-    new_dist = edge->reverse->dist + distance[current];
-    if (new_dist < distance[destination_id] && rest->isEnabled[destination_id]) {
-        distance[destination_id] = new_dist;
-        previous[destination_id] = current;
-        pqInsert(q, new_dist, destination_id);
+    // Allow reversing over a sensor.
+    if (edge->src->type == NODE_SENSOR) {
+        destination_id = edge->reverse->dest - track_nodes;
+        new_dist = edge->reverse->dist + distance[current];
+        if (new_dist < distance[destination_id] && rest->isEnabled[destination_id]) {
+            distance[destination_id] = new_dist;
+            previous[destination_id] = current;
+            pqInsert(q, new_dist, destination_id);
+        }
     }
 }
 
@@ -152,6 +155,7 @@ static inline void compileRestrictedRoute(int *distance,
     path->length = 0;
     path->states[0] = 0;
     path->masks[0] = 0;
+    path->trueLength = 0;
 
     while (current != -1) {
         if (track_nodes[current].type == NODE_BRANCH) {
@@ -175,6 +179,7 @@ static inline void compileRestrictedRoute(int *distance,
             path->states[path->length] = 0;
             path->masks[path->length] = 0;
         }
+        path->trueLength++;
         current = successor[current];
     }
 }

@@ -1,4 +1,5 @@
 #include "trains/path_finder.h"
+#include "trains/reservation.h"
 #include <stdio.h>
 
 void printPath(struct RestrictedPath *p)
@@ -21,17 +22,59 @@ void printPath(struct RestrictedPath *p)
     printf("END\n");
 }
 
+void printRestrictions(struct Restrictions *r)
+{
+    int i;
+    printf("Enabled:\t");
+    for (i = 0; i < TRACK_MAX; ++i) {
+        if (r->isEnabled[i])
+            printf("%s ", track_nodes[i].name);
+    }
+    printf("\nDisabled:\t");
+    for (i = 0; i < TRACK_MAX; ++i) {
+        if (!r->isEnabled[i])
+            printf("%s ", track_nodes[i].name);
+    }
+    printf("\n");
+}
+
+
 int main(int argc, char *argv[])
 {
     struct RestrictedPath p;
     struct Restrictions r;
-    for (int i = 0; i < TRACK_MAX; ++i)
-        r.isEnabled[i] = 1;
-    r.isEnabled[0x2B] = 0;
-    init_tracka();
-    int dist = findRestrictedPath(20, 10, &r, &p);
-    printf("Distance: %d\n", dist);
-    printPath(&p);
+    struct ReservationSystem reservations;
 
+    init_tracka();
+
+    initReservation(&reservations);
+
+    takeSpace(&reservations, SENSOR_SPACE(S_MAKE(C, 10), S_MAKE(B, 3)), 1);
+    takeSpace(&reservations, SWITCH_SPACE(5), 1);
+    getRestrictions(&reservations, 0, &r);
+
+    printRestrictions(&r);
+    int max = 0;
+    int tmax = 0;
+    int tmax_src = -1;
+    int tmax_dst = -1;
+    for (int src = 0; src < 80; ++src) {
+        for (int dst = 0; dst < 80; ++dst) {
+            int dist = findRestrictedPath(src, dst, &r, &p);
+            printf("%d -> %d: %d, %d\n", src, dst, p.length, p.trueLength);
+            if (p.length > max) max = p.length;
+            if (p.trueLength > tmax) {
+                tmax = p.trueLength;
+                tmax_src = src;
+                tmax_dst = dst;
+            }
+        }
+    }
+
+    printf("MAX: %d\n", max);
+    printf("TMAX: %d\n", tmax);
+
+    (void)findRestrictedPath(tmax_src, tmax_dst, &r, &p);
+    printPath(&p);
     return 0;
 }
