@@ -8,10 +8,11 @@ with Com;
 with Sensors;
 with Switches;
 with Input_Processor;
+with Constants;
 
 procedure Main is
     -- Our map is 1242 x 682
-    Window_Width : constant := 1242;
+    Window_Width : constant := 1442;
     Window_Height : constant := 682;
     Ticks_Per_Frame : constant := 1000 / 60; -- 60 fps
     Init_Error : chars_ptr;
@@ -92,10 +93,7 @@ begin
         SDL.Render_Clear;
         SDL.Image.Draw (
             Img => Background,
-            Top => 0,
-            Left => 0,
-            Height => SDL.Status.Window_Height,
-            Width => SDL.Status.Window_Width);
+            Destination => Constants.Map_Area);
         Switches.Draw;
         Sensors.Draw;
         SDL.Render_Present;

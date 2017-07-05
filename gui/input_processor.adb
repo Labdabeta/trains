@@ -97,6 +97,7 @@ package body Input_Processor is
                 end if;
             when others =>
                 Put_Line ("Unknown character: " & Character'Image (C));
+                Command := ASCII.NUL;
         end case;
     end Process;
 

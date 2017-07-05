@@ -95,14 +95,20 @@ void render_text_nice_sdl(
     }
 }
 
-void draw_image_sdl(const struct SDLImage *img, int top, int left, int height, int width)
+void draw_image_sdl(const struct SDLImage *img,
+                    int32_t stop, int32_t sleft, int32_t sheight, int32_t swidth,
+                    int32_t top, int32_t left, int32_t height, int32_t width,
+                    double angle, int32_t cx, int32_t cy,
+                    int32_t vflip, int32_t hflip)
 {
-    SDL_Rect dst;
-    dst.x = left;
-    dst.y = top;
-    dst.w = width;
-    dst.h = height;
-    if (SDL_RenderCopy(renderer, img->img, NULL, &dst)) {
+    SDL_Rect src, dst;
+    SDL_Point center;
+    src.x = sleft; src.y = stop; src.w = swidth; src.h = sheight;
+    dst.x = left; dst.y = top; dst.w = width; dst.h = height;
+    center.x = cx;
+    center.y = cy;
+    if (SDL_RenderCopyEx(renderer, img->img, &src, &dst, angle, &center,
+                (vflip ? SDL_FLIP_VERTICAL : 0) |
+                (hflip ? SDL_FLIP_HORIZONTAL : 0)))
         error_popup_sdl("Render copy failed!", SDL_GetError());
-    }
 }

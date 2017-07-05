@@ -21,14 +21,13 @@ package SDL.Image is
 
     procedure Draw (
         Img : in Image;
-        Top : in Sint32;
-        Left : in Sint32;
-        Height : in Sint32;
-        Width : in Sint32);
-    pragma Import (C, Draw, "draw_image_sdl");
-
-    procedure Draw_Bounds (
-        Img : in Image;
-        Bounds : in SDL.Rectangle);
+        Source : in Rectangle := (
+            Top => 0.0, Left => 0.0, Width => 1.0, Height => 1.0);
+        Destination : in Rectangle := (
+            Top => 0.0, Left => 0.0, Width => 1.0, Height => 1.0);
+        Rotation : in Interfaces.C.double := 0.0;
+        Center : in Coordinate := (X => 0.5, Y => 0.5);
+        VFlip : in Boolean := False;
+        HFlip : in Boolean := False);
 
 end SDL.Image;

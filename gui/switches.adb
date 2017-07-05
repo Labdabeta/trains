@@ -2,7 +2,7 @@ with Interfaces.C.Strings; use Interfaces.C.Strings;
 with SDL;
 with SDL.Image;
 with Ada.Text_IO; use Ada.Text_IO;
-with Switch_Collisions;
+with Constants;
 
 package body Switches is
 
@@ -10,19 +10,13 @@ package body Switches is
         for Bi in BiSwitch'Range loop
             SDL.Image.Draw (
                 Img => BiImages (Bi, BiStates (Bi)),
-                Top => 0,
-                Left => 0,
-                Height => SDL.Status.Window_Height,
-                Width => SDL.Status.Window_Width);
+                Destination => Constants.Map_Area);
         end loop;
 
         for Tri in TriSwitch'Range loop
             SDL.Image.Draw (
                 Img => TriImages (Tri, TriStates (Tri)),
-                Top => 0,
-                Left => 0,
-                Height => SDL.Status.Window_Height,
-                Width => SDL.Status.Window_Width);
+                Destination => Constants.Map_Area);
         end loop;
     end Draw;
 

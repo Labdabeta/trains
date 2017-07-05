@@ -19,6 +19,10 @@ void render_text_background_sdl(void *font, const char *text, uint8_t fr, uint8_
 /* Slow but anti-aliased, blits slow. */
 void render_text_nice_sdl(void *font, const char *text, uint8_t r, uint8_t g, uint8_t b, struct SDLImage *img);
 
-void draw_image_sdl(const struct SDLImage *img, int top, int left, int height, int width);
+void draw_image_sdl(const struct SDLImage *img,
+                    int32_t stop, int32_t sleft, int32_t sheight, int32_t swidth,
+                    int32_t top, int32_t left, int32_t height, int32_t width,
+                    double angle, int32_t cx, int32_t cy,
+                    int32_t vflip, int32_t hflip);
 
 #endif /* C_SDL_IMAGE_H */

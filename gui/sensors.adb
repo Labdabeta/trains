@@ -2,6 +2,7 @@ with Interfaces.C.Strings; use Interfaces.C.Strings;
 with SDL;
 with SDL.Image;
 with Ada.Text_IO; use Ada.Text_IO;
+with Constants;
 
 package body Sensors is
     procedure Draw is
@@ -11,10 +12,7 @@ package body Sensors is
                 if States (Group, Id) then
                     SDL.Image.Draw (
                         Img => Images (Group, Id),
-                        Top => 0,
-                        Left => 0,
-                        Height => SDL.Status.Window_Height,
-                        Width => SDL.Status.Window_Width);
+                        Destination => Constants.Map_Area);
                 end if;
             end loop;
         end loop;
@@ -25,8 +23,6 @@ package body Sensors is
         Id : SensorId;
         Active : Boolean) is
     begin
-        Put_Line ("Sensor " & SensorGroup'Image (Group) & SensorId'Image (Id) &
-            Boolean'Image (Active));
         States (Group, Id) := Active;
     end Draw_Sensor;
 
