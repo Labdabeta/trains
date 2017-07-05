@@ -12,7 +12,7 @@ package body Sensors is
                 if States (Group, Id) then
                     SDL.Image.Draw (
                         Img => Images (Group, Id),
-                        Destination => Constants.Map_Area);
+                        Destination => Constants.Sensor_Area (Group, Id));
                 end if;
             end loop;
         end loop;

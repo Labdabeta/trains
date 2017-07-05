@@ -191,3 +191,11 @@ void delay_sdl(uint32_t delay)
 {
     SDL_Delay(delay);
 }
+
+void show_cursor_sdl(int32_t show)
+{
+    if (show)
+        SDL_ShowCursor(SDL_ENABLE);
+    else
+        SDL_ShowCursor(SDL_DISABLE);
+}

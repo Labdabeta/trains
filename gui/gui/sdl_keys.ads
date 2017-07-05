@@ -1,108 +1,77 @@
 package SDL_Keys is
-    type Key is (
-        KEY_ANY, KEY_BACKSPACE, KEY_TAB, KEY_RETURN, KEY_ESCAPE, KEY_SPACE,
-        KEY_EXCLAIM, KEY_QUOTEDBL, KEY_HASH, KEY_DOLLAR, KEY_PERCENT,
-        KEY_AMPERSAND, KEY_QUOTE, KEY_LEFTPAREN, KEY_RIGHTPAREN, KEY_ASTERISK,
-        KEY_PLUS, KEY_COMMA, KEY_MINUS, KEY_PERIOD, KEY_SLASH, KEY_0, KEY_1,
-        KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_COLON,
-        KEY_SEMICOLON, KEY_LESS, KEY_EQUALS, KEY_GREATER, KEY_QUESTION, KEY_AT,
-        KEY_LEFTBRACKET, KEY_BACKSLASH, KEY_RIGHTBRACKET, KEY_CARET,
-        KEY_UNDERSCORE, KEY_BACKQUOTE, KEY_a, KEY_b, KEY_c, KEY_d, KEY_e, KEY_f,
-        KEY_g, KEY_h, KEY_i, KEY_j, KEY_k, KEY_l, KEY_m, KEY_n, KEY_o, KEY_p,
-        KEY_q, KEY_r, KEY_s, KEY_t, KEY_u, KEY_v, KEY_w, KEY_x, KEY_y, KEY_z,
-        KEY_DELETE);
-    for Key use (
-        KEY_ANY => 0, KEY_BACKSPACE => 8, KEY_TAB => 9, KEY_RETURN => 13,
-        KEY_ESCAPE => 27, KEY_SPACE => 32, KEY_EXCLAIM => 33,
-        KEY_QUOTEDBL => 34, KEY_HASH => 35, KEY_DOLLAR => 36, KEY_PERCENT => 37,
-        KEY_AMPERSAND => 38, KEY_QUOTE => 39, KEY_LEFTPAREN => 40,
-        KEY_RIGHTPAREN => 41, KEY_ASTERISK => 42, KEY_PLUS => 43,
-        KEY_COMMA => 44, KEY_MINUS => 45, KEY_PERIOD => 46, KEY_SLASH => 47,
-        KEY_0 => 48, KEY_1 => 49, KEY_2 => 50, KEY_3 => 51, KEY_4 => 52,
-        KEY_5 => 53, KEY_6 => 54, KEY_7 => 55, KEY_8 => 56, KEY_9 => 57,
-        KEY_COLON => 58, KEY_SEMICOLON => 59, KEY_LESS => 60, KEY_EQUALS => 61,
-        KEY_GREATER => 62, KEY_QUESTION => 63, KEY_AT => 64,
-        KEY_LEFTBRACKET => 91, KEY_BACKSLASH => 92, KEY_RIGHTBRACKET => 93,
-        KEY_CARET => 94, KEY_UNDERSCORE => 95, KEY_BACKQUOTE => 96,
-        KEY_a => 97, KEY_b => 98, KEY_c => 99, KEY_d => 100, KEY_e => 101,
-        KEY_f => 102, KEY_g => 103, KEY_h => 104, KEY_i => 105, KEY_j => 106,
-        KEY_k => 107, KEY_l => 108, KEY_m => 109, KEY_n => 110, KEY_o => 111,
-        KEY_p => 112, KEY_q => 113, KEY_r => 114, KEY_s => 115, KEY_t => 116,
-        KEY_u => 117, KEY_v => 118, KEY_w => 119, KEY_x => 120, KEY_y => 121,
-        KEY_z => 122, KEY_DELETE => 127);
+    type Key is range -2**31 .. 2**31 - 1;
     pragma Convention (C, Key);
 
-    To_Character : constant array (Key) of Character := (
-        KEY_ANY => Character'Val (0),
-        KEY_BACKSPACE => Character'Val (8),
-        KEY_TAB => Character'Val (9),
-        KEY_RETURN => Character'Val (13),
-        KEY_ESCAPE => Character'Val (27),
-        KEY_SPACE => Character'Val (32),
-        KEY_EXCLAIM => Character'Val (33),
-        KEY_QUOTEDBL => Character'Val (34),
-        KEY_HASH => Character'Val (35),
-        KEY_DOLLAR => Character'Val (36),
-        KEY_PERCENT => Character'Val (37),
-        KEY_AMPERSAND => Character'Val (38),
-        KEY_QUOTE => Character'Val (39),
-        KEY_LEFTPAREN => Character'Val (40),
-        KEY_RIGHTPAREN => Character'Val (41),
-        KEY_ASTERISK => Character'Val (42),
-        KEY_PLUS => Character'Val (43),
-        KEY_COMMA => Character'Val (44),
-        KEY_MINUS => Character'Val (45),
-        KEY_PERIOD => Character'Val (46),
-        KEY_SLASH => Character'Val (47),
-        KEY_0 => Character'Val (48),
-        KEY_1 => Character'Val (49),
-        KEY_2 => Character'Val (50),
-        KEY_3 => Character'Val (51),
-        KEY_4 => Character'Val (52),
-        KEY_5 => Character'Val (53),
-        KEY_6 => Character'Val (54),
-        KEY_7 => Character'Val (55),
-        KEY_8 => Character'Val (56),
-        KEY_9 => Character'Val (57),
-        KEY_COLON => Character'Val (58),
-        KEY_SEMICOLON => Character'Val (59),
-        KEY_LESS => Character'Val (60),
-        KEY_EQUALS => Character'Val (61),
-        KEY_GREATER => Character'Val (62),
-        KEY_QUESTION => Character'Val (63),
-        KEY_AT => Character'Val (64),
-        KEY_LEFTBRACKET => Character'Val (91),
-        KEY_BACKSLASH => Character'Val (92),
-        KEY_RIGHTBRACKET => Character'Val (93),
-        KEY_CARET => Character'Val (94),
-        KEY_UNDERSCORE => Character'Val (95),
-        KEY_BACKQUOTE => Character'Val (96),
-        KEY_a => Character'Val (97),
-        KEY_b => Character'Val (98),
-        KEY_c => Character'Val (99),
-        KEY_d => Character'Val (100),
-        KEY_e => Character'Val (101),
-        KEY_f => Character'Val (102),
-        KEY_g => Character'Val (103),
-        KEY_h => Character'Val (104),
-        KEY_i => Character'Val (105),
-        KEY_j => Character'Val (106),
-        KEY_k => Character'Val (107),
-        KEY_l => Character'Val (108),
-        KEY_m => Character'Val (109),
-        KEY_n => Character'Val (110),
-        KEY_o => Character'Val (111),
-        KEY_p => Character'Val (112),
-        KEY_q => Character'Val (113),
-        KEY_r => Character'Val (114),
-        KEY_s => Character'Val (115),
-        KEY_t => Character'Val (116),
-        KEY_u => Character'Val (117),
-        KEY_v => Character'Val (118),
-        KEY_w => Character'Val (119),
-        KEY_x => Character'Val (120),
-        KEY_y => Character'Val (121),
-        KEY_z => Character'Val (122),
-        KEY_DELETE => Character'Val (127));
+    KEY_ANY : constant Key := 0;
+    KEY_BACKSPACE : constant Key := 8;
+    KEY_TAB : constant Key := 9;
+    KEY_RETURN : constant Key := 13;
+    KEY_ESCAPE : constant Key := 27;
+    KEY_SPACE : constant Key := 32;
+    KEY_EXCLAIM : constant Key := 33;
+    KEY_QUOTEDBL : constant Key := 34;
+    KEY_HASH : constant Key := 35;
+    KEY_DOLLAR : constant Key := 36;
+    KEY_PERCENT : constant Key := 37;
+    KEY_AMPERSAND : constant Key := 38;
+    KEY_QUOTE : constant Key := 39;
+    KEY_LEFTPAREN : constant Key := 40;
+    KEY_RIGHTPAREN : constant Key := 41;
+    KEY_ASTERISK : constant Key := 42;
+    KEY_PLUS : constant Key := 43;
+    KEY_COMMA : constant Key := 44;
+    KEY_MINUS : constant Key := 45;
+    KEY_PERIOD : constant Key := 46;
+    KEY_SLASH : constant Key := 47;
+    KEY_0 : constant Key := 48;
+    KEY_1 : constant Key := 49;
+    KEY_2 : constant Key := 50;
+    KEY_3 : constant Key := 51;
+    KEY_4 : constant Key := 52;
+    KEY_5 : constant Key := 53;
+    KEY_6 : constant Key := 54;
+    KEY_7 : constant Key := 55;
+    KEY_8 : constant Key := 56;
+    KEY_9 : constant Key := 57;
+    KEY_COLON : constant Key := 58;
+    KEY_SEMICOLON : constant Key := 59;
+    KEY_LESS : constant Key := 60;
+    KEY_EQUALS : constant Key := 61;
+    KEY_GREATER : constant Key := 62;
+    KEY_QUESTION : constant Key := 63;
+    KEY_AT : constant Key := 64;
+    KEY_LEFTBRACKET : constant Key := 91;
+    KEY_BACKSLASH : constant Key := 92;
+    KEY_RIGHTBRACKET : constant Key := 93;
+    KEY_CARET : constant Key := 94;
+    KEY_UNDERSCORE : constant Key := 95;
+    KEY_BACKQUOTE : constant Key := 96;
+    KEY_a : constant Key := 97;
+    KEY_b : constant Key := 98;
+    KEY_c : constant Key := 99;
+    KEY_d : constant Key := 100;
+    KEY_e : constant Key := 101;
+    KEY_f : constant Key := 102;
+    KEY_g : constant Key := 103;
+    KEY_h : constant Key := 104;
+    KEY_i : constant Key := 105;
+    KEY_j : constant Key := 106;
+    KEY_k : constant Key := 107;
+    KEY_l : constant Key := 108;
+    KEY_m : constant Key := 109;
+    KEY_n : constant Key := 110;
+    KEY_o : constant Key := 111;
+    KEY_p : constant Key := 112;
+    KEY_q : constant Key := 113;
+    KEY_r : constant Key := 114;
+    KEY_s : constant Key := 115;
+    KEY_t : constant Key := 116;
+    KEY_u : constant Key := 117;
+    KEY_v : constant Key := 118;
+    KEY_w : constant Key := 119;
+    KEY_x : constant Key := 120;
+    KEY_y : constant Key := 121;
+    KEY_z : constant Key := 122;
+    KEY_DELETE : constant Key := 127;
 
 end SDL_Keys;

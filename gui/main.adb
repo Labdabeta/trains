@@ -1,11 +1,12 @@
 with GNAT.Serial_Communications; use GNAT.Serial_Communications;
 with SDL; use SDL;
+with SDL_Keys; use SDL_Keys;
 with SDL.Image;
 with Interfaces.C.Strings; use Interfaces.C.Strings;
 with Ada.Command_Line;
 with Ada.Text_IO; use Ada.Text_IO;
 with Com;
-with Sensors;
+with Sensors; use Sensors;
 with Switches;
 with Input_Processor;
 with Constants;
@@ -75,10 +76,8 @@ begin
                 when SDL.KEYDOWN => null; -- TODO
                 when SDL.KEYUP => null; -- TODO
                 when SDL.MOUSEMOVE => null;
-                when SDL.MOUSEDOWN => null;
-                when SDL.MOUSEUP => Put_Line ("Mouse up at: (" &
-                    SDL.Sint32'Image (SDL.Status.Mouse_X) & "," &
-                    SDL.Sint32'Image (SDL.Status.Mouse_Y) & ")");
+                when SDL.MOUSEDOWN => Input_Processor.Process_Click;
+                when SDL.MOUSEUP => null;
                 when SDL.WHEELMOVE => null;
                 when SDL.UNKNOWN => null;
             end case;

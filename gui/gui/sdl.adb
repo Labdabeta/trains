@@ -16,4 +16,20 @@ package body SDL is
         end if;
         return 0.0;
     end Get_Mouse_Y;
+
+    function Within (
+        Point : Coordinate;
+        Space : Rectangle) return Boolean is
+    begin
+        if
+            Point.X > Space.Left and
+            Point.X < Space.Left + Space.Width and
+            Point.Y > Space.Top and
+            Point.Y < Space.Top + Space.Height
+        then
+            return True;
+        else
+            return False;
+        end if;
+    end Within;
 end SDL;

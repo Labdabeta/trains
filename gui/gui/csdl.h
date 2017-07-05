@@ -79,4 +79,6 @@ void render_present_sdl(void);
 uint32_t get_ticks_sdl(void);
 void delay_sdl(uint32_t delay);
 
+void show_cursor_sdl(int32_t show);
+
 #endif /* C_SDL_H */

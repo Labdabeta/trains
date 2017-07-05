@@ -30,6 +30,10 @@ package SDL is
             Top, Left, Width, Height : Dimension;
         end record;
 
+    function Within (
+        Point : Coordinate;
+        Space : Rectangle) return Boolean;
+
     type Event_Type is (
         NONE, QUIT, KEYDOWN, KEYUP, MOUSEMOVE, MOUSEDOWN, MOUSEUP, WHEELMOVE,
         UNKNOWN);
@@ -111,4 +115,7 @@ package SDL is
 
     procedure Wait (Time : Uint32);
     pragma Import (C, Wait, "delay_sdl");
+
+    procedure Show_Cursor (Show : Sint32);
+    pragma Import (C, Show_Cursor, "show_cursor_sdl");
 end SDL;

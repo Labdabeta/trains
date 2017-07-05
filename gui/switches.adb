@@ -1,5 +1,5 @@
 with Interfaces.C.Strings; use Interfaces.C.Strings;
-with SDL;
+with SDL; use SDL;
 with SDL.Image;
 with Ada.Text_IO; use Ada.Text_IO;
 with Constants;
@@ -10,29 +10,15 @@ package body Switches is
         for Bi in BiSwitch'Range loop
             SDL.Image.Draw (
                 Img => BiImages (Bi, BiStates (Bi)),
-                Destination => Constants.Map_Area);
+                Destination => Constants.BiSwitch_Area (Bi));
         end loop;
 
         for Tri in TriSwitch'Range loop
             SDL.Image.Draw (
                 Img => TriImages (Tri, TriStates (Tri)),
-                Destination => Constants.Map_Area);
+                Destination => Constants.TriSwitch_Area (Tri));
         end loop;
     end Draw;
-
-    procedure Draw_BiSwitch (
-        Switch : BiSwitch;
-        State : BiSwitchState) is
-    begin
-        null;
-    end Draw_BiSwitch;
-
-    procedure Draw_TriSwitch (
-        Switch : TriSwitch;
-        State : TriSwitchState) is
-    begin
-        null;
-    end Draw_TriSwitch;
 
     procedure Finalize is begin
         for Bi in BiSwitch'Range loop
@@ -224,4 +210,24 @@ package body Switches is
             Fname => New_String ("res/Switches/SS.png"),
             Img => TriImages (SOUTH_SWITCH, TRISWITCH_STRAIGHT));
     end Initialize;
+
+    function Next_BiSwitch (Switch : BiSwitch) return BiSwitchState is
+    begin
+        if BiStates (Switch) = BISWITCH_CURVED then
+            BiStates (Switch) := BISWITCH_STRAIGHT;
+        else
+            BiStates (Switch) := BISWITCH_CURVED;
+        end if;
+        return BiStates (Switch);
+    end Next_BiSwitch;
+
+    function Next_TriSwitch (Switch : TriSwitch) return TriSwitchState is
+    begin
+        case TriStates (Switch) is
+            when TRISWITCH_LEFT => TriStates (Switch) := TRISWITCH_STRAIGHT;
+            when TRISWITCH_STRAIGHT => TriStates (Switch) := TRISWITCH_RIGHT;
+            when TRISWITCH_RIGHT => TriStates (Switch) := TRISWITCH_LEFT;
+        end case;
+        return TriStates (Switch);
+    end Next_TriSwitch;
 end Switches;

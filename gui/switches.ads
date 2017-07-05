@@ -12,13 +12,9 @@ package Switches is
 
     procedure Finalize;
 
-    procedure Draw_BiSwitch (
-        Switch : BiSwitch;
-        State : BiSwitchState);
+    function Next_BiSwitch (Switch : BiSwitch) return BiSwitchState;
 
-    procedure Draw_TriSwitch (
-        Switch : TriSwitch;
-        State : TriSwitchState);
+    function Next_TriSwitch (Switch : TriSwitch) return TriSwitchState;
 
     procedure Handle_Click;
 
