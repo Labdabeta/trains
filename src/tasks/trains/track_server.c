@@ -28,6 +28,9 @@ enum TrackMessage {
     TM_REGISTER_DOWN,
     TM_REGISTER_UP,
     TM_REGISTER_SWITCH,
+    TM_UNREGISTER_DOWN,
+    TM_UNREGISTER_UP,
+    TM_UNREGISTER_SWITCH,
     TM_WAIT_DOWN,
     TM_WAIT_UP,
     TM_WAIT_SWITCH,
@@ -72,6 +75,7 @@ ENTRY initialize(struct Data *data)
 #endif
 }
 
+/****************************** Message handlers ******************************/
 static inline void handleRegisterDown(struct Data *data, int tid, int train)
 {
     if (train >= 0)
@@ -80,6 +84,25 @@ static inline void handleRegisterDown(struct Data *data, int tid, int train)
         data->sendown_clients[TRAIN_MAX][data->num_sendown_clients[TRAIN_MAX]++] = tid;
 
     Reply(tid, 0, 0);
+}
+
+static inline void handleUnregisterDown(struct Data *data, int tid, int train)
+{
+    int i;
+    // Find the index
+    for (i = 0; i < MAX_CLIENTS; ++i) {
+        if (train >= 0 && data->sendown_clients[train][i] == tid) {
+            int x;
+            for (x = i; x < data->num_sendown_clients[train] - 1; ++x)
+               data->sendown_clients[train][x] = data->sendown_clients[train][x + 1];
+            data->num_sendown_clients[train]--;
+        } else if (train < 0 && data->sendown_clients[TRAIN_MAX][i] == tid) {
+            int x;
+            for (x = i; x < data->num_sendown_clients[TRAIN_MAX] - 1; ++x)
+                data->sendown_clients[TRAIN_MAX][x] = data->sendown_clients[TRAIN_MAX][x + 1];
+            data->num_sendown_clients[train]--;
+        }
+    }
 }
 
 static inline void handleRegisterUp(struct Data *data, int tid, int train)
@@ -92,10 +115,44 @@ static inline void handleRegisterUp(struct Data *data, int tid, int train)
     Reply(tid, 0, 0);
 }
 
+static inline void handleUnregisterUp(struct Data *data, int tid, int train)
+{
+    int i;
+    // Find the index
+    for (i = 0; i < MAX_CLIENTS; ++i) {
+        if (train >= 0 && data->senup_clients[train][i] == tid) {
+            int x;
+            for (x = i; x < data->num_senup_clients[train] - 1; ++x)
+               data->senup_clients[train][x] = data->senup_clients[train][x + 1];
+            data->num_senup_clients[train]--;
+        } else if (train < 0 && data->senup_clients[TRAIN_MAX][i] == tid) {
+            int x;
+            for (x = i; x < data->num_senup_clients[TRAIN_MAX] - 1; ++x)
+                data->senup_clients[TRAIN_MAX][x] = data->senup_clients[TRAIN_MAX][x + 1];
+            data->num_senup_clients[train]--;
+        }
+    }
+}
+
 static inline void handleRegisterSwitch(struct Data *data, int tid)
 {
     data->switch_clients[data->num_switch_clients++] = tid;
     Reply(tid, 0, 0);
+}
+
+
+static inline void handleUnregisterSwitch(struct Data *data, int tid)
+{
+    int i;
+    // Find the index
+    for (i = 0; i < MAX_CLIENTS; ++i) {
+        if (data->switch_clients[i] == tid) {
+            int x;
+            for (x = i; x < data->num_switch_clients; ++x)
+                data->switch_clients[x] = data->switch_clients[x + 1];
+            data->num_switch_clients--;
+        }
+    }
 }
 
 static inline void handleWaitDown(struct Data *data, int tid, int train)
@@ -144,6 +201,7 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
         Send(data->switch_clients[client], (char*)&reply, sizeof(reply), 0, 0);
 }
 
+/************************* Actual recieve/reply cycle *************************/
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     (void)msg_size; // unused
@@ -246,6 +304,9 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case TM_REGISTER_DOWN: handleRegisterDown(data, tid, msg->datum); break;
         case TM_REGISTER_UP: handleRegisterUp(data, tid, msg->datum); break;
         case TM_REGISTER_SWITCH: handleRegisterSwitch(data, tid); break;
+        case TM_UNREGISTER_DOWN: handleUnregisterDown(data, tid, msg->datum); break;
+        case TM_UNREGISTER_UP: handleUnregisterUp(data, tid, msg->datum); break;
+        case TM_UNREGISTER_SWITCH: handleUnregisterSwitch(data, tid); break;
         case TM_WAIT_DOWN: handleWaitDown(data, tid, msg->datum); break;
         case TM_WAIT_UP: handleWaitUp(data, tid, msg->datum); break;
         case TM_WAIT_SWITCH: handleWaitSwitch(data, tid); break;
@@ -259,6 +320,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
     }
 }
 
+/*********************** Public space message wrappers: ***********************/
 void registerForSensorDown(int tid, int train)
 {
     struct Message msg;
@@ -280,6 +342,30 @@ void registerForSwitch(int tid)
     struct Message msg;
     msg.datum = 0;
     msg.type = TM_REGISTER_SWITCH;
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+}
+
+void unregisterForSensorDown(int tid, int train)
+{
+    struct Message msg;
+    msg.datum = train;
+    msg.type = TM_UNREGISTER_DOWN;
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+}
+
+void unregisterForSensorUp(int tid, int train)
+{
+    struct Message msg;
+    msg.datum = train;
+    msg.type = TM_UNREGISTER_UP;
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+}
+
+void unregisterForSwitch(int tid)
+{
+    struct Message msg;
+    msg.datum = 0;
+    msg.type = TM_UNREGISTER_SWITCH;
     Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 

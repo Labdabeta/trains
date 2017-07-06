@@ -25,6 +25,10 @@ void registerForSensorDown(int tid, int train);
 void registerForSensorUp(int tid, int train);
 void registerForSwitch(int tid);
 
+void unregisterForSensorDown(int tid, int train);
+void unregisterForSensorUp(int tid, int train);
+void unregisterForSwitch(int tid);
+
 struct Sensor waitForSensorDown(int tid, int train);
 struct Sensor waitForSensorUp(int tid, int train);
 switch_state waitForSwitch(int tid);
