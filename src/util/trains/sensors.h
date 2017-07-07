@@ -20,6 +20,12 @@ struct Sensor {
 
 #define S_MAKE(A,B) (struct Sensor){#A[0] - 'A', B - 1}
 
+#define S_MID(X) (struct Sensor){ (X) / 16, (X) % 16 }
+
+#define S_PRINT(X) (X).group + 'A', (X).id + 1
+
+#define SID_PRINT(X) (X) / 16 + 'A', (X) % 16 + 1
+
 #define S_EQUAL(A,B) ((A).group == (B).group && (A).id == (B).id && (A).group != SG_N)
 
 void setSensorTrack(int isA);

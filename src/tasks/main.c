@@ -21,6 +21,7 @@ void printf_putc(void *unused, char ch) { (void)unused; cputc(ch); }
 
 void main_task(void)
 {
+
 	CreateSize(2, name_server, TASK_SIZE_NORMAL);
 
 	CreateSize(2, clock_server, TASK_SIZE_TINY);
@@ -48,11 +49,7 @@ void main_task(void)
     CreateSize(3, track_server, TASK_SIZE_NORMAL);
     while (WhoIs(TRACK_SERVER_NAME) < 0)
         Pass();
-
-    CreateSize(2, gui, TASK_SIZE_TINY);
-    while (WhoIs(GUI_SERVER_NAME) < 0)
-        Pass();
-
+		init_tracka();
     Create(1, conductor);
 
 	Exit();

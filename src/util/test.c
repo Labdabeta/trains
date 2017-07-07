@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     struct ReservationSystem reservations;
 
     init_tracka();
+    printf("Pathlength: %d\n", findPath(10, 20, &path, &switches));
 
     initReservation(&reservations);
 

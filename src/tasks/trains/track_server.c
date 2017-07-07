@@ -36,7 +36,8 @@ enum TrackMessage {
     TM_WAIT_UP,
     TM_WAIT_SWITCH,
     TM_QUERY_SWITCH,
-    TM_NOTIFY_SWITCH
+    TM_NOTIFY_SWITCH,
+		TM_QUERY_SENSOR
 };
 
 struct Message {
@@ -204,8 +205,19 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
     for (client = 0; client < data->num_switch_clients; ++client)
         Send(data->switch_clients[client], (char*)&reply, sizeof(reply), 0, 0);
 }
-
 /************************* Actual recieve/reply cycle *************************/
+
+static inline void handleQuerySensor(struct Data *data, int tid, int sen)
+{
+	char reply;
+
+	int block = sen >> 3;
+	int bit = sen & 0x7;
+	reply = !!(data->sensors[block] & (1 << (7 - bit)));
+
+	Reply(tid, &reply, sizeof(reply));
+}
+
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     (void)msg_size; // unused
@@ -324,6 +336,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case TM_WAIT_UP: handleWaitUp(data, tid, msg->datum); break;
         case TM_WAIT_SWITCH: handleWaitSwitch(data, tid); break;
         case TM_QUERY_SWITCH: handleQuerySwitch(data, tid, msg->datum); break;
+				case TM_QUERY_SENSOR: handleQuerySensor(data, tid, msg->datum); break;
         case TM_NOTIFY_SWITCH:
             if (msg->datum < 0)
                 handleNotifySwitch(data, tid, -msg->datum, 1);
@@ -429,5 +442,16 @@ void notifySwitch(int tid, int sw, int isCurved)
     msg.type = TM_NOTIFY_SWITCH;
     async_send(tid, (char*)&msg, sizeof(msg));
 }
+
+int querySensor(int tid, struct Sensor sen)
+{
+	struct Message msg;
+	char rpl;
+	msg.datum = S_ID(sen);
+	msg.type = TM_QUERY_SENSOR;
+	Send(tid, (char*)&msg, sizeof(msg), (char*)&rpl, sizeof(rpl));
+	return (int)rpl;
+}
+
 
 MAKE_SERVER(track_server)

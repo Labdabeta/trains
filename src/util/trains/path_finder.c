@@ -34,6 +34,8 @@ static inline void compileRoute(int *distance,
 		current = previous[current];
 	}
 
+	switches->length = 0;
+	path->length = 0;
 	while (current != -1) {
 		if (track_nodes[current].type == NODE_BRANCH) {
 			switches->stations[switches->length] = track_nodes[current].num;
@@ -96,7 +98,7 @@ int findPath(int source,
 		switch (track_nodes[current].type) {
 			case NODE_SENSOR:
 			case NODE_MERGE:
-            case NODE_ENTER:
+			case NODE_ENTER:
 				visit(&track_nodes[current].edge[DIR_AHEAD], &q, distance, previous, current);
 				break;
 			case NODE_BRANCH:

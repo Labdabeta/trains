@@ -8,7 +8,8 @@
 typedef enum TrackServerMessageType {
     TSMT_SENSOR_DOWN,
     TSMT_SENSOR_UP,
-    TSMT_SWITCH_FLIP
+    TSMT_SWITCH_FLIP,
+		TSMT_NONE
 } TrackServerMessageType;
 
 // This is what you get when you register. NOT when you wait.
@@ -41,6 +42,7 @@ struct Sensor waitForSensorUp(int tid, int train);
 switch_state waitForSwitch(int tid);
 
 int querySwitch(int tid, int sw);
+int querySensor(int tid, struct Sensor sen);
 
 void notifySwitch(int tid, int sw, int isCurved);
 
