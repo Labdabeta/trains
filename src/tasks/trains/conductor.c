@@ -208,7 +208,7 @@ void conductor(void)
 		Bs[12] = index_sensor('E', 13);
 		Bs[13] = index_sensor('D', 15); // Or 15?
 		Bs[14] = index_sensor('E', 4); //Or E4?
-		int index = 9;
+		int index = 1;
 		struct route_request points;
 
 		while(1){
