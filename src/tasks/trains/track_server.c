@@ -230,9 +230,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                         reply.id += 8;
 
                     message.type = TSMT_SENSOR_DOWN;
-                    message.data.sensor = reply;
+                    message.data.sensor.sensor = reply;
 
                     train = saveSensorFlip(&data->track, reply, Time(data->cid));
+
+                    message.data.sensor.train = train;
 
                     if (train >= 0) {
                         for (client = 0; client < data->num_sendown_tids[train]; ++client)
@@ -272,9 +274,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                         reply.id += 8;
 
                     message.type = TSMT_SENSOR_UP;
-                    message.data.sensor = reply;
+                    message.data.sensor.sensor = reply;
 
                     train = saveSensorUnflip(&data->track, reply, Time(data->cid));
+
+                    message.data.sensor.train = train;
 
                     if (train >= 0) {
                         for (client = 0; client < data->num_senup_tids[train]; ++client)

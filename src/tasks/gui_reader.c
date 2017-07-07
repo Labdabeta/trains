@@ -1,58 +1,66 @@
-#include <server.h>
+#include <service.h>
 #include "gui.h" // for the messages we pass to our clients
 #include "debugio.h"
 
-#define MAX_CLIENTS 0x10
+typedef enum MessageParseState {
+    MPS_INIT,
+    MPS_CURVE,
+    MPS_CURVE2,
+    MPS_STRAIGHT,
+    MPS_STRAIGHT2
+} MessageParseState;
 
 struct Data {
-    int clients[MAX_CLIENTS];
-    int num_clients;
-    int courier;
+    int parent;
 };
-
-struct Message {
-    int new_client;
-};
-
-void gui_courier(void)
-{
-    Service();
-    int parent = MyParentTid();
-    for (ever) {
-        int ch = cgetc();
-        Send(parent, (char*)&ch, sizeof(ch), 0, 0);
-    }
-}
 
 ENTRY initialize(struct Data *data)
 {
-    data->num_clients = 0;
-    data->courier = CreateSize(0, gui_courier, TASK_SIZE_TINY);
+    data->parent = MyParentTid();
 }
 
-static inline void handleMessage(struct Data *data, char ch)
+int getHexChar(void)
 {
-    int i;
+    int ch = cgetc();
+    if (ch <= '9' && ch >= '0')
+        return ch - '0';
+    if (ch <= 'f' && ch >= 'a')
+        return ch - 'a' + 10;
+    if (ch <= 'F' && ch >= 'A')
+        return ch - 'A' + 10;
+    return 0;
+}
+
+int getSwitch(void)
+{
+    int ret = getHexChar() << 4;
+    return ret | getHexChar();
+}
+
+ENTRY work(struct Data *data)
+{
     struct GUIMessage msg;
-    if (ch == 'Q') {
-        msg.type = GMT_QUIT;
-        for (i = 0; i < data->num_clients; ++i)
-            Send(data->clients[i], (char*)&msg, sizeof(msg), 0, 0);
+
+#define DO_SEND Send(data->parent, (char*)&msg, sizeof(msg), 0, 0)
+    // State machine for parsing messages
+    switch (cgetc()) {
+        case 'Q':
+            msg.type = GMT_QUIT;
+            DO_SEND;
+            break;
+        case 'c':
+            msg.type = GMT_CURVE;
+            msg.args[0] = getSwitch();
+            DO_SEND;
+            break;
+        case 's':
+            msg.type = GMT_STRAIGHT;
+            msg.args[0] = getSwitch();
+            DO_SEND;
+            break;
+        default:
+            break;
     }
 }
 
-ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
-{
-    if (tid == data->courier) {
-        char c = (char)msg->new_client;
-        Reply(tid, 0, 0);
-
-        handleMessage(data,c);
-    } else {
-        data->clients[data->num_clients++] = msg->new_client;
-        dprintf("Client %d registered for gui.\n\r", msg->new_client);
-        Reply(tid, 0, 0);
-    }
-}
-
-MAKE_SERVER(gui_reader)
+MAKE_SERVICE(gui_reader)

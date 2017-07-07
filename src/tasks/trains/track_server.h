@@ -16,7 +16,10 @@ struct TrackServerMessage {
     TrackServerMessageType type;
     union {
         switch_state switches;
-        struct Sensor sensor;
+        struct {
+            struct Sensor sensor;
+            int train; // or -1 for unknown
+        } sensor;
     } data;
 };
 
