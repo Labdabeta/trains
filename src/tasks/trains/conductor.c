@@ -12,6 +12,18 @@ static inline int index_sensor(char group, int number){
 #define p_SPEED 10
 #define p_TRAIN 70
 
+#if p_TRAIN == 70
+#define reg_a 149
+#define reg_b 10224
+#endif
+
+#if p_TRAIN == 69
+#define reg_a 140
+#define reg_b 5577
+#endif
+
+// old 69 (145,7852)
+
 void path_maker(void){
 	Service();
 
@@ -37,10 +49,19 @@ static inline int vel(struct TrackPath *path, int *times, int i, int d){
 
 static inline void backdist(struct TrackPath *path, int dist, int *index, int* diff){
 	int temp = 0;
+	dist = path->distances[path->length - 1] - dist;
 	while(path->distances[++temp] <= dist);
 	temp--;
 	*diff = dist - path->distances[temp];
 	*index = temp;
+}
+
+static inline void setstop(struct TrackPath *path, int stopping_dist, int *important,
+		int* dist_after, int * delay, int* times){
+	backdist(path, stopping_dist, important, dist_after);
+	dprintf("After index: %d, Dist after: %d\n\r", *important, *dist_after);
+	*delay = 100 * *dist_after / vel(path, times, *important, 1);
+	*important = path->stations[*important];
 }
 
 typedef enum{
@@ -75,11 +96,8 @@ void precise_stop(){
 	struct TrackServerMessage timeout;
 	timeout.type = TSMT_NONE;
 
-	int delay = -1;
-	int stopping_dist = -1;
-	int important = -1;
-	int dist_after, future_vel;
-	int speed = p_SPEED;
+	int delay, stopping_dist, important, dist_after, future_vel;
+	delay = stopping_dist = important = -1;
 	percise_state state = p_STATE_neither;
 
 	tput2(p_SPEED, p_TRAIN);
@@ -94,10 +112,6 @@ void precise_stop(){
 
 			if(sensor_id == points.source){
 				Send(maker_tid, (char *) &switchesAB, sizeof(struct PathSwitchPositions), 0, 0);
-				if(index >= 0){
-					async_delay(clock_tid, delay, (char *) &timeout, sizeof(struct TrackServerMessage));
-					state = p_STATE_stop;
-				}
 				index = 0;
 			}
 
@@ -105,190 +119,46 @@ void precise_stop(){
 				times[index] = Time(clock_tid);
 				int v = (index > 0 && index < pathAB.length) ? vel(&pathAB, times, index, 1)
 					: (index >= pathAB.length) ? vel(&pathBA, times+pathAB.length-1, index-pathAB.length+1, 1): 0;
-				dprintf("Velocity %d\n\r", v);
+				dprintf("GARBAGE: Index: %d, Velocity %d, Dist: %d\n\r", index, v, v * (times[index]-times[index-1]) / 100);
 				index++;
 			}
 
 			if(sensor_id == points.dest){
 				Send(maker_tid, (char *) &switchesBA, sizeof(struct PathSwitchPositions), 0, 0);
-				if(index >= 0 && delay < 0){
-					delay = vel(&pathAB, times, index-1, 2);
-					future_vel = delay;
-					delay = delay * 149 - 10224; // 70
-					//delay = delay * 145 - 7852; // 69old
-					//delay = delay * 140 - 5577; // 69old
-					dprintf("GARBAGE: Predicted stop dist: %d\n\r", delay / 100);
-					delay = (100 * pathAB.distances[index-1] - delay) / vel(&pathAB, times, index-1, index-1);
-					dprintf("GARBAGE: Delay: %d\n\r", delay);
+				if(index >= 0 && important < 0){
+					future_vel = vel(&pathAB, times, index-1, 2);
+					stopping_dist = (future_vel * reg_a - reg_b) / 100;
+					dprintf("GARBAGE: Predicted stop dist: %d\n\r", stopping_dist);
+					setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
 				}
+			}
+
+			if(sensor_id == important){
+				async_delay(clock_tid, delay, (char *) &timeout, sizeof(struct TrackServerMessage));
+				state = p_STATE_stop;
 			}
 
 			printf("Sensor Activation: %c%d\n\r",  S_PRINT(activ.data.sensor));
 		} else{
 			if(state == p_STATE_stop){
 				tput2(16, p_TRAIN);
-				dist_after = vel(&pathAB, times, index-1, 2);
-				dist_after = (Time(clock_tid) - times[index-1]) * dist_after / 100;
-				dprintf("GARBAGE: Dist after: %d\n\r", dist_after);
-				dprintf("GARBAGE: Sanity check: %d\n\r", pathAB.distances[index] - pathAB.distances[index-1]);
-				stopping_dist = pathAB.distances[pathAB.length - 1] - pathAB.distances[index-1] - dist_after;
 				state = p_STATE_inspection;
-				async_delay(clock_tid, 350, (char *) &timeout, sizeof(struct TrackServerMessage));
+				async_delay(clock_tid, 400, (char *) &timeout, sizeof(struct TrackServerMessage));
 			} else{
 				state = p_STATE_neither;
 				if(index < pathAB.length){
-					delay += 5;
+					stopping_dist -= 20;
+					setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
 					dprintf("GARBAGE: Undershot\n\r");
+				} else if(querySensor(track_tid, S_MID(points.dest))) {
+					dprintf("DATA: %d %d %d %d \n\r", future_vel, stopping_dist, p_SPEED, points.dest);
+					break;
 				} else{
-					if(querySensor(track_tid, S_MID(points.dest))) {
-						dprintf("GARBAGE: Perfect landing @ delay %d\n\r", delay);
-						dprintf("GARBAGE: Stopping distance %d\n\r", stopping_dist);
-						dprintf("DATA: %d %d %d %d \n\r", future_vel, stopping_dist, speed, points.dest);
-						index = delay = -1;
-						speed--;
-						if(speed == 5)
-							break;
-					} else{
-						delay -= 5;
-						dprintf("GARBAGE: Overshot\n\r");
-					}
+					stopping_dist += 20;
+					setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
+					dprintf("GARBAGE: Overshot\n\r");
 				}
-				tput2(speed, p_TRAIN);
-			}
-		}
-	}
-
-	Reply(client, 0, 0);
-	while(1){
-		Receive(&caller, (char *) &activ, sizeof(struct TrackServerMessage));
-		Reply(caller, 0, 0);
-	}
-	Exit();
-}
-
-typedef enum{
-	ps_STATE_neither,
-	ps_STATE_stop,
-	ps_STATE_inspection,
-	ps_STATE_solved,
-	ps_STATE_sol_stop,
-	ps_STATE_sol_inspection,
-} percise_starter_state;
-
-void precise_starter(){
-	int caller, client, maker_tid;
-
-	struct TrackPath pathAB, pathBA;
-	struct PathSwitchPositions switchesAB, switchesBA;
-	struct route_request points;
-	Receive(&client, (char *) &maker_tid, sizeof(int));
-	Reply(client, 0, 0);
-	Receive(&client, (char *) &points, sizeof(struct route_request));
-
-	findPath(points.source, points.dest, &pathAB, &switchesAB);
-	findPath(points.dest, points.source, &pathBA, &switchesBA);
-	Send(maker_tid, (char *) &switchesBA, sizeof(struct PathSwitchPositions), 0, 0);
-
-	int times[2 * MAX_PATH_LENGTH];
-	int index = -1;
-
-	int track_tid = WhoIs("TRACK");
-	registerForSensorDown(track_tid, -1);
-	int clock_tid = WhoIs("CLOCK");
-
-	struct TrackServerMessage activ;
-	struct TrackServerMessage timeout;
-	timeout.type = TSMT_NONE;
-
-	int delay = -1;
-	int dist_after, stopping_dist, future_vel;
-	int speed = p_SPEED;
-	int count = 0;
-	percise_state state = p_STATE_neither;
-
-	tput2(p_SPEED, p_TRAIN);
-
-	dprintf("GARBAGE: Percice start pair: %c%d to %c%d\n\r", SID_PRINT(points.source), SID_PRINT(points.dest));
-
-	while(1){
-		Receive(&caller, (char *) &activ, sizeof(struct TrackServerMessage));
-		Reply(caller, 0, 0);
-		if(activ.type == TSMT_SENSOR_DOWN){
-			int sensor_id = S_ID(activ.data.sensor);
-
-			if(sensor_id == points.source){
-				Send(maker_tid, (char *) &switchesAB, sizeof(struct PathSwitchPositions), 0, 0);
-				if(index >= 0){
-					async_delay(clock_tid, delay, (char *) &timeout, sizeof(struct TrackServerMessage));
-					state = p_STATE_stop;
-				}
-				index = 0;
-			}
-
-			if(index >= 0){
-				times[index] = Time(clock_tid);
-				int v = (index > 0 && index < pathAB.length) ? pathAB.distances[index] - pathAB.distances[index-1]
-					: (index >= pathAB.length) ? pathBA.distances[index-pathAB.length+1] - pathBA.distances[index-pathAB.length]: 0;
-				dprintf("GARBAGE: Index %d, Dist: %d, ", index, v);
-				if(index > 0)
-					v = 100 * v / (times[index] - times[index-1]);
-				dprintf("Velocity %d\n\r", v);
-				index++;
-			}
-
-			if(sensor_id == points.dest){
-				Send(maker_tid, (char *) &switchesBA, sizeof(struct PathSwitchPositions), 0, 0);
-				if(index >= 0 && delay < 0){
-					delay = 100 * (pathAB.distances[index-1] - pathAB.distances[index-3]);
-					delay /= times[index-1] - times[index-3];
-					future_vel = delay;
-					//delay = delay * 149 - 10224; // 70
-					//delay = delay * 145 - 7852; // 69old
-					delay = delay * 140 - 5577; // 69old
-					dprintf("GARBAGE: Predicted stop dist: %d\n\r", delay / 100);
-					int speedAB = 100 * pathAB.distances[index-1] / (times[index-1] - times[0]);
-					delay = (100 * pathAB.distances[index-1] - delay) / speedAB;
-					dprintf("GARBAGE: Delay: %d\n\r", delay);
-				}
-			}
-
-			printf("Sensor Activation: %c%d\n\r",  S_PRINT(activ.data.sensor));
-		} else{
-			if(state == p_STATE_stop){
-				tput2(16, p_TRAIN);
-				dist_after = 100 * (pathAB.distances[index-1] - pathAB.distances[index-3]);
-				dist_after /= times[index-1] - times[index-3];
-				dist_after = (Time(clock_tid) - times[index-1]) * dist_after / 100;
-				dprintf("GARBAGE: Dist after: %d\n\r", dist_after);
-				dprintf("GARBAGE: Sanity check: %d\n\r", pathAB.distances[index] - pathAB.distances[index-1]);
-				stopping_dist = pathAB.distances[pathAB.length - 1] - pathAB.distances[index-1] - dist_after;
-				state = p_STATE_inspection;
-				async_delay(clock_tid, 350, (char *) &timeout, sizeof(struct TrackServerMessage));
-			} else{
-				state = p_STATE_neither;
-				if(index < pathAB.length){
-					delay += 5;
-					dprintf("GARBAGE: Undershot\n\r");
-				} else{
-					if(querySensor(track_tid, S_MID(points.dest))) {
-						dprintf("GARBAGE: Perfect landing @ delay %d\n\r", delay);
-						dprintf("GARBAGE: Stopping distance %d\n\r", stopping_dist);
-						dprintf("DATA: %d %d %d %d \n\r", future_vel, stopping_dist, speed, points.dest);
-						index = delay = -1;
-						if(count){
-							count = 0;
-							speed--;
-							if(speed == 5)
-								break;
-						} else{
-							count++;
-						}
-					} else{
-						delay -= 5;
-						dprintf("GARBAGE: Overshot\n\r");
-					}
-				}
-				tput2(speed, p_TRAIN);
+				tput2(p_SPEED, p_TRAIN);
 			}
 		}
 	}
@@ -338,7 +208,7 @@ void conductor(void)
 		Bs[12] = index_sensor('E', 13);
 		Bs[13] = index_sensor('D', 15); // Or 15?
 		Bs[14] = index_sensor('E', 4); //Or E4?
-		int index = 5;
+		int index = 9;
 		struct route_request points;
 
 		while(1){
