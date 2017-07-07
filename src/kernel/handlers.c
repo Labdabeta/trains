@@ -118,6 +118,20 @@ static inline int handleReceive(struct KernelData *data, struct TaskDescriptor *
 	}
 }
 
+static inline void handleExit(struct KernelData *data, struct TaskDescriptor *active)
+{
+    while(active->recvQueueHead) {
+        struct TaskDescriptor *sender = active->recvQueueHead;
+        sender->buf[1]->data_len = (size_t)~0;
+        sender->state = STATE_ACTIVE;
+        unblockTask(&data->scheduler, sender);
+        if (sender->next == active)
+            sender->next = active->next;
+        active->recvQueueHead = sender->nextRecv;
+    }
+}
+
+
 static inline int handleObtain(struct KernelData *data, struct TaskDescriptor *active)
 {
 	int *tid = (int*)data->argv[0];
@@ -194,6 +208,7 @@ int handleSyscall(struct KernelData *data, struct TaskDescriptor *active)
 {
 	switch (data->fn) {
 		case CODE_EXIT:
+            handleExit(data, active);
 			active->state = STATE_ZOMBIE;
 			active->priority = -1;
 			data->alive--;

@@ -52,6 +52,9 @@ int SendBuffer(int tid, Buffer *msg, Buffer *reply)
 	if (reply->truncated)
 		return -1;
 
+	if (reply->data_len == (size_t)(~0))
+		return -3; // dead task
+
 	return reply->data_len;
 }
 

@@ -58,15 +58,15 @@ static inline struct TaskDescriptor *reschedule(struct Scheduler *state)
             if (state->active == initial)
                 return 0; /* No tasks found. */
         }
-        //dprintf("current: %d\tnext: %d\t", state->active->head->tid,
-                //(state->active->head->next?state->active->head->next->tid : -1));
+        //dprintf("current: %d\tnext: %d\t\n\r", state->active->head->tid,
+                //(state->active->head->next > 1?state->active->head->next->tid : -1));
         ret = state->active->head;
         state->active->head = state->active->head->next;
 
         /* Check if we need to block the task. */
         if (ret->state) {
+            //dprintf("blocking: %d state %d\n\r", ret->tid, ret->state);
             ret->next = (void*)1;
-            //dprintf("blocking: %d\n\r", ret->tid);
         } else {
             //dprintf("returning: %d\n\r", ret->tid);
             scheduleTask(state,ret);
