@@ -37,6 +37,7 @@ void path_maker(void){
 
 		for(int i = 0; i < route.length; i++){
 			tput2(route.positions[i], route.stations[i]);
+			dprintf("Flipping %d\n\r", route.stations[i]);
 			Delay(clock_tid, 5);
 		}
 		tputc(32);
@@ -49,7 +50,6 @@ static inline int vel(struct TrackPath *path, int *times, int i, int d){
 
 static inline void backdist(struct TrackPath *path, int dist, int *index, int* diff){
 	int temp = 0;
-	dist = path->distances[path->length - 1] - dist;
 	while(path->distances[++temp] <= dist);
 	temp--;
 	*diff = dist - path->distances[temp];
@@ -57,17 +57,46 @@ static inline void backdist(struct TrackPath *path, int dist, int *index, int* d
 }
 
 static inline void setstop(struct TrackPath *path, int stopping_dist, int *important,
-		int* dist_after, int * delay, int* times){
-	backdist(path, stopping_dist, important, dist_after);
+	int* dist_after, int * delay, int* times){
+	backdist(path, path->distances[path->length - 1] - stopping_dist, important, dist_after);
 	dprintf("After index: %d, Dist after: %d\n\r", *important, *dist_after);
 	*delay = 100 * *dist_after / vel(path, times, *important, 1);
 	*important = path->stations[*important];
 }
 
+static inline void setstopconst(struct TrackPath *path, int starting_dist, int *important,
+	int* dist_before, int * delay, int velocity){
+	backdist(path, path->distances[path->length - 1] - starting_dist, important, dist_before);
+	dprintf("Before index: %d, Dist after: %d\n\r", *important, *dist_before);
+	*delay = 100 * *dist_before / velocity;
+	*important = path->stations[*important];
+}
+
+static inline int opposite(int sensor){
+	return sensor + (sensor % 2 ? -1 : 1);
+}
+
+static inline void reverse(struct TrackPath *pathAB, struct TrackPath *pathBA,
+		struct PathSwitchPositions *switchesAB, struct PathSwitchPositions *switchesBA,
+		struct route_request *points, int maker_tid){
+	int temp = opposite(points->dest);
+	points->dest = opposite(points->source);
+	points->dest = temp;
+	findPath(points->source, points->dest, pathAB, switchesAB);
+	dprintf("PathAB len: %d\n\r", pathAB->length);
+	for(int i=0; i<pathAB->length; i++){
+		dprintf("path: %c%d\n\r", SID_PRINT(pathAB->stations[i]));
+	}
+	findPath(points->dest, points->source, pathBA, switchesBA);
+	Send(maker_tid, (char *) &switchesAB, sizeof(struct PathSwitchPositions), 0, 0);
+}
+
 typedef enum{
 	p_STATE_neither,
 	p_STATE_stop,
-	p_STATE_inspection
+	p_STATE_inspection,
+	p_STATE_reverse,
+	p_STATE_done
 } percise_state;
 
 void precise_stop(){
@@ -81,7 +110,6 @@ void precise_stop(){
 	Receive(&client, (char *) &points, sizeof(struct route_request));
 
 	findPath(points.source, points.dest, &pathAB, &switchesAB);
-	Send(maker_tid, (char *) &switchesAB, sizeof(struct PathSwitchPositions), 0, 0);
 	findPath(points.dest, points.source, &pathBA, &switchesBA);
 	Send(maker_tid, (char *) &switchesBA, sizeof(struct PathSwitchPositions), 0, 0);
 
@@ -96,8 +124,8 @@ void precise_stop(){
 	struct TrackServerMessage timeout;
 	timeout.type = TSMT_NONE;
 
-	int delay, stopping_dist, important, dist_after, future_vel;
-	delay = stopping_dist = important = -1;
+	int delay, stopping_dist, important, dist_after, dist_before, future_vel, starting_dist;
+	delay = stopping_dist = important = starting_dist = -1;
 	percise_state state = p_STATE_neither;
 
 	tput2(p_SPEED, p_TRAIN);
@@ -135,39 +163,53 @@ void precise_stop(){
 
 			if(sensor_id == important){
 				async_delay(clock_tid, delay, (char *) &timeout, sizeof(struct TrackServerMessage));
-				state = p_STATE_stop;
+				state = (state == p_STATE_neither) ? p_STATE_stop : p_STATE_done;
 			}
 
 			printf("Sensor Activation: %c%d\n\r",  S_PRINT(activ.data.sensor));
 		} else{
-			if(state == p_STATE_stop){
-				tput2(16, p_TRAIN);
-				state = p_STATE_inspection;
-				async_delay(clock_tid, 400, (char *) &timeout, sizeof(struct TrackServerMessage));
-			} else{
-				state = p_STATE_neither;
-				if(index < pathAB.length){
-					stopping_dist -= 20;
-					setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
-					dprintf("GARBAGE: Undershot\n\r");
-				} else if(querySensor(track_tid, S_MID(points.dest))) {
-					dprintf("DATA: %d %d %d %d \n\r", future_vel, stopping_dist, p_SPEED, points.dest);
-					break;
-				} else{
-					stopping_dist += 20;
-					setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
-					dprintf("GARBAGE: Overshot\n\r");
-				}
-				tput2(p_SPEED, p_TRAIN);
+			switch(state){
+				case p_STATE_stop:
+					tput2(16, p_TRAIN);
+					state = p_STATE_inspection;
+					async_delay(clock_tid, 400, (char *) &timeout, sizeof(struct TrackServerMessage));
+				break;
+
+				case p_STATE_done:
+					tput2(16, p_TRAIN);
+					goto _Exit;
+				break;
+
+				case p_STATE_inspection:
+					if(querySensor(track_tid, S_MID(points.dest))){
+						dprintf("DATA: %d %d %d %d \n\r", future_vel, stopping_dist, p_SPEED, points.dest);
+						reverse(&pathAB, &pathBA, &switchesAB, &switchesBA, &points, maker_tid);
+						starting_dist = 300;
+						setstopconst(&pathAB, starting_dist + stopping_dist, &important, &dist_before, &delay, 77);
+						dprintf("important: %d, delay: %d\n\r", important, delay);
+						tput2(15, p_TRAIN);
+						Delay(clock_tid, 5);
+						tput2(2, p_TRAIN);
+						state = p_STATE_reverse;
+					} else {
+						stopping_dist += 20 * (index < pathAB.length ? -1 : 1);
+						setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
+						state = p_STATE_neither;
+						tput2(p_SPEED, p_TRAIN);
+					}
+				break;
 			}
 		}
 	}
-
+	_Exit:
 	Reply(client, 0, 0);
 	while(1){
 		Receive(&caller, (char *) &activ, sizeof(struct TrackServerMessage));
 		Reply(caller, 0, 0);
 	}
+	dprintf("At exit\n\r");
+	unregisterForSensorDown(track_tid, -1);
+	dprintf("Unregistered\n\r");
 	Exit();
 }
 
@@ -208,15 +250,15 @@ void conductor(void)
 		Bs[12] = index_sensor('E', 13);
 		Bs[13] = index_sensor('D', 15); // Or 15?
 		Bs[14] = index_sensor('E', 4); //Or E4?
-		int index = 1;
+		int index = 0;
 		struct route_request points;
 
-		while(1){
+		//while(1){
 			child_tid = CreateSize(1, precise_stop, TASK_SIZE_NORMAL);
 			Send(child_tid, (char *) &maker_tid, sizeof(int), 0, 0);
 			points.source = As[index];
 			points.dest = Bs[index];
 			Send(child_tid, (char *) &points, sizeof(struct route_request), 0, 0);
 			index++;
-		}
+		//}
 }
