@@ -84,8 +84,11 @@ static inline void reverse(struct TrackPath *pathAB, struct TrackPath *pathBA,
 	points->dest = temp;
 	findPath(points->source, points->dest, pathAB, switchesAB);
 	dprintf("PathAB len: %d\n\r", pathAB->length);
-	for(int i=0; i<pathAB->length; i++){
-		dprintf("path: %c%d\n\r", SID_PRINT(pathAB->stations[i]));
+	for(int i=0; i < pathAB->length; i++){
+		dprintf("Sensor[%d]: %c%d\n\r", i, SID_PRINT(pathAB->stations[i]));
+	}
+	for(int i=0; i < switchesAB->length; i++){
+		dprintf("Switch[%d]: %d\n\r", i, switchesAB->stations[i]);
 	}
 	findPath(points->dest, points->source, pathBA, switchesBA);
 	Send(maker_tid, (char *) &switchesAB, sizeof(struct PathSwitchPositions), 0, 0);
@@ -124,8 +127,11 @@ void precise_stop(){
 	struct TrackServerMessage timeout;
 	timeout.type = TSMT_NONE;
 
-	int delay, stopping_dist, important, dist_after, dist_before, future_vel, starting_dist;
-	delay = stopping_dist = important = starting_dist = -1;
+	int delay, important; //Current values
+	int fwd_delay, fwd_important, stopping_dist, dist_after, future_vel; // For stopping
+	int bwd_delay, bwd_important, starting_dist, dist_before; // For starting
+	delay = important = -1;
+
 	percise_state state = p_STATE_neither;
 
 	tput2(p_SPEED, p_TRAIN);
@@ -135,6 +141,7 @@ void precise_stop(){
 	while(1){
 		Receive(&caller, (char *) &activ, sizeof(struct TrackServerMessage));
 		Reply(caller, 0, 0);
+
 		if(activ.type == TSMT_SENSOR_DOWN){
 			int sensor_id = S_ID(activ.data.sensor);
 
@@ -157,7 +164,9 @@ void precise_stop(){
 					future_vel = vel(&pathAB, times, index-1, 2);
 					stopping_dist = (future_vel * reg_a - reg_b) / 100;
 					dprintf("GARBAGE: Predicted stop dist: %d\n\r", stopping_dist);
-					setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
+					setstop(&pathAB, stopping_dist, &fwd_important, &dist_after, &fwd_delay, times);
+					important = fwd_important;
+					delay = fwd_delay;
 				}
 			}
 
@@ -184,16 +193,20 @@ void precise_stop(){
 					if(querySensor(track_tid, S_MID(points.dest))){
 						dprintf("DATA: %d %d %d %d \n\r", future_vel, stopping_dist, p_SPEED, points.dest);
 						reverse(&pathAB, &pathBA, &switchesAB, &switchesBA, &points, maker_tid);
-						starting_dist = 300;
-						setstopconst(&pathAB, starting_dist + stopping_dist, &important, &dist_before, &delay, 77);
-						dprintf("important: %d, delay: %d\n\r", important, delay);
+						starting_dist = 400;
+						setstopconst(&pathAB, starting_dist + stopping_dist, &bwd_important, &dist_before, &bwd_delay, 77);
+						important = bwd_important;
+						delay = bwd_delay;
+						dprintf("Important: %d, Delay: %d\n\r", important, delay);
 						tput2(15, p_TRAIN);
 						Delay(clock_tid, 5);
 						tput2(2, p_TRAIN);
 						state = p_STATE_reverse;
 					} else {
 						stopping_dist += 20 * (index < pathAB.length ? -1 : 1);
-						setstop(&pathAB, stopping_dist, &important, &dist_after, &delay, times);
+						setstop(&pathAB, stopping_dist, &fwd_important, &dist_after, &fwd_delay, times);
+						important = fwd_important;
+						delay = fwd_delay;
 						state = p_STATE_neither;
 						tput2(p_SPEED, p_TRAIN);
 					}
