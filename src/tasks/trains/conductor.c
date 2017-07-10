@@ -4,6 +4,9 @@
 #include "util/async_delay.h"
 #include "trains/track_server.h"
 #include "conductor.h"
+#include "service.h"
+
+#define SIV static inline void
 
 static inline int index_sensor(char group, int number){
 	return 16 * (group-'A') + number - 1;
@@ -37,7 +40,6 @@ void path_maker(void){
 
 		for(int i = 0; i < route.length; i++){
 			tput2(route.positions[i], route.stations[i]);
-			dprintf("Flipping %d\n\r", route.stations[i]);
 			Delay(clock_tid, 5);
 		}
 		tputc(32);
@@ -48,7 +50,7 @@ static inline int vel(struct TrackPath *path, int *times, int i, int d){
 	return 100 * (path->distances[i] - path->distances[i-d]) / (times[i] - times[i-d]);
 }
 
-static inline void backdist(struct TrackPath *path, int dist, int *index, int* diff){
+SIV backdist(struct TrackPath *path, int dist, int *index, int* diff){
 	int temp = 0;
 	while(path->distances[++temp] <= dist);
 	temp--;
@@ -56,7 +58,7 @@ static inline void backdist(struct TrackPath *path, int dist, int *index, int* d
 	*index = temp;
 }
 
-static inline void setstop(struct TrackPath *path, int stopping_dist, int *important,
+SIV setstop(struct TrackPath *path, int stopping_dist, int *important,
 	int* dist_after, int * delay, int* times){
 	backdist(path, path->distances[path->length - 1] - stopping_dist, important, dist_after);
 	dprintf("After index: %d, Dist after: %d\n\r", *important, *dist_after);
@@ -64,7 +66,7 @@ static inline void setstop(struct TrackPath *path, int stopping_dist, int *impor
 	*important = path->stations[*important];
 }
 
-static inline void setstopconst(struct TrackPath *path, int starting_dist, int *important,
+SIV setstopconst(struct TrackPath *path, int starting_dist, int *important,
 	int* dist_before, int * delay, int velocity){
 	backdist(path, path->distances[path->length - 1] - starting_dist, important, dist_before);
 	dprintf("Before index: %d, Dist after: %d\n\r", *important, *dist_before);
@@ -76,22 +78,15 @@ static inline int opposite(int sensor){
 	return sensor + (sensor % 2 ? -1 : 1);
 }
 
-static inline void reverse(struct TrackPath *pathAB, struct TrackPath *pathBA,
+SIV reverse(struct TrackPath *pathAB, struct TrackPath *pathBA,
 		struct PathSwitchPositions *switchesAB, struct PathSwitchPositions *switchesBA,
 		struct route_request *points, int maker_tid){
 	int temp = opposite(points->dest);
 	points->dest = opposite(points->source);
-	points->dest = temp;
+	points->source = temp;
 	findPath(points->source, points->dest, pathAB, switchesAB);
-	dprintf("PathAB len: %d\n\r", pathAB->length);
-	for(int i=0; i < pathAB->length; i++){
-		dprintf("Sensor[%d]: %c%d\n\r", i, SID_PRINT(pathAB->stations[i]));
-	}
-	for(int i=0; i < switchesAB->length; i++){
-		dprintf("Switch[%d]: %d\n\r", i, switchesAB->stations[i]);
-	}
 	findPath(points->dest, points->source, pathBA, switchesBA);
-	Send(maker_tid, (char *) &switchesAB, sizeof(struct PathSwitchPositions), 0, 0);
+	Send(maker_tid, (char *) switchesAB, sizeof(struct PathSwitchPositions), 0, 0);
 }
 
 typedef enum{
@@ -99,15 +94,128 @@ typedef enum{
 	p_STATE_stop,
 	p_STATE_inspection,
 	p_STATE_reverse,
-	p_STATE_done
-} percise_state;
+	p_STATE_rev_stop,
+	p_STATE_forward,
+	p_STATE_fwd_stop,
+	p_STATE_fwd_inspection
+} p_sensor;
 
-void precise_stop(){
+typedef enum{
+	p_STATE_SZS
+} p_timeout;
+
+/*static inline void measure_distance(){
+	int initial = Time(clock_tid);
+
+}*/
+
+struct Data {
 	int caller, client, maker_tid;
-
 	struct TrackPath pathAB, pathBA;
 	struct PathSwitchPositions switchesAB, switchesBA;
 	struct route_request points;
+	int track_tid, clock_tid;
+	int sensor_index[80];
+	int times[2 * MAX_PATH_LENGTH];
+	struct TrackServerMessage activ, timeout;
+	int prev_sensor, delay, important, circle_len; //Current values
+	int fwd_delay, fwd_important, stopping_dist, dist_after, future_vel; // For stopping
+	int bwd_delay, bwd_important, starting_dist, dist_before, rev_time; // For starting
+	p_sensor s_state;
+	p_timeout t_state;
+};
+
+SIV findCircle(struct Data *d)
+{
+	findPath(d->points.source, d->points.dest, &d->pathAB, &d->switchesAB);
+	findPath(d->points.dest, d->points.source, &d->pathBA, &d->switchesBA);
+	int i, j;
+	for(i = 0; i < 80; i++)
+		d->sensor_index[i] = -1;
+	for(i = 0; i < d->pathAB.length; i++)
+		d->sensor_index[d->pathAB.stations[i]] = i;
+	for(j = 1; j < d->pathBA.length; j++)
+		d->sensor_index[d->pathBA.stations[j]] = i+j-1;
+	d->circle_len = i+j-1;
+	for(i = 0; i < d->circle_len - 1; i++)
+		d->times[i] = -1;
+}
+
+SIV flip(int maker_tid, struct PathSwitchPositions *sw){
+	Send(maker_tid, (char *) sw, sizeof(struct PathSwitchPositions), 0, 0);
+}
+
+ENTRY initialize(struct Data *d)
+{
+	Receive(&d->client, (char *) &d->maker_tid, sizeof(int));
+	Reply(d->client, 0, 0);
+	Receive(&d->client, (char *) &d->points, sizeof(struct route_request));
+	findCircle(d);
+	flip(d->maker_tid, &d->switchesBA);
+	d->track_tid = WhoIs("TRACK");
+	registerForSensorDown(d->track_tid, -1);
+	d->clock_tid = WhoIs("CLOCK");
+	d->timeout.type = TSMT_NONE;
+	d->prev_sensor = d->delay = d->important = -1;
+	//d->s_state = p_STATE_neither;
+}
+
+static inline int dist_circindex(struct Data *d, int ind){
+	if(ind < d->pathAB.length){
+		return d->pathAB.distances[ind];
+	} else{
+		return d->pathAB.distances[d->pathAB.length - 1] + d->pathBA.distances[ind - d->pathAB.length + 1];
+	}
+}
+
+static inline int dist_circbetween(struct Data *d, int i1, int i2){
+	if(i1 <= i2){
+		return dist_circindex(d, i2) - dist_circindex(d, i1);
+	} else{
+		int dist = d->pathAB.distances[d->pathAB.length - 1] + d->pathBA.distances[d->pathBA.length - 1];
+		return dist - dist_circindex(d, i1) + dist_circindex(d, i2);
+	}
+}
+
+SIV reg_sens(struct Data *d)
+{
+	int cur_index = d->sensor_index[S_ID(d->activ.data.sensor)];
+	d->times[cur_index] = Time(d->clock_tid);
+	if(cur_index == -1){
+		printf("Sensor not on my path!\n\r");
+		return;
+	}
+	if(d->prev_sensor != -1){
+		int prev_index = d->sensor_index[d->prev_sensor];
+		int diff = cur_index - prev_index;
+		diff = (diff + d->circle_len) % d->circle_len;
+		for(int i = 1; i < diff; i++)
+			d->times[(prev_index + i) % d->circle_len] = -1;
+		diff = dist_circbetween(d, prev_index, cur_index);
+		printf("I hit %c%d. Previously I hit %c%d. The dist is: %d. \n \r",
+			S_PRINT(d->activ.data.sensor), SID_PRINT(d->prev_sensor), diff);
+		printf("Velocity: %d\n\r", 100 * diff / (d->times[cur_index] - d->times[prev_index]));
+	}
+	d->prev_sensor = S_ID(d->activ.data.sensor);
+}
+
+void precise_stop(){
+	struct Data d;
+	initialize(&d);
+
+	//tput2(p_SPEED, p_TRAIN);
+	while(1){
+		Receive(&d.caller, (char *) &d.activ, sizeof(struct TrackServerMessage));
+		Reply(d.caller, 0, 0);
+		if(d.activ.type == TSMT_SENSOR_DOWN){
+			reg_sens(&d);
+		} else{
+			//
+		}
+	}
+}
+#if 0
+void precise_stop(){
 	Receive(&client, (char *) &maker_tid, sizeof(int));
 	Reply(client, 0, 0);
 	Receive(&client, (char *) &points, sizeof(struct route_request));
@@ -131,8 +239,9 @@ void precise_stop(){
 	int fwd_delay, fwd_important, stopping_dist, dist_after, future_vel; // For stopping
 	int bwd_delay, bwd_important, starting_dist, dist_before; // For starting
 	delay = important = -1;
+	int rev_time;
 
-	percise_state state = p_STATE_neither;
+	precise_state state = p_STATE_neither;
 
 	tput2(p_SPEED, p_TRAIN);
 
@@ -154,7 +263,7 @@ void precise_stop(){
 				times[index] = Time(clock_tid);
 				int v = (index > 0 && index < pathAB.length) ? vel(&pathAB, times, index, 1)
 					: (index >= pathAB.length) ? vel(&pathBA, times+pathAB.length-1, index-pathAB.length+1, 1): 0;
-				dprintf("GARBAGE: Index: %d, Velocity %d, Dist: %d\n\r", index, v, v * (times[index]-times[index-1]) / 100);
+				//dprintf("GARBAGE: Index: %d, Velocity %d, Dist: %d\n\r", index, v, v * (times[index]-times[index-1]) / 100);
 				index++;
 			}
 
@@ -172,7 +281,17 @@ void precise_stop(){
 
 			if(sensor_id == important){
 				async_delay(clock_tid, delay, (char *) &timeout, sizeof(struct TrackServerMessage));
-				state = (state == p_STATE_neither) ? p_STATE_stop : p_STATE_done;
+				switch(state){
+					case p_STATE_neither:
+					state = p_STATE_stop;
+					break;
+					case p_STATE_reverse:
+					state = p_STATE_rev_stop;
+					break;
+					case p_STATE_forward:
+					state = p_STATE_fwd_stop;
+					break;
+				}
 			}
 
 			printf("Sensor Activation: %c%d\n\r",  S_PRINT(activ.data.sensor));
@@ -184,16 +303,29 @@ void precise_stop(){
 					async_delay(clock_tid, 400, (char *) &timeout, sizeof(struct TrackServerMessage));
 				break;
 
-				case p_STATE_done:
+				case p_STATE_rev_stop:
+					tput2(15, p_TRAIN);
+					reverse(&pathAB, &pathBA, &switchesAB, &switchesBA, &points, maker_tid);
+					Delay(clock_tid, 5);
+					tput2(p_SPEED, p_TRAIN);
+					rev_time = Time(clock_tid);
+					state = p_STATE_forward;
+					important = fwd_important;
+					delay = fwd_delay;
+				break;
+
+				case p_STATE_fwd_stop:
 					tput2(16, p_TRAIN);
-					goto _Exit;
+					state = p_STATE_fwd_inspection;
+					rev_time = Time(clock_tid)-rev_time;
+					async_delay(clock_tid, 400, (char *) &timeout, sizeof(struct TrackServerMessage));
 				break;
 
 				case p_STATE_inspection:
 					if(querySensor(track_tid, S_MID(points.dest))){
 						dprintf("DATA: %d %d %d %d \n\r", future_vel, stopping_dist, p_SPEED, points.dest);
 						reverse(&pathAB, &pathBA, &switchesAB, &switchesBA, &points, maker_tid);
-						starting_dist = 400;
+						starting_dist = 30;
 						setstopconst(&pathAB, starting_dist + stopping_dist, &bwd_important, &dist_before, &bwd_delay, 77);
 						important = bwd_important;
 						delay = bwd_delay;
@@ -211,6 +343,22 @@ void precise_stop(){
 						tput2(p_SPEED, p_TRAIN);
 					}
 				break;
+
+				case p_STATE_fwd_inspection:
+					if(querySensor(track_tid, S_MID(points.dest))){
+						starting_dist -= 50;
+						reverse(&pathAB, &pathBA, &switchesAB, &switchesBA, &points, maker_tid);
+						setstopconst(&pathAB, starting_dist + stopping_dist, &bwd_important, &dist_before, &bwd_delay, 77);
+						important = bwd_important;
+						delay = bwd_delay;
+						tput2(15, p_TRAIN);
+						Delay(clock_tid, 5);
+						tput2(2, p_TRAIN);
+						state = p_STATE_reverse;
+					} else{
+						dprintf("START_DATA: %d, %d\n\r", starting_dist+50, rev_time);
+					}
+				break;
 			}
 		}
 	}
@@ -225,7 +373,7 @@ void precise_stop(){
 	dprintf("Unregistered\n\r");
 	Exit();
 }
-
+#endif
 void conductor(void)
 {
     int maker_tid = CreateSize(1, path_maker, TASK_SIZE_TINY);
@@ -263,7 +411,7 @@ void conductor(void)
 		Bs[12] = index_sensor('E', 13);
 		Bs[13] = index_sensor('D', 15); // Or 15?
 		Bs[14] = index_sensor('E', 4); //Or E4?
-		int index = 0;
+		int index = 1;
 		struct route_request points;
 
 		//while(1){
