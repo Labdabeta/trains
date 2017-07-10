@@ -7,6 +7,7 @@
 #include "service.h"
 
 #define SIV static inline void
+#define SII static inline int
 
 static inline int index_sensor(char group, int number){
 	return 16 * (group-'A') + number - 1;
@@ -141,7 +142,8 @@ SIV findCircle(struct Data *d)
 		d->times[i] = -1;
 }
 
-SIV flip(int maker_tid, struct PathSwitchPositions *sw){
+SIV flip(int maker_tid, struct PathSwitchPositions *sw)
+{
 	Send(maker_tid, (char *) sw, sizeof(struct PathSwitchPositions), 0, 0);
 }
 
@@ -160,7 +162,8 @@ ENTRY initialize(struct Data *d)
 	//d->s_state = p_STATE_neither;
 }
 
-static inline int dist_circindex(struct Data *d, int ind){
+static inline int dist_circindex(struct Data *d, int ind)
+{
 	if(ind < d->pathAB.length){
 		return d->pathAB.distances[ind];
 	} else{
@@ -168,13 +171,25 @@ static inline int dist_circindex(struct Data *d, int ind){
 	}
 }
 
-static inline int dist_circbetween(struct Data *d, int i1, int i2){
+static inline int dist_circbetween(struct Data *d, int i1, int i2)
+{
 	if(i1 <= i2){
 		return dist_circindex(d, i2) - dist_circindex(d, i1);
 	} else{
 		int dist = d->pathAB.distances[d->pathAB.length - 1] + d->pathBA.distances[d->pathBA.length - 1];
 		return dist - dist_circindex(d, i1) + dist_circindex(d, i2);
 	}
+}
+
+SII vel_from(struct Data *d, int ind, int num)
+{
+	int prev_ind = (ind - num + d->circle_len) % d->circle_len;
+	while(d->times[prev_ind] == -1){
+		prev_ind = (prev_ind - 1 + d->circle_len) % d->circle_len;
+	}
+	int ret = dist_circbetween(d, prev_ind, ind);
+	ret = 100 * ret / (d->times[ind] - d->times[prev_ind]);
+	return ret;
 }
 
 SIV reg_sens(struct Data *d)
@@ -191,12 +206,22 @@ SIV reg_sens(struct Data *d)
 		diff = (diff + d->circle_len) % d->circle_len;
 		for(int i = 1; i < diff; i++)
 			d->times[(prev_index + i) % d->circle_len] = -1;
-		diff = dist_circbetween(d, prev_index, cur_index);
+		int dist = dist_circbetween(d, prev_index, cur_index);
 		printf("I hit %c%d. Previously I hit %c%d. The dist is: %d. \n \r",
-			S_PRINT(d->activ.data.sensor), SID_PRINT(d->prev_sensor), diff);
-		printf("Velocity: %d\n\r", 100 * diff / (d->times[cur_index] - d->times[prev_index]));
+			S_PRINT(d->activ.data.sensor), SID_PRINT(d->prev_sensor), dist);
+		printf("Velocity: %d, 2Vel: %d\n\r", vel_from(d, cur_index, diff), vel_from(d, cur_index, diff+1));
 	}
 	d->prev_sensor = S_ID(d->activ.data.sensor);
+}
+
+SIV set_init_stop_dist(struct Data *d, int ind)
+{
+	d->future_vel = vel_from(d, ind, 2);
+	d->stopping_dist = (d->future_vel * reg_a - reg_b) / 100;
+	printf("Predicted stop dist: %d\n\r", d->stopping_dist);
+	//setstop(&pathAB, stopping_dist, &fwd_important, &dist_after, &fwd_delay, times);
+	//important = fwd_important;
+	//delay = fwd_delay;
 }
 
 void precise_stop(){
