@@ -1,5 +1,6 @@
 #include "trains/track_server.h"
 #include <server.h>
+#include "util/async_send.h"
 
 #define MAX_CLIENTS 0x10
 
@@ -41,6 +42,7 @@ enum TrackMessage {
 struct Message {
     int datum; // usually train id or switch. For notify -ve means curved.
     enum TrackMessage type;
+    struct AsyncSendMessage _unused;
 };
 
 
@@ -210,7 +212,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         data->last_sensor = (data->last_sensor + 1) % 10;
         Reply(tid, 0, 0);
         sensor = msg->datum & 0xFF;
-        dprintf("Sensor: %x\tData->Sensors: %x\n\r", sensor, data->sensors[data->last_sensor]);
 
         // Downs
         delta = ~data->sensors[data->last_sensor] & sensor;
@@ -300,6 +301,12 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         return;
     }
 
+    if (msg->datum == ASYNC_CODE) {
+        struct AsyncSendMessage *real = (struct AsyncSendMessage*)msg;
+        tid = real->source_tid;
+        msg = (struct Message*)real->data;
+    }
+
     switch (msg->type) {
         case TM_REGISTER_DOWN: handleRegisterDown(data, tid, msg->datum); break;
         case TM_REGISTER_UP: handleRegisterUp(data, tid, msg->datum); break;
@@ -326,7 +333,7 @@ void registerForSensorDown(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_DOWN;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    async_send(tid, (char*)&msg, sizeof(msg));
 }
 
 void registerForSensorUp(int tid, int train)
@@ -334,7 +341,7 @@ void registerForSensorUp(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_UP;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    async_send(tid, (char*)&msg, sizeof(msg));
 }
 
 void registerForSwitch(int tid)
@@ -342,7 +349,7 @@ void registerForSwitch(int tid)
     struct Message msg;
     msg.datum = 0;
     msg.type = TM_REGISTER_SWITCH;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    async_send(tid, (char*)&msg, sizeof(msg));
 }
 
 void unregisterForSensorDown(int tid, int train)
@@ -350,7 +357,7 @@ void unregisterForSensorDown(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_UNREGISTER_DOWN;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    async_send(tid, (char*)&msg, sizeof(msg));
 }
 
 void unregisterForSensorUp(int tid, int train)
@@ -358,7 +365,7 @@ void unregisterForSensorUp(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_UNREGISTER_UP;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    async_send(tid, (char*)&msg, sizeof(msg));
 }
 
 void unregisterForSwitch(int tid)
@@ -366,7 +373,7 @@ void unregisterForSwitch(int tid)
     struct Message msg;
     msg.datum = 0;
     msg.type = TM_UNREGISTER_SWITCH;
-    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    async_send(tid, (char*)&msg, sizeof(msg));
 }
 
 struct Sensor waitForSensorDown(int tid, int train)
