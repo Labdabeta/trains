@@ -50,16 +50,14 @@ void poll_event_sdl(struct SDLEvent *event)
             case SDL_KEYDOWN:
                 event->t = KEYDOWN;
                 event->timestamp = e.key.timestamp;
-                event->k = e.key.keysym.sym;
-                if (e.key.keysym.sym >= 0 && e.key.keysym.sym < 256)
-                    status.keys[e.key.keysym.sym] = 1;
+                event->k = e.key.keysym.sym & 0xFF;
+                status.keys[event->k] = 1;
                 break;
             case SDL_KEYUP:
                 event->t = KEYUP;
                 event->timestamp = e.key.timestamp;
-                event->k = e.key.keysym.sym;
-                if (e.key.keysym.sym >= 0 && e.key.keysym.sym < 256)
-                    status.keys[e.key.keysym.sym] = 0;
+                event->k = e.key.keysym.sym & 0xFF;
+                status.keys[event->k] = 0;
             case SDL_WINDOWEVENT:
                 event->timestamp = e.window.timestamp;
                 if (e.window.type == SDL_WINDOWEVENT_RESIZED) {

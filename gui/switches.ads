@@ -6,7 +6,20 @@ package Switches is
 
     type TriSwitch is (NORTH_SWITCH, SOUTH_SWITCH);
     type TriSwitchState is (TRISWITCH_LEFT, TRISWITCH_STRAIGHT,
-        TRISWITCH_RIGHT);
+        TRISWITCH_RIGHT, TRISWITCH_DERAIL);
+
+    type GenericSwitch (IsTri : Boolean := False) is
+        record
+            case IsTri is
+                when True =>
+                    Tri : TriSwitch;
+                    Left : Boolean;
+                when False =>
+                    Bi : BiSwitch;
+            end case;
+        end record;
+
+    function Parse_Switch_Id (A, B : Character) return GenericSwitch;
 
     procedure Initialize;
 
@@ -16,7 +29,7 @@ package Switches is
 
     function Next_TriSwitch (Switch : TriSwitch) return TriSwitchState;
 
-    procedure Handle_Click;
+    procedure Set_Switch (Which : GenericSwitch; Curved : Boolean);
 
     procedure Draw;
 private

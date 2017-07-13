@@ -1,5 +1,5 @@
 package SDL_Keys is
-    type Key is range -2**31 .. 2**31 - 1;
+    type Key is range 0 .. 256;
     pragma Convention (C, Key);
 
     KEY_ANY : constant Key := 0;
@@ -40,6 +40,10 @@ package SDL_Keys is
     KEY_GREATER : constant Key := 62;
     KEY_QUESTION : constant Key := 63;
     KEY_AT : constant Key := 64;
+    KEY_RIGHT : constant Key := 79;
+    KEY_LEFT : constant Key := 80;
+    KEY_DOWN : constant Key := 81;
+    KEY_UP : constant Key := 82;
     KEY_LEFTBRACKET : constant Key := 91;
     KEY_BACKSLASH : constant Key := 92;
     KEY_RIGHTBRACKET : constant Key := 93;
@@ -73,5 +77,8 @@ package SDL_Keys is
     KEY_y : constant Key := 121;
     KEY_z : constant Key := 122;
     KEY_DELETE : constant Key := 127;
+
+    KEY_LSHIFT : constant Key := 225;
+    KEY_RSHIFT : constant Key := 229;
 
 end SDL_Keys;

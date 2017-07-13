@@ -420,4 +420,12 @@ int querySwitch(int tid, int sw)
     return (int)rpl;
 }
 
+void notifySwitch(int tid, int sw, int isCurved)
+{
+    struct Message msg;
+    msg.datum = (isCurved ? -sw : sw);
+    msg.type = TM_NOTIFY_SWITCH;
+    async_send(tid, (char*)&msg, sizeof(msg));
+}
+
 MAKE_SERVER(track_server)

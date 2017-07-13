@@ -52,8 +52,7 @@ package SDL is
         end record;
     pragma Convention (C, Event);
 
-    type Key_State is array (SDL_Keys.Key range SDL_Keys.KEY_ANY ..
-        SDL_Keys.KEY_DELETE) of aliased Interfaces.C.int;
+    type Key_State is array (SDL_Keys.Key) of aliased Interfaces.C.int;
     pragma Convention (C, Key_State);
     type Input_Status is
         record

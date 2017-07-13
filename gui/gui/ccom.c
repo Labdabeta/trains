@@ -64,6 +64,7 @@ const char *quitTerminals(void)
         sprintf(errormsg, "Error %d from tcsetattr: %s", errno, strerror(errno));
         return errormsg;
     }
+    return NULL;
 }
 
 int com2_getc(void)

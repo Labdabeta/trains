@@ -30,4 +30,8 @@ package SDL.Image is
         VFlip : in Boolean := False;
         HFlip : in Boolean := False);
 
+    procedure Draw_Raw (
+        Img : in Image;
+        Top_Left : in SDL.Coordinate);
+
 end SDL.Image;

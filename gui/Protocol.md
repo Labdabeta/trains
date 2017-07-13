@@ -4,7 +4,7 @@
 
 All GUI commands sent, in both directions, are five-byte ASCII encodings. This
 serves two useful purposes. First, it makes the code easy to statically
-allocate, you need space for 5 bytes, end of story. Second, it makes the code
+allocate, you need space for 3 bytes, end of story. Second, it makes the code
 easy to visually debug when running without the GUI.
 
 There is an exception to this, in that the first byte sent by your code should
@@ -42,25 +42,30 @@ they are as follows:
  - Switches: Switches are simply encoded across two-bytes as an unsigned
    hexadecimal number.
 
+ - Length: These are decimal numbers. This is because only strings of up to 100
+   characters are allowed. Since 0 isn't a valid message size, it is used to
+   represent a 100 character message.
+
 
 ## Commands to the UI
 
 These are the commands that can be sent to the UI:
 
- - `s sensor train`: Indicate that train triggered sensor.
- - `S sensor train`: Indicate that train stopped triggering sensor.
- - `+ sensor train`: Indicate the presence of a new train on the specified
-   sensor.
- - `-rm train`: Indicate that train was removed.
- - `n sensor train`: Indicate that train's next sensor is sensor.
- - `d sensor train`: Indicate that train's destination sensor is sensor.
- - `swc switch`: Indicate that switch is now curved.
- - `sws switch`: Indicate that switch is now straight.
+ - `s sensor`: Indicate that train triggered sensor.
+ - `S sensor`: Indicate that train stopped triggering sensor.
+ - `c switch`: Indicate that switch is now curved.
+ - `| switch`: Indicate that switch is now straight.
+ - `p length`: The following length characters are printed to the message space.
+ - `l length`: The following min(length, 32) characters are printed to the log
+   space.
+ - `die`: Terminate execution.
 
 ## Commands from the UI
 
 These are the commands that can be received from the UI:
 
- - `swc switch`: Curve switch.
- - `sws switch`: Straighten switch.
+ - `c switch`: Curve switch.
+ - `| switch`: Straighten switch.
+ - `get`: The remaining null-terminated string is what the user entered.
+ - `die`: Terminate execution.
 

@@ -13,8 +13,8 @@ with Constants;
 
 procedure Main is
     -- Our map is 1242 x 682
-    Window_Width : constant := 1442;
-    Window_Height : constant := 682;
+    Window_Width : constant := 1242;
+    Window_Height : constant := 1242;
     Ticks_Per_Frame : constant := 1000 / 60; -- 60 fps
     Init_Error : chars_ptr;
     Background : SDL.Image.Image;
@@ -64,6 +64,7 @@ begin
 
     Switches.Initialize;
     Sensors.Initialize;
+    Input_Processor.Initialize;
 
     Last_Ticks := SDL.Get_Ticks;
 
@@ -73,8 +74,8 @@ begin
             case E.Kind is
                 when SDL.NONE => exit;
                 when SDL.QUIT => Quit := True; exit;
-                when SDL.KEYDOWN => null; -- TODO
-                when SDL.KEYUP => null; -- TODO
+                when SDL.KEYDOWN => Input_Processor.Process_Keyboard (E.Key);
+                when SDL.KEYUP => null;
                 when SDL.MOUSEMOVE => null;
                 when SDL.MOUSEDOWN => Input_Processor.Process_Click;
                 when SDL.MOUSEUP => null;
@@ -86,7 +87,9 @@ begin
         loop
             I := Com.Getc;
             exit when I < 0;
-            Input_Processor.Process (Character'Val (I));
+            if Input_Processor.Process (Character'Val (I)) then
+                Quit := True;
+            end if;
         end loop;
 
         SDL.Render_Clear;
@@ -95,6 +98,7 @@ begin
             Destination => Constants.Map_Area);
         Switches.Draw;
         Sensors.Draw;
+        Input_Processor.Draw;
         SDL.Render_Present;
 
         Current_Ticks := SDL.Get_Ticks - Last_Ticks;

@@ -62,4 +62,19 @@ package body SDL.Image is
             HFlip => HFlip_Value);
     end Draw;
 
+    procedure Draw_Raw (
+        Img : in Image;
+        Top_Left : in SDL.Coordinate) is
+    begin
+        CDraw (
+            Img => Img,
+            Source_Top => 0, Source_Left => 0,
+            Source_Height => Img.H, Source_Width => Img.W,
+            Top => Sint32 (Float (Top_Left.Y) *
+                Float (SDL.Status.Window_Height)),
+            Left => Sint32 (Float (Top_Left.X) *
+                Float (SDL.Status.Window_Width)),
+            Width => Img.W, Height => Img.H,
+            Angle => 0.0, Center_X => 0, Center_Y => 0, VFlip => 0, HFlip => 0);
+    end Draw_Raw;
 end SDL.Image;
