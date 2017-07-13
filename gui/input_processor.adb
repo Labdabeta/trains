@@ -247,12 +247,16 @@ package body Input_Processor is
                 end if;
                 Previous_Line_Image (Previous_Line_Idx) := Command_Image;
 
-                Com.Putc ('g'); Com.Putc ('e'); Com.Putc ('t');
+                Command_Length := Command_Length - 1;
+                Com.Putc ('g');
+                Com.Putc (Character'Val
+                    (Character'Pos ('0') + (Command_Length / 10)));
+                Com.Putc (Character'Val
+                    (Character'Pos ('0') + (Command_Length mod 10)));
                 for I in Integer range 1 .. Command_Length loop
                     Com.Putc (Command (I));
                     Command (I) := ' ';
                 end loop;
-                Com.Putc (ASCII.NUL);
                 SDL.Font.RenderFast (The_Font, New_String (String (Command)),
                     200, 200, 200, Command_Image);
 

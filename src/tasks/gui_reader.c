@@ -2,14 +2,6 @@
 #include "gui.h" // for the messages we pass to our clients
 #include "debugio.h"
 
-typedef enum MessageParseState {
-    MPS_INIT,
-    MPS_CURVE,
-    MPS_CURVE2,
-    MPS_STRAIGHT,
-    MPS_STRAIGHT2
-} MessageParseState;
-
 struct Data {
     int parent;
 };
@@ -40,24 +32,34 @@ int getSwitch(void)
 ENTRY work(struct Data *data)
 {
     struct GUIMessage msg;
+    char ch = cgetc();
 
 #define DO_SEND Send(data->parent, (char*)&msg, sizeof(msg), 0, 0)
     // State machine for parsing messages
-    switch (cgetc()) {
-        case 'Q':
+    switch (ch) {
+        case 'd':
+        case 'D':
             msg.type = GMT_QUIT;
             DO_SEND;
             break;
         case 'c':
             msg.type = GMT_CURVE;
-            msg.args[0] = getSwitch();
+            msg.data.switch_id = getSwitch();
             DO_SEND;
             break;
-        case 's':
+        case '|':
             msg.type = GMT_STRAIGHT;
-            msg.args[0] = getSwitch();
+            msg.data.switch_id = getSwitch();
             DO_SEND;
             break;
+        case 'g': {
+            int len = getHexChar() * 10 + getHexChar();
+            msg.type = GMT_CMD;
+            for (int i = 0; i < len; ++i)
+                msg.data.cmd[i] = cgetc();
+            msg.data.cmd[len] = 0;
+            DO_SEND;
+            break; }
         default:
             break;
     }

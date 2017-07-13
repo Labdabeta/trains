@@ -56,8 +56,6 @@ These are the commands that can be sent to the UI:
  - `c switch`: Indicate that switch is now curved.
  - `| switch`: Indicate that switch is now straight.
  - `p length`: The following length characters are printed to the message space.
- - `l length`: The following min(length, 32) characters are printed to the log
-   space.
  - `die`: Terminate execution.
 
 ## Commands from the UI
@@ -66,6 +64,6 @@ These are the commands that can be received from the UI:
 
  - `c switch`: Curve switch.
  - `| switch`: Straighten switch.
- - `get`: The remaining null-terminated string is what the user entered.
+ - `g length`: The following length characters are what the user typed.
  - `die`: Terminate execution.
 

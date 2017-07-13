@@ -15,7 +15,10 @@ struct Data {
 };
 
 struct Message {
-    struct TrackServerMessage msg;
+    union {
+        struct TrackServerMessage track;
+        struct GUIMessage gui;
+    } data;
 };
 
 ENTRY initialize(struct Data *data)
@@ -36,29 +39,18 @@ ENTRY initialize(struct Data *data)
 #define TO_HEX_CHAR(X) ("0123456789ABCDEF"[(X)])
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
+    char m[4] = {0};
     if (tid == data->track_id) {
         Reply(tid, 0, 0);
-        if (msg->msg.type == TSMT_SWITCH_FLIP) {
-            char m[24];
-            int i;
-            m[0] = 'w';
-            for (i = 1; i < 23; ++i)
-                m[i] = (IS_CURVED(msg->msg.data.switches, i) ? 'c' : 's');
-            m[23] = 0;
+        if (msg->data.track.type == TSMT_SWITCH_FLIP) {
+            m[0] = (msg->data.track.data.sw.isCurved ? 'c' : '|');
+            m[1] = TO_HEX_CHAR(msg->data.track.data.sw.change_id >> 4);
+            m[2] = TO_HEX_CHAR(msg->data.track.data.sw.change_id & 0xF);
             cputstr(m);
         } else {
-            char m[6];
-            m[0] = (msg->msg.type == TSMT_SENSOR_DOWN ? 's' : 'S');
-            m[1] = msg->msg.data.sensor.sensor.group + 'A'; // when did we start using C#?
-            m[2] = TO_HEX_CHAR(msg->msg.data.sensor.sensor.id);
-            if (msg->msg.data.sensor.train < 0) {
-                m[3] = '?';
-                m[4] = '?';
-            } else {
-                m[3] = TO_HEX_CHAR(msg->msg.data.sensor.train >> 4);
-                m[4] = TO_HEX_CHAR(msg->msg.data.sensor.train & 0xF);
-            }
-            m[5] = 0;
+            m[0] = (msg->data.track.type == TSMT_SENSOR_DOWN ? 's' : 'S');
+            m[1] = msg->data.track.data.sensor.sensor.group + 'A'; // when did we start using C#?
+            m[2] = TO_HEX_CHAR(msg->data.track.data.sensor.sensor.id);
             cputstr(m);
         }
     } else if (tid == data->child_id) {

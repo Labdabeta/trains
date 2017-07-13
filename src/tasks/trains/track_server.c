@@ -193,7 +193,9 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
     saveSwitchFlip(&data->track, sw, isCurved);
 
     reply.type = TSMT_SWITCH_FLIP;
-    reply.data.switches = data->track.switches;
+    reply.data.sw.switches = data->track.switches;
+    reply.data.sw.change_id = sw;
+    reply.data.sw.isCurved = isCurved;
 
     for (client = 0; client < data->num_switch_tids; ++client)
         Reply(data->switch_tids[client], (char*)&data->track.switches, sizeof(data->track.switches));

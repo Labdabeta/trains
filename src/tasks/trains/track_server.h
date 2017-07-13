@@ -15,7 +15,11 @@ typedef enum TrackServerMessageType {
 struct TrackServerMessage {
     TrackServerMessageType type;
     union {
-        switch_state switches;
+        struct {
+            switch_state switches;
+            int change_id;
+            int isCurved;
+        } sw;
         struct {
             struct Sensor sensor;
             int train; // or -1 for unknown
