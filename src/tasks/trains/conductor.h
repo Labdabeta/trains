@@ -10,10 +10,6 @@ struct flip_request {
 	int position;
 };
 
-/*struct track_calibration{
-	int speeds[80][2];
-};
-
-int stopping_dist(struct *track_calibration);*/
+/*int stopping_dist(struct *track_calibration);*/
 
 #endif
