@@ -46,12 +46,11 @@ int main(int argc, char *argv[])
     struct ReservationSystem reservations;
 
     init_tracka();
-    printf("Pathlength: %d\n", findPath(10, 20, &path, &switches));
 
     initReservation(&reservations);
 
-    takeSpace(&reservations, SENSOR_SPACE(S_MAKE(C, 10), S_MAKE(B, 3)), 1);
-    takeSpace(&reservations, SWITCH_SPACE(5), 1);
+    //takeSpace(&reservations, SENSOR_SPACE(S_MAKE(C, 10), S_MAKE(B, 3)), 1);
+    //takeSpace(&reservations, SWITCH_SPACE(5), 1);
     getRestrictions(&reservations, 0, &r);
 
     printRestrictions(&r);

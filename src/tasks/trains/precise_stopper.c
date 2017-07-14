@@ -26,7 +26,8 @@
 
 struct Data {
 	int caller, client, maker_tid;
-	struct ReasonablePath pathAB, pathBA;
+	struct RestrictedPath pathAB, pathBA;
+	struct Restrictions restrictions;
 	struct flip_request flip_req;
 	struct route_request points;
 	int track_tid, clock_tid;
@@ -43,52 +44,84 @@ SII ind_plus(struct Data *d, int ind, int diff)
 	return (ind + diff + d->circle_len) % d->circle_len;
 }
 
+SII ind_to_id(struct Data *d, int ind)
+{
+	return S_ID((ind < d->pathAB.length-1) ? d->pathAB.sensors[ind]
+		: d->pathBA.sensors[ind - d->pathAB.length + 1]);
+}
+
 SIV findCircle(struct Data *d)
 {
-	findReasonablePath(d->points.source, d->points.dest, &d->pathAB);
-	findReasonablePath(d->points.dest, d->points.source, &d->pathBA);
+	findRestrictedPath(d->points.source, d->points.dest, &d->restrictions, &d->pathAB);
+	findRestrictedPath(d->points.dest, d->points.source, &d->restrictions, &d->pathBA);
 	int i, j;
 	for(i = 0; i < 80; i++)
 		d->sensor_index[i] = -1;
 	for(i = 0; i < d->pathAB.length; i++)
-		d->sensor_index[d->pathAB.stations[i]] = i;
+		d->sensor_index[S_ID(d->pathAB.sensors[i])] = i;
 	for(j = 1; j < d->pathBA.length; j++)
-		d->sensor_index[d->pathBA.stations[j]] = i+j-1;
+		d->sensor_index[S_ID(d->pathBA.sensors[j])] = i+j-1;
 	d->circle_len = i+j-2;
-	for(i = 0; i < d->circle_len - 1; i++)
+
+	for(i = 0; i < d->circle_len - 1; i++){
+		printf("%d: %c%d\n\r", i, SID_PRINT(ind_to_id(d, i)));
 		d->times[i] = -1;
+	}
 }
 
-SII ind_to_id(struct Data *d, int ind)
+SIV flip(struct Data *d, struct RestrictedPath *path, int ind)
 {
-	return (ind < d->pathAB.length-1) ? d->pathAB.stations[ind]
-		: d->pathBA.stations[ind - d->pathAB.length + 1];
-}
-
-SIV flip(struct Data *d, struct ReasonablePath *path, int ind)
-{
-	d->flip_req.position = path->positions[ind];
-	if(d->flip_req.position){
-		printf("Flip index: %d\n\r", ind);
-		d->flip_req.switch_id = path->switches[ind];
-		Send(d->maker_tid, (char *) &d->flip_req, sizeof(struct flip_request), 0, 0);
+	for (int bit = 1; bit <= SWITCH_MAX; ++bit) {
+		if (IS_CURVED(path->masks[ind], bit)) {
+			printf("Flip index: %d (%d)\n\r", ind, bit);
+			d->flip_req.position = (IS_CURVED(path->states[ind], bit) ? 34 : 33);
+			d->flip_req.switch_id = SW_ID_TO_NUM(bit);
+			Send(d->maker_tid, (char *) &d->flip_req, sizeof(struct flip_request), 0, 0);
+		}
 	}
 }
 
 SIV flip_ind(struct Data* d, int ind){
-	if(ind < d->pathAB.length-1){
+	if(ind > 0 && ind < d->pathAB.length){
 		flip(d, &d->pathAB, ind);
-	} else{
+	} else if (ind == 0) {
+		flip(d, &d->pathBA, d->pathBA.length - 1);
+	} else {
 		flip(d, &d->pathBA, ind - d->pathAB.length + 1);
 	}
 }
 
+SIV printPath(struct RestrictedPath *p)
+{
+    int i;
+    printf("START\n\r");
+    for (i = 0; i < p->length; ++i) {
+        printf("\tSegment %d: \n\r"
+               "\t\tDistance - %d mm\n\r"
+               "\t\tDestination - %c%d\n\r"
+               "\t\tSwitch Configuration - %x\n\r"
+               "\t\tSwitch Mask - %x\n\r",
+               i + 1,
+               p->distances[i],
+               p->sensors[i].group + 'A',
+               p->sensors[i].id + 1,
+               p->states[i],
+               p->masks[i]);
+    }
+    printf("END\n\r");
+}
+
 SIV initialize(struct Data *d)
 {
+	for (int i = 0; i < TRACK_MAX; ++i) {
+		d->restrictions.isEnabled[i] = 1;
+	}
 	Receive(&d->client, (char *) &d->maker_tid, sizeof(int));
 	Reply(d->client, 0, 0);
 	Receive(&d->client, (char *) &d->points, sizeof(struct route_request));
 	findCircle(d);
+	printPath(&d->pathAB);
+	printPath(&d->pathBA);
 	d->track_tid = WhoIs("TRACK");
 	registerForSensorDown(d->track_tid, -1);
 	d->clock_tid = WhoIs("CLOCK");
@@ -172,8 +205,8 @@ SIV reg_sens(struct Data *d)
 		return;
 	}
 	d->times[cur_index] = Time(d->clock_tid);
-	flip_ind(d, cur_index);
 	flip_ind(d, ind_plus(d, cur_index, 1));
+	flip_ind(d, ind_plus(d, cur_index, 2));
 	if(d->prev_sensor != -1){
 		int prev_index = d->sensor_index[d->prev_sensor];
 		int diff = ind_plus(d, cur_index, -1 * prev_index);
@@ -190,6 +223,7 @@ SIV reg_sens(struct Data *d)
 }
 
 void precise_stop(){
+	printf("Entering precise stop (tid: %d)\n\r", MyTid());
 	struct Data d;
 	initialize(&d);
 	tput2(p_SPEED, p_TRAIN);
@@ -205,8 +239,6 @@ void precise_stop(){
 		}
 	}
 	Reply(d.client, 0, 0);
-	while(1){
-		Receive(&d.caller, (char *) &d.activ, sizeof(d.activ));
-		Reply(d.caller, 0, 0);
-	}
+	unregisterForSensorDown(d.track_tid, -1);
+	Exit();
 }

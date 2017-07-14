@@ -7,6 +7,8 @@
 
 #define MAX_PATH_LENGTH 0x40
 
+#define REVERSE_COST 0xFFFFFF
+
 struct TrackPath {
 	int length;
 	int stations[MAX_PATH_LENGTH];
@@ -20,9 +22,9 @@ struct PathSwitchPositions {
 };
 
 struct RestrictedPath {
-    int trueLength;
-    int length;
-    int distances[MAX_PATH_LENGTH];
+    int trueLength; // # nodes in graph
+    int length; // # sensors
+    int distances[MAX_PATH_LENGTH]; // as costs (so reversing can ruin)
     struct Sensor sensors[MAX_PATH_LENGTH];
     switch_state states[MAX_PATH_LENGTH];
     switch_state masks[MAX_PATH_LENGTH]; // we only care about the masked switches

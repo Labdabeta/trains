@@ -1,4 +1,3 @@
-CC=gcc
 SOURCES=$(shell find . -name '*.c')
 
 test: $(SOURCES)

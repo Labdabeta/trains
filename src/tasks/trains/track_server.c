@@ -99,11 +99,13 @@ static inline void handleUnregisterDown(struct Data *data, int tid, int train)
             for (x = i; x < data->num_sendown_clients[train] - 1; ++x)
                data->sendown_clients[train][x] = data->sendown_clients[train][x + 1];
             data->num_sendown_clients[train]--;
+						return;
         } else if (train < 0 && data->sendown_clients[TRAIN_MAX][i] == tid) {
             int x;
             for (x = i; x < data->num_sendown_clients[TRAIN_MAX] - 1; ++x)
                 data->sendown_clients[TRAIN_MAX][x] = data->sendown_clients[TRAIN_MAX][x + 1];
-            data->num_sendown_clients[train]--;
+            data->num_sendown_clients[TRAIN_MAX]--;
+						return;
         }
     }
 }
@@ -128,11 +130,13 @@ static inline void handleUnregisterUp(struct Data *data, int tid, int train)
             for (x = i; x < data->num_senup_clients[train] - 1; ++x)
                data->senup_clients[train][x] = data->senup_clients[train][x + 1];
             data->num_senup_clients[train]--;
+						return;
         } else if (train < 0 && data->senup_clients[TRAIN_MAX][i] == tid) {
             int x;
             for (x = i; x < data->num_senup_clients[TRAIN_MAX] - 1; ++x)
                 data->senup_clients[TRAIN_MAX][x] = data->senup_clients[TRAIN_MAX][x + 1];
-            data->num_senup_clients[train]--;
+            data->num_senup_clients[TRAIN_MAX]--;
+						return;
         }
     }
 }
@@ -154,6 +158,7 @@ static inline void handleUnregisterSwitch(struct Data *data, int tid)
             for (x = i; x < data->num_switch_clients; ++x)
                 data->switch_clients[x] = data->switch_clients[x + 1];
             data->num_switch_clients--;
+						return;
         }
     }
 }

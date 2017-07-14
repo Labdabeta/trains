@@ -220,7 +220,7 @@ static inline void visitRestricted(const track_edge *edge, PriorityQueue *q,
     // Allow reversing over a sensor.
     if (edge->src->type == NODE_SENSOR) {
         destination_id = edge->reverse->dest - track_nodes;
-        new_dist = edge->reverse->dist + distance[current];
+        new_dist = edge->reverse->dist + distance[current] + REVERSE_COST;
         if (new_dist < distance[destination_id] && rest->isEnabled[destination_id]) {
             distance[destination_id] = new_dist;
             previous[destination_id] = current;
@@ -254,7 +254,8 @@ static inline void compileRestrictedRoute(int *distance,
 
     while (current != -1) {
         if (track_nodes[current].type == NODE_BRANCH) {
-            int which = track_nodes[current].num;
+            int which = NUM_TO_SW_ID(track_nodes[current].num);
+
             if (successor[current] !=
                 track_nodes[current].edge[DIR_STRAIGHT].dest - track_nodes) {
                 // Curved

@@ -1,6 +1,8 @@
 #ifndef SWITCHES_H
 #define SWITCHES_H
 
+#define SWITCH_MAX 22
+
 // max 32 switches, 0x99 = 19, 0x9A = 20, 0x9B = 21, 0x9C = 22
 typedef unsigned int switch_state;
 
@@ -12,6 +14,9 @@ typedef unsigned int switch_state;
 #define SW_155 21
 #define SW_9C 22
 #define SW_156 22
+
+#define NUM_TO_SW_ID(X) ((X) > 0x98 ? (X) - 0x99 + 19 : (X))
+#define SW_ID_TO_NUM(X) ((X) > 18 ? (X) + 0x99 - 19 : (X))
 
 #define IS_CURVED(state, X) ((state) & (1 << (X)))
 
