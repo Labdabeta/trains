@@ -166,7 +166,7 @@ SIV sensor_logic(struct Data *d, int sensor)
 
 SIV reg_sens(struct Data *d)
 {
-	int cur_index = d->sensor_index[S_ID(d->activ.data.sensor)];
+	int cur_index = d->sensor_index[S_ID(d->activ.data.sensor.sensor)];
 	if(cur_index == -1){
 		printf("Sensor not on my path!\n\r");
 		return;
@@ -184,8 +184,8 @@ SIV reg_sens(struct Data *d)
 			printf("Setting a -1 @ %d\n\r", ind_plus(d, prev_index, i));
 		}
 	}
-	d->prev_sensor = S_ID(d->activ.data.sensor);
-	printf("Hit: %c%d\n\r", S_PRINT(d->activ.data.sensor));
+	d->prev_sensor = S_ID(d->activ.data.sensor.sensor);
+	printf("Hit: %c%d\n\r", S_PRINT(d->activ.data.sensor.sensor));
 	sensor_logic(d, d->prev_sensor);
 }
 
@@ -197,7 +197,7 @@ void precise_stop(){
 		Receive(&d.caller, (char *) &d.activ, sizeof(d.activ));
 		Reply(d.caller, 0, 0);
 		if(d.activ.type == TSMT_SENSOR_DOWN){
-			if(S_ID(d.activ.data.sensor) != 60)
+			if(S_ID(d.activ.data.sensor.sensor) != 60)
 				reg_sens(&d);
 		} else{
 			tput2(16, p_TRAIN);

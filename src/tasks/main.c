@@ -49,7 +49,11 @@ void main_task(void)
     CreateSize(3, track_server, TASK_SIZE_NORMAL);
     while (WhoIs(TRACK_SERVER_NAME) < 0)
         Pass();
+#ifdef TRACK_a
+		init_tracka();
+#else
 		init_trackb();
+#endif
     Create(1, conductor);
 
 	Exit();
