@@ -74,13 +74,24 @@ void conductor(void)
 		Bs[14] = index_sensor('E', 4); //Or E4?
 		int index = 0;
 		struct route_request points;
+		char group;
+		int num;
 
 		while(1){
 			child_tid = CreateSize(1, precise_stop, TASK_SIZE_NORMAL);
 			Send(child_tid, (char *) &maker_tid, sizeof(int), 0, 0);
 			Send(child_tid, (char *) &ptr_cal, sizeof(int*), 0, 0);
-			points.source = As[index];
-			points.dest = Bs[index];
+			group = cgetc();
+			num = cgetc();
+			num = (num >= '0' && num <= '9') ? num - '0' : num - 'a' + 10;
+			points.source =index_sensor(group, num);
+			group = cgetc();
+			num = cgetc();
+			num = (num >= '0' && num <= '9') ? num - '0' : num - 'a' + 10;
+			points.dest = index_sensor(group, num);
+			printf("Route: %c%d to %c%d\n\r", SID_PRINT(points.source), SID_PRINT(points.dest));
+			//points.source = As[index];
+			//points.dest = Bs[index];
 			Send(child_tid, (char *) &points, sizeof(struct route_request), 0, 0);
 			Delay(WhoIs("CLOCK"), 500);
 			index++;
