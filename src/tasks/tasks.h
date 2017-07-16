@@ -26,6 +26,7 @@ void main_task(void);
 		void tout_courier(void);
 			void tout_notifier(void);
     void gui(void);
+    void parse_server(void);
     void track_server(void);
     void controller(void);
 void idle(void);

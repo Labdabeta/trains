@@ -111,7 +111,7 @@ package body Input_Processor is
             Input_Args (Input_Args_Length) := C;
 
             if Input_Length = Input_Args_Length then
-                if Is_Log then
+                if not Is_Log then
                     Previous_Line_Idx := (Previous_Line_Idx +
                         Constants.Message_Height - 1) mod
                         Constants.Message_Height;

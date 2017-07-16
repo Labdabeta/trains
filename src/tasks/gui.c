@@ -5,6 +5,7 @@
 
 #define MAX_CLIENTS 0x10
 
+char _display_buffer[GUI_CMD_LEN_MAX];
 void gui_reader(void);
 
 struct Data {
@@ -42,7 +43,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
     char m[4] = {0};
     if (tid == data->track_id) {
         Reply(tid, 0, 0);
-        dprintf("Got Track Message: %d\n\r", msg->data.track.type);
         if (msg->data.track.type == TSMT_SWITCH_FLIP) {
             m[0] = (msg->data.track.data.sw.isCurved ? 'c' : '|');
             m[1] = TO_HEX_CHAR(msg->data.track.data.sw.change_id >> 4);

@@ -5,7 +5,7 @@ with Sensors;
 package Constants is
     Command_History_Length : constant := 100;
     Max_Command : constant := 100;
-    Message_Height : constant := 17;
+    Message_Height : constant := 11;
 
     type Command_String is new String (1 .. Max_Command);
 
@@ -13,7 +13,7 @@ package Constants is
         0.0000,
         0.0000,
         1.0000,
-        0.5500);
+        0.7000);
 
     Command_Prompt_Spot : constant SDL.Coordinate := (0.007, 0.975);
     Command_Text_Spot : constant SDL.Coordinate := (0.018, 0.975);
@@ -29,13 +29,7 @@ package Constants is
              8 => (0.018, 0.775),
              9 => (0.018, 0.75),
              10 => (0.018, 0.725),
-             11 => (0.018, 0.7),
-             12 => (0.018, 0.675),
-             13 => (0.018, 0.65),
-             14 => (0.018, 0.625),
-             15 => (0.018, 0.6),
-             16 => (0.018, 0.575),
-             17 => (0.018, 0.55));
+             11 => (0.018, 0.7));
 
     BiSwitch_Area : constant array (Switches.BiSwitch) of SDL.Rectangle := (
         1 =>  (Top => 0.7950 * Map_Area.Height,

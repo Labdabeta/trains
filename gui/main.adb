@@ -14,7 +14,7 @@ with Constants;
 procedure Main is
     -- Our map is 1242 x 682
     Window_Width : constant := 1242;
-    Window_Height : constant := 1242;
+    Window_Height : constant := 1042;
     Ticks_Per_Frame : constant := 1000 / 60; -- 60 fps
     Init_Error : chars_ptr;
     Background : SDL.Image.Image;
