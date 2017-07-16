@@ -3,6 +3,7 @@
 #include "tout_server.h"
 #include "trains/track_server.h"
 #include "gui.h"
+#include "parse_server.h"
 
 void gui(void);
 void conductor(void);
@@ -55,11 +56,13 @@ void main_task(void)
 		init_trackb();
 #endif
 
-    CreateSize(2, gui, TASK_SIZE_TINY);
+    CreateSize(2, gui, TASK_SIZE_SMALL);
     while (WhoIs(GUI_SERVER_NAME) < 0)
         Pass();
 
-    CreateSize(2, parse_server, TASK_SIZE_SMALL);
+    CreateSize(2, parse_server, TASK_SIZE_NORMAL);
+    while (WhoIs(PARSE_SERVER_NAME) < 0)
+        Pass();
 
     Create(1, conductor);
 

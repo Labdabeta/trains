@@ -22,11 +22,14 @@ void courier_task(void)
     Reply(msg->source_tid, 0, 0);
 
     Send(destination, (char*)msg, sizeof(*msg)+size, 0, 0);
+
+    Exit();
 }
 
 int async_send(int tid, char *msg, int msglen)
 {
     int courier = Create(1, courier_task);
+    dprintf("Created a courier with id %d\n\r", courier);
 
     Send(courier, (char*)&msglen, sizeof(msglen), 0, 0);
     Send(courier, msg, msglen, 0, 0);

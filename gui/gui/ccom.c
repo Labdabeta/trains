@@ -81,6 +81,7 @@ int com2_getc(void)
 
 void com2_putc(char x)
 {
+    putchar(x);
     write(com2, &x, sizeof(x));
 }
 

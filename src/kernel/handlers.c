@@ -129,6 +129,10 @@ static inline void handleExit(struct KernelData *data, struct TaskDescriptor *ac
             sender->next = active->next;
         active->recvQueueHead = sender->nextRecv;
     }
+    active->recvQueueTail = 0;
+
+    // Remove from scheduler
+    unscheduleTask(&data->scheduler, active);
 }
 
 

@@ -3,7 +3,7 @@
 #include "trains/sensors.h"
 #include "util/async_delay.h"
 #include "trains/track_server.h"
-#include "calibration_master.h"
+#include "trains/calibration_master.h"
 #include "conductor.h"
 #include "service.h"
 

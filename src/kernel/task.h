@@ -7,12 +7,12 @@
 /* Don't forget the hardcoded name server tid. */
 
 /* Change these to increase tasks */
-#define NUM_SUPPORTED_TASKS 75
 #define NUM_GIANT_TASKS 3 /* 1 is kernel */
-#define NUM_BIG_TASKS 10
-#define NUM_NORMAL_TASKS 15
-#define NUM_SMALL_TASKS 17
-#define NUM_TINY_TASKS 30
+#define NUM_BIG_TASKS 6
+#define NUM_NORMAL_TASKS 28
+#define NUM_SMALL_TASKS 28
+#define NUM_TINY_TASKS 34
+#define NUM_SUPPORTED_TASKS NUM_GIANT_TASKS + NUM_BIG_TASKS + NUM_NORMAL_TASKS + NUM_SMALL_TASKS + NUM_TINY_TASKS
 
 /* Indices in the tid array */
 #define GIANT_TASK_INITIAL_IDX 0
@@ -22,11 +22,11 @@
 #define TINY_TASK_INITIAL_IDX SMALL_TASK_INITIAL_IDX + NUM_SMALL_TASKS
 
 /* Size of each task type in addresses */
-#define GIANT_TASK_SIZE_BYTES 0x200000
-#define BIG_TASK_SIZE_BYTES 0x100000
-#define NORMAL_TASK_SIZE_BYTES 0x40000
-#define SMALL_TASK_SIZE_BYTES 0x10000
-#define TINY_TASK_SIZE_BYTES 0x4000
+#define GIANT_TASK_SIZE_BYTES  0x200000
+#define BIG_TASK_SIZE_BYTES    0x100000
+#define NORMAL_TASK_SIZE_BYTES 0x040000
+#define SMALL_TASK_SIZE_BYTES  0x010000
+#define TINY_TASK_SIZE_BYTES   0x004000
 
 #define SIZE_GIANT 0
 #define SIZE_BIG 1

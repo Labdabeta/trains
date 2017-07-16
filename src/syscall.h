@@ -2,7 +2,7 @@
 #define SYSCALL_H
 
 #include "data/buffer.h"
-#define NAMESERVER_TID 13 /* Magic number. */
+#define NAMESERVER_TID 9 // NUM_GIANT_TASKS + NUM_BIG_TASKS
 #define MAX_NAME_LENGTH 32
 
 typedef enum TaskSize {

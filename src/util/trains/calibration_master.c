@@ -1,17 +1,13 @@
-#include "tasks.h"
 #include "calibration_master.h"
 #include "trains/path_finder.h"
-#include "tasks.h"
 
 void record_edge(track_calibration* cal, int src, int dest, int trav_time)
 {
-	printf("%c%d to %c%d, time : %d\n\r", SID_PRINT(src), SID_PRINT(dest), trav_time);
 	for(int i = 0; i < cal->length[src]; i++){
-		if(cal->edge_recs[src][i].dest == dest){
-			printf("Record exists.\n\r");
+		if(cal->edge_recs[src][i].dest == dest)
 			return;
-		}
 	}
+
 	struct cal_record *reading = &cal->edge_recs[src][cal->length[src]];
 	reading->src = src;
 	reading->dest = dest;
@@ -21,14 +17,11 @@ void record_edge(track_calibration* cal, int src, int dest, int trav_time)
 
 void record_mult(track_calibration* cal, int src, int dest, int trav_time)
 {
-	printf("%c%d to %c%d, time : %d\n\r", SID_PRINT(src), SID_PRINT(dest), trav_time);
 	struct cal_record *reading;
 	for(int i = 0; i < cal->num_extra; i++){
 		reading = &cal->mult_recs[i];
-		if(reading->src == src && reading->dest == dest){
-			printf("Record exists.\n\r");
+		if(reading->src == src && reading->dest == dest)
 			return;
-		}
 	}
 	reading = &cal->mult_recs[cal->num_extra];
 	reading->src = src;

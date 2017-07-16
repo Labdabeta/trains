@@ -1,6 +1,7 @@
 #include "trains/track.h"
 
 #define TICKS_PER_SEC 100
+#define MAX_NUM_DEAD 5
 
 static void initTrack(struct Track *track)
 {
@@ -75,16 +76,29 @@ int addTrain(struct Track *track, int id, struct Sensor location)
 
 int saveSensorFlip(struct Track *track, struct Sensor sensor, int time)
 {
+    int num_dead;
     int i;
 
-    for (i = 0; i < TRAIN_MAX; ++i) {
-        if (S_EQUAL(track->nextLocation[i][0], sensor)) {
-            doSensorHit(track, i, time);
-            return i;
-        } else if (S_EQUAL(track->nextLocation[i][1], sensor)) {
-            track->nextLocation[i][0] = track->nextLocation[i][1];
-            doSensorHit(track, i, time);
-            return i;
+    for (num_dead = 0; num_dead < MAX_NUM_DEAD; ++num_dead) {
+        for (i = 0; i < TRAIN_MAX; ++i) {
+            struct Sensor checks[2];
+            int x;
+            checks[0] = track->nextLocation[i][0];
+            checks[1] = track->nextLocation[i][1];
+
+            for (x = 0; x < num_dead; ++x) {
+                checks[0] = getNextSensor(checks[0], track->switches);
+                checks[1] = getNextSensor(checks[1], track->switches);
+            }
+
+            if (S_EQUAL(track->nextLocation[i][0], sensor)) {
+                doSensorHit(track, i, time);
+                return i;
+            } else if (S_EQUAL(track->nextLocation[i][1], sensor)) {
+                track->nextLocation[i][0] = track->nextLocation[i][1];
+                doSensorHit(track, i, time);
+                return i;
+            }
         }
     }
 

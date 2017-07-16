@@ -85,8 +85,6 @@ static inline void handleRegisterDown(struct Data *data, int tid, int train)
         data->sendown_clients[train][data->num_sendown_clients[train]++] = tid;
     else
         data->sendown_clients[TRAIN_MAX][data->num_sendown_clients[TRAIN_MAX]++] = tid;
-
-    Reply(tid, 0, 0);
 }
 
 static inline void handleUnregisterDown(struct Data *data, int tid, int train)
@@ -116,8 +114,6 @@ static inline void handleRegisterUp(struct Data *data, int tid, int train)
         data->senup_clients[train][data->num_senup_clients[train]++] = tid;
     else
         data->senup_clients[TRAIN_MAX][data->num_senup_clients[TRAIN_MAX]++] = tid;
-
-    Reply(tid, 0, 0);
 }
 
 static inline void handleUnregisterUp(struct Data *data, int tid, int train)
@@ -144,7 +140,6 @@ static inline void handleUnregisterUp(struct Data *data, int tid, int train)
 static inline void handleRegisterSwitch(struct Data *data, int tid)
 {
     data->switch_clients[data->num_switch_clients++] = tid;
-    Reply(tid, 0, 0);
 }
 
 
@@ -210,7 +205,6 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
     for (client = 0; client < data->num_switch_clients; ++client)
         Send(data->switch_clients[client], (char*)&reply, sizeof(reply), 0, 0);
 }
-/************************* Actual recieve/reply cycle *************************/
 
 static inline void handleQuerySensor(struct Data *data, int tid, int sen)
 {
@@ -223,9 +217,13 @@ static inline void handleQuerySensor(struct Data *data, int tid, int sen)
 	Reply(tid, &reply, sizeof(reply));
 }
 
+/************************* Actual recieve/reply cycle *************************/
+
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     (void)msg_size; // unused
+    int async_tid;
+    async_tid = -1;
     if (tid == data->sensorTid) {
         int delta, sensor;
         data->last_sensor = (data->last_sensor + 1) % 10;
@@ -326,6 +324,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 
     if (msg->datum == ASYNC_CODE) {
         struct AsyncSendMessage *real = (struct AsyncSendMessage*)msg;
+        async_tid = tid;
         tid = real->source_tid;
         msg = (struct Message*)real->data;
     }
@@ -341,13 +340,17 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case TM_WAIT_UP: handleWaitUp(data, tid, msg->datum); break;
         case TM_WAIT_SWITCH: handleWaitSwitch(data, tid); break;
         case TM_QUERY_SWITCH: handleQuerySwitch(data, tid, msg->datum); break;
-				case TM_QUERY_SENSOR: handleQuerySensor(data, tid, msg->datum); break;
+        case TM_QUERY_SENSOR: handleQuerySensor(data, tid, msg->datum); break;
         case TM_NOTIFY_SWITCH:
             if (msg->datum < 0)
                 handleNotifySwitch(data, tid, -msg->datum, 1);
             else
                 handleNotifySwitch(data, tid, msg->datum, 0);
             break;
+    }
+
+    if (async_tid != -1) {
+        Reply(async_tid, 0, 0);
     }
 }
 

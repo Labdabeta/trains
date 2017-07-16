@@ -9,6 +9,7 @@ struct Data {
 ENTRY initialize(struct Data *data)
 {
     data->parent = MyParentTid();
+    dprintf("Creating gui reader.\n\r");
 }
 
 int getHexChar(void)
@@ -41,6 +42,8 @@ ENTRY work(struct Data *data)
         case 'D':
             msg.type = GMT_QUIT;
             DO_SEND;
+            Delay(WhoIs("CLOCK"), 10);
+            KQuit();
             break;
         case 'c':
             msg.type = GMT_CURVE;
@@ -53,7 +56,8 @@ ENTRY work(struct Data *data)
             DO_SEND;
             break;
         case 'g': {
-            int len = getHexChar() * 10 + getHexChar();
+            int len = getHexChar() * 10;
+            len += getHexChar();
             msg.type = GMT_CMD;
             for (int i = 0; i < len; ++i)
                 msg.data.cmd[i] = cgetc();

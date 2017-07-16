@@ -2,6 +2,7 @@
 #include <server.h>
 #include "string.h"
 #include "gui.h"
+#include "util/async_send.h"
 
 #define MAX_CLIENTS 0x10
 
@@ -15,13 +16,16 @@ struct Client {
 static inline int cmdsFit(struct Client *c, struct Command *cmd)
 {
     int i;
+    dprintf("Comparing %s and %s\n\r", c->name, cmd->name);
     if (strcmp(c->name, cmd->name))
         return 0;
 
+    dprintf("Arg counts %d and %d\n\r", c->numArgs, cmd->num_args);
     if (c->numArgs != cmd->num_args)
         return 0;
 
     for (i = 0; i < c->numArgs; ++i) {
+        dprintf("Argument %d %d and %d\n\r", i, c->isInt[i], cmd->args[i].isInt);
         if (c->isInt[i] != cmd->args[i].isInt)
             return 0;
     }
@@ -35,7 +39,7 @@ struct Data {
 };
 
 struct ParseMessage {
-    const char name[MAX_COMMAND_STRING];
+    char name[MAX_COMMAND_STRING];
     int isInt[MAX_ARGUMENT_SIZE];
     int numArgs;
 };
@@ -43,12 +47,17 @@ struct ParseMessage {
 struct Message {
     union {
         struct GUIMessage g;
-        struct ParseMessage p;
+        struct {
+            struct ParseMessage p;
+            struct AsyncSendMessage padding;
+        } unused;
+        struct AsyncSendMessage a;
     } data;
 };
 
 ENTRY initialize(struct Data *data)
 {
+    RegisterAs(PARSE_SERVER_NAME);
     data->num_clients = 0;
     data->gui_tid = WhoIs(GUI_SERVER_NAME);
     registerForMessages(data->gui_tid);
@@ -58,6 +67,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     if (tid == data->gui_tid) {
         Reply(tid, 0, 0);
+
         if (msg->data.g.type == GMT_CMD) {
             struct Command cmds[MAX_COMMAND_COUNT];
             int num_cmds, i;
@@ -80,16 +90,39 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             }
         }
     } else {
+        struct ParseMessage *p = (struct ParseMessage*)msg->data.a.data;
         int i;
         Reply(tid, 0, 0);
 
-        data->clients[data->num_clients].tid = tid;
-        strcpy(data->clients[data->num_clients].name, msg->data.p.name);
-        data->clients[data->num_clients].numArgs = msg->data.p.numArgs;
-        for (i = 0; i < msg->data.p.numArgs; ++i)
-            data->clients[data->num_clients].isInt[i] = msg->data.p.isInt[i];
+        dprintf("Got: %d %s %d\n\r", msg->data.a.source_tid, p->name, p->numArgs);
+        data->clients[data->num_clients].tid = msg->data.a.source_tid;
+        strcpy(data->clients[data->num_clients].name, p->name);
+        data->clients[data->num_clients].numArgs = p->numArgs;
+        dprintf("Wanting %d args.\n\r", p->numArgs);
+        for (i = 0; i < p->numArgs; ++i)
+            data->clients[data->num_clients].isInt[i] = p->isInt[i];
         data->num_clients++;
     }
+}
+
+void registerForCommand(int pid, const char *cmd)
+{
+    int i;
+    struct ParseMessage pm;
+    pm.numArgs = 0;
+
+    for (i = 0; cmd[i] && cmd[i] != ' '; ++i)
+        pm.name[i] = cmd[i];
+
+    pm.name[i] = 0;
+
+    if (cmd[i] == ' ') {
+        while (cmd[++i])
+            pm.isInt[pm.numArgs++] = (cmd[i] == 'i');
+    }
+
+    dprintf("Sent: %d %s %d\n\r", MyTid(), pm.name, pm.numArgs);
+    async_send(pid, (char*)&pm, sizeof(pm));
 }
 
 MAKE_SERVER(parse_server)

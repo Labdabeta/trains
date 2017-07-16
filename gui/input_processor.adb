@@ -148,9 +148,8 @@ package body Input_Processor is
                 Point => (X, Y),
                 Space => Constants.BiSwitch_Area (Bi))
             then
-                Com.Putc ('s'); Com.Putc ('w');
                 if Next_BiSwitch (Bi) = BISWITCH_STRAIGHT then
-                    Com.Putc ('s');
+                    Com.Putc ('|');
                 else
                     Com.Putc ('c');
                 end if;
