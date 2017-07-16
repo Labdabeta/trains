@@ -5,6 +5,7 @@
 #include "trains/track_server.h"
 #include "conductor.h"
 #include "precise_stopper.h"
+#include "calibration_master.h"
 #include "service.h"
 
 #define SIV static inline void
@@ -35,6 +36,9 @@ void conductor(void)
 {
     int maker_tid = CreateSize(1, path_maker, TASK_SIZE_TINY);
 		int child_tid;
+		track_calibration cal;
+		track_calibration *ptr_cal = &cal;
+		init_cal(&cal);
 
 		int As[16];
 		As[0] = index_sensor('B', 5);
@@ -68,12 +72,13 @@ void conductor(void)
 		Bs[12] = index_sensor('E', 13);
 		Bs[13] = index_sensor('D', 15); // Or 15?
 		Bs[14] = index_sensor('E', 4); //Or E4?
-		int index = 7;
+		int index = 0;
 		struct route_request points;
 
 		while(1){
 			child_tid = CreateSize(1, precise_stop, TASK_SIZE_NORMAL);
 			Send(child_tid, (char *) &maker_tid, sizeof(int), 0, 0);
+			Send(child_tid, (char *) &ptr_cal, sizeof(int*), 0, 0);
 			points.source = As[index];
 			points.dest = Bs[index];
 			Send(child_tid, (char *) &points, sizeof(struct route_request), 0, 0);

@@ -3,6 +3,7 @@
 #include "trains/sensors.h"
 #include "util/async_delay.h"
 #include "trains/track_server.h"
+#include "calibration_master.h"
 #include "conductor.h"
 #include "service.h"
 
@@ -32,9 +33,10 @@ struct Data {
 	struct route_request points;
 	int track_tid, clock_tid;
 	int sensor_index[80];
-	int times[2 * MAX_PATH_LENGTH];
+	track_calibration* cal;
+	//int times[2 * MAX_PATH_LENGTH];
 	struct TrackServerMessage activ, timeout;
-	int prev_sensor, delay, important, circle_len;
+	int prev_sensor, prev_time, delay, important, circle_len;
 	int stopping_dist, dist_after, future_vel;
 	int flag;
 };
@@ -62,11 +64,30 @@ SIV findCircle(struct Data *d)
 	for(j = 1; j < d->pathBA.length; j++)
 		d->sensor_index[S_ID(d->pathBA.sensors[j])] = i+j-1;
 	d->circle_len = i+j-2;
+}
 
-	for(i = 0; i < d->circle_len - 1; i++){
-		printf("%d: %c%d\n\r", i, SID_PRINT(ind_to_id(d, i)));
-		d->times[i] = -1;
+int is_circ_known(struct Data *d, track_calibration* known)
+{
+	int ind = 0;
+	int src, dest;
+	do{
+		ind = ind_plus(d, ind, -1);
+		src = ind_to_id(d, ind);
+	} while(is_dead(known, src));
+
+	for(ind = 0; ind < d->circle_len; ind++){
+		dest = ind_to_id(d, ind);
+		if(!is_dead(known, dest)){
+			printf("Considering %c%d to %c%d\n\r", SID_PRINT(src), SID_PRINT(dest));
+			if(find_time(known, src, dest) == -1){
+				printf("Failed\n\r");
+				return 0;
+			} else{
+				src = dest;
+			}
+		}
 	}
+	return 1;
 }
 
 SIV flip(struct Data *d, struct RestrictedPath *path, int ind)
@@ -118,17 +139,19 @@ SIV initialize(struct Data *d)
 	}
 	Receive(&d->client, (char *) &d->maker_tid, sizeof(int));
 	Reply(d->client, 0, 0);
+	Receive(&d->client, (char *) &d->cal, sizeof(int*));
+	Reply(d->client, 0, 0);
 	Receive(&d->client, (char *) &d->points, sizeof(struct route_request));
 	findCircle(d);
-	printPath(&d->pathAB);
-	printPath(&d->pathBA);
+	d->flag = is_circ_known(d, d->cal) ? 0 : -1;
+	/*printPath(&d->pathAB);
+	printPath(&d->pathBA);*/
 	d->track_tid = WhoIs("TRACK");
 	registerForSensorDown(d->track_tid, -1);
 	d->clock_tid = WhoIs("CLOCK");
 	d->timeout.type = TSMT_NONE;
 	d->prev_sensor = -1;
 	d->delay = d->important = -1337;
-	d->flag = -1;
 }
 
 SII dist_circindex(struct Data *d, int ind)
@@ -153,28 +176,48 @@ SII dist_circbetween(struct Data *d, int i1, int i2)
 SIV back_dist(struct Data *d, int ind, int dist, int *important, int *b_dist)
 {
 	int res;
-	for(res = ind; dist_circbetween(d, res, ind) < dist || d->times[res] == -1; res = ind_plus(d, res, -1));
+	for(res = ind; dist_circbetween(d, res, ind) < dist || is_dead(d->cal, ind_to_id(d, res));
+		res = ind_plus(d, res, -1));
 	*important = ind_to_id(d, res);
 	*b_dist = dist_circbetween(d, res, ind) - dist;
 }
 
 SII vel_from(struct Data *d, int ind, int num)
 {
-	while(d->times[ind] == -1){
+	while(is_dead(d->cal, ind_to_id(d, ind))){
 		ind = ind_plus(d, ind, 1);
 		num++;
 	}
+	printf("Initial ind: %d %c%d\n\r", ind, SID_PRINT(ind_to_id(d, ind)));
 	int prev_ind = ind_plus(d, ind, -1 * num);
-	while(d->times[prev_ind] == -1)
+	printf("Prev attempt: %d %c%d\n\r", prev_ind, SID_PRINT(ind_to_id(d, prev_ind)));
+	while(is_dead(d->cal, ind_to_id(d, prev_ind))){
+		printf("Dead: %c%d\n\r", SID_PRINT(ind_to_id(d, prev_ind)));
 		prev_ind = ind_plus(d, prev_ind, -1);
+	}
+	printf("Prev actual: %d %c%d\n\r", prev_ind, SID_PRINT(ind_to_id(d, prev_ind)));
 	int ret = dist_circbetween(d, prev_ind, ind);
-	ret = 100 * ret / (d->times[ind] - d->times[prev_ind]);
+	int total_time = 0;
+	int cur_ind = prev_ind;
+	while(prev_ind != ind){
+		do{
+			cur_ind = ind_plus(d, cur_ind, 1);
+		} while(is_dead(d->cal, ind_to_id(d, cur_ind)));
+		int next_time = find_time(d->cal, ind_to_id(d, prev_ind), ind_to_id(d, cur_ind));
+		printf("Time between: %c%d and %c%d is %d\n\r",
+			SID_PRINT(ind_to_id(d, prev_ind)), SID_PRINT(ind_to_id(d, cur_ind)), next_time);
+		total_time += next_time;
+		prev_ind = cur_ind;
+	}
+	ret = 100 * ret / total_time;
 	return ret;
 }
 
 SIV set_init_stop_dist(struct Data *d, int ind)
 {
+	printf("Entering stop set.\n\r");
 	d->future_vel = vel_from(d, ind, 2);
+	printf("Velocity found.\n\r");
 	d->stopping_dist = (d->future_vel * reg_a - reg_b) / 100;
 	back_dist(d, ind, d->stopping_dist, &d->important, &d->dist_after);
 	printf("Predicted stop dist: %d\n\r", d->stopping_dist);
@@ -191,33 +234,45 @@ SIV sensor_logic(struct Data *d, int sensor)
 			async_delay(d->clock_tid, d->delay, (char *) &d->timeout, sizeof(d->timeout));
 		}
 	}
-	if(sensor == d->points.source)
+	if(sensor == d->points.source){
 		d->flag++;
-	if(sensor == d->points.dest && !d->flag)
-		set_init_stop_dist(d, d->sensor_index[sensor]);
+		if(d->flag == 1)
+			set_init_stop_dist(d, d->sensor_index[d->points.dest]);
+	}
 }
 
 SIV reg_sens(struct Data *d)
 {
 	int cur_index = d->sensor_index[S_ID(d->activ.data.sensor.sensor)];
+	int cur_time = Time(d->clock_tid);
 	if(cur_index == -1){
 		printf("Sensor not on my path!\n\r");
 		return;
 	}
-	d->times[cur_index] = Time(d->clock_tid);
 	flip_ind(d, ind_plus(d, cur_index, 1));
 	flip_ind(d, ind_plus(d, cur_index, 2));
 	if(d->prev_sensor != -1){
 		int prev_index = d->sensor_index[d->prev_sensor];
 		int diff = ind_plus(d, cur_index, -1 * prev_index);
+		if(!d->flag){
+			printf("Recording pair %c%d to %c%d at %d\n\r", SID_PRINT(d->prev_sensor), S_PRINT(d->activ.data.sensor.sensor), cur_time - d->prev_time);
+			if(diff == 1){
+				record_edge(d->cal, d->prev_sensor, ind_to_id(d, cur_index), cur_time - d->prev_time);
+			} else{
+				record_mult(d->cal, d->prev_sensor, ind_to_id(d, cur_index), cur_time - d->prev_time);
+			}
+		}
 		for(int i = 1; i < diff; i++){
-			int missed_ind = ind_plus(d, prev_index, i);
-			d->times[missed_ind] = -1;
-			sensor_logic(d, ind_to_id(d, missed_ind));
-			printf("Setting a -1 @ %d\n\r", ind_plus(d, prev_index, i));
+			int missed_id = ind_to_id(d, ind_plus(d, prev_index, i));
+			sensor_logic(d, missed_id);
+			if(!d->flag){
+				set_dead(d->cal, missed_id);
+				printf("Setting %c%d as dead\n\r", SID_PRINT(missed_id));
+			}
 		}
 	}
 	d->prev_sensor = S_ID(d->activ.data.sensor.sensor);
+	d->prev_time = cur_time;
 	printf("Hit: %c%d\n\r", S_PRINT(d->activ.data.sensor.sensor));
 	sensor_logic(d, d->prev_sensor);
 }
