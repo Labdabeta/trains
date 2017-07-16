@@ -318,8 +318,8 @@ int findRestrictedPath(int source,
 
         pqPop(&q);
 
-        if (visited[current])
-            continue;
+        /*if (visited[current])
+            continue;*/
 
         visited[current] = 1;
 

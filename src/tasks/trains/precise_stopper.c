@@ -132,28 +132,6 @@ SIV printPath(struct RestrictedPath *p)
     printf("END\n\r");
 }
 
-SIV initialize(struct Data *d)
-{
-	for (int i = 0; i < TRACK_MAX; ++i) {
-		d->restrictions.isEnabled[i] = 1;
-	}
-	Receive(&d->client, (char *) &d->maker_tid, sizeof(int));
-	Reply(d->client, 0, 0);
-	Receive(&d->client, (char *) &d->cal, sizeof(int*));
-	Reply(d->client, 0, 0);
-	Receive(&d->client, (char *) &d->points, sizeof(struct route_request));
-	findCircle(d);
-	d->flag = is_circ_known(d, d->cal) ? 0 : -1;
-	/*printPath(&d->pathAB);
-	printPath(&d->pathBA);*/
-	d->track_tid = WhoIs("TRACK");
-	registerForSensorDown(d->track_tid, -1);
-	d->clock_tid = WhoIs("CLOCK");
-	d->timeout.type = TSMT_NONE;
-	d->prev_sensor = -1;
-	d->delay = d->important = -1337;
-}
-
 SII dist_circindex(struct Data *d, int ind)
 {
 	if(ind < d->pathAB.length){
@@ -221,7 +199,7 @@ SIV set_init_stop_dist(struct Data *d, int ind)
 	d->stopping_dist = (d->future_vel * reg_a - reg_b) / 100;
 	back_dist(d, ind, d->stopping_dist, &d->important, &d->dist_after);
 	printf("Predicted stop dist: %d\n\r", d->stopping_dist);
-	d->delay = 100 * d->dist_after / vel_from(d, ind, d->pathAB.length - 1);
+	d->delay = 100 * d->dist_after / vel_from(d, ind, 2);
 }
 
 SIV sensor_logic(struct Data *d, int sensor)
@@ -275,6 +253,32 @@ SIV reg_sens(struct Data *d)
 	d->prev_time = cur_time;
 	printf("Hit: %c%d\n\r", S_PRINT(d->activ.data.sensor.sensor));
 	sensor_logic(d, d->prev_sensor);
+}
+
+SIV initialize(struct Data *d)
+{
+	for (int i = 0; i < TRACK_MAX; ++i) {
+		d->restrictions.isEnabled[i] = 1;
+	}
+	Receive(&d->client, (char *) &d->maker_tid, sizeof(int));
+	Reply(d->client, 0, 0);
+	Receive(&d->client, (char *) &d->cal, sizeof(int*));
+	Reply(d->client, 0, 0);
+	Receive(&d->client, (char *) &d->points, sizeof(struct route_request));
+	findCircle(d);
+	printPath(&d->pathAB);
+	printPath(&d->pathBA);
+	d->track_tid = WhoIs("TRACK");
+	registerForSensorDown(d->track_tid, -1);
+	d->clock_tid = WhoIs("CLOCK");
+	d->timeout.type = TSMT_NONE;
+	d->prev_sensor = -1;
+	d->delay = d->important = -1337;
+	d->flag = is_circ_known(d, d->cal) ? 0 : -1;
+	if(!d->flag){ // This is for far distances
+		set_init_stop_dist(d, d->sensor_index[d->points.dest]);
+		d->flag++;
+	}
 }
 
 void precise_stop(){
