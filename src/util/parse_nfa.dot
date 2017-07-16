@@ -1,0 +1,57 @@
+digraph ParseNFA {
+    compound=true;
+
+    start;
+
+    subgraph cmd {
+        cmd_start;
+        cmd_name;
+        label="Command";
+    }
+
+    argument;
+
+    subgraph id {
+        id_start;
+        id_body;
+        label="Identifier";
+
+        id_start -> id_body [label="letter"];
+        id_body -> id_body [label="letter|num"];
+
+        id_body -> argument [label="space"];
+        id_body -> cmd_start [label=";"];
+    }
+
+    subgraph number {
+        num_start;
+        oct_num_start;
+        oct_num;
+        hex_num;
+        dec_num;
+        label="Number";
+
+        num_start -> oct_num_start [label="0"];
+        num_start -> dec_num [label="1|2|3|4|5|6|7|8|9"];
+        oct_num_start -> hex_num [label="x"];
+        oct_num_start -> oct_num [label="oct"];
+        oct_num -> oct_num [label="oct"];
+        hex_num -> hex_num [label="hex"];
+        dec_num -> dec_num [label="dec"];
+        dec_num -> argument [label="space"];
+        oct_num -> argument [label="space"];
+        hex_num -> argument [label="space"];
+        dec_num -> cmd_start [label=";"];
+        oct_num -> cmd_start [label=";"];
+        hex_num -> cmd_start [label=";"];
+    }
+
+    start -> cmd_start [label="ε"];
+    cmd_start -> cmd_name [label="letter"];
+    cmd_name -> cmd_name [label="letter|num"];
+    cmd_name -> argument [label="space"];
+    cmd_name -> cmd_start [label=";"];
+    argument -> id_start [label="ε"];
+    argument -> num_start [label="ε"];
+    argument -> cmd_start [label=";"];
+}

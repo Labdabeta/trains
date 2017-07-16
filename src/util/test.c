@@ -1,6 +1,7 @@
 #include "trains/path_finder.h"
 #include "trains/reservation.h"
 #include <stdio.h>
+#include <string.h>
 
 void printPath(struct RestrictedPath *p)
 {
@@ -19,25 +20,7 @@ void printPath(struct RestrictedPath *p)
                p->states[i],
                p->masks[i]);
     }
-    printf("END\n");
 }
-
-void printRestrictions(struct Restrictions *r)
-{
-    int i;
-    printf("Enabled:\t");
-    for (i = 0; i < TRACK_MAX; ++i) {
-        if (r->isEnabled[i])
-            printf("%s ", track_nodes[i].name);
-    }
-    printf("\nDisabled:\t");
-    for (i = 0; i < TRACK_MAX; ++i) {
-        if (!r->isEnabled[i])
-            printf("%s ", track_nodes[i].name);
-    }
-    printf("\n");
-}
-
 
 int main(int argc, char *argv[])
 {

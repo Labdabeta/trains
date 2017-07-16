@@ -1,0 +1,35 @@
+digraph ParseDFA {
+    start;
+    name;
+    argument;
+    id;
+    oct_start;
+    dec;
+    hex;
+    oct;
+
+    start -> name [label="letter"];
+    name -> argument [label="space"];
+    name -> start [label=";"];
+    name -> name [label="letter|num"];
+    argument -> id [label="letter"];
+    argument -> oct_start [label="0"];
+    argument -> dec [label="1-9"];
+    argument -> start [label=";"];
+    id -> id [label="letter|num"];
+    id -> argument [label="space"];
+    id -> start [label=";"];
+    oct_start -> oct [label="0-7"];
+    oct_start -> hex [label="x"];
+    oct_start -> argument [label="space"];
+    oct_start -> start [label=";"];
+    oct -> oct [label="0-7"];
+    oct -> argument [label="space"];
+    oct -> start [label=";"];
+    hex -> hex [label="0-9A-Fa-f"];
+    hex -> argument [label="space"];
+    hex -> start [label=";"];
+    dec -> dec [label="0-9"];
+    dec -> argument [label="space"];
+    dec -> start [label=";"];
+}

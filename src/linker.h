@@ -3,9 +3,10 @@
 
 extern char CODE_BASE;
 
+#include "stdlib.h"
+
 #ifndef REMOTE
 #define fn_ptr(x) (x + (int)(&CODE_BASE))
-#define size_t unsigned int
 #else
 #define fn_ptr(x) x
 #include <stdlib.h>

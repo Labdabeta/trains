@@ -1,10 +1,5 @@
 #include "buffer.h"
-
-#ifndef REMOTE
-extern void *memcpy(void *dst, const void *src, unsigned int len);
-#else
-#include <string.h>
-#endif
+#include "string.h"
 
 void writeBuffer(Buffer *dst, Buffer *src)
 {
