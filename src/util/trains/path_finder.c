@@ -218,7 +218,7 @@ static inline void visitRestricted(const track_edge *edge, PriorityQueue *q,
     }
 
     // Allow reversing over a sensor.
-    if (edge->src->type == NODE_SENSOR) {
+    /*if (edge->src->type == NODE_SENSOR) {
         destination_id = edge->reverse->dest - track_nodes;
         new_dist = edge->reverse->dist + distance[current] + REVERSE_COST;
         if (new_dist < distance[destination_id] && rest->isEnabled[destination_id]) {
@@ -226,7 +226,7 @@ static inline void visitRestricted(const track_edge *edge, PriorityQueue *q,
             previous[destination_id] = current;
             pqInsert(q, new_dist, destination_id);
         }
-    }
+    }*/
 }
 
 static inline void compileRestrictedRoute(int *distance,

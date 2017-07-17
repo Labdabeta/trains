@@ -22,10 +22,10 @@ static inline void bubbleDown(PriorityQueue *pq)
 		int right = 2*prev + 2;
 
 		if (left < pq->size &&
-			pq->data[left].priority < pq->data[prev].priority)
+			pq->data[left].priority < pq->data[current].priority)
 			current = left;
 		if (right < pq->size &&
-			pq->data[right].priority < pq->data[prev].priority)
+			pq->data[right].priority < pq->data[current].priority)
 			current = right;
 
 		if (current != prev)

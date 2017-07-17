@@ -39,7 +39,7 @@ void conductor(void)
 		track_calibration cal;
 		track_calibration *ptr_cal = &cal;
 		init_cal(&cal);
-
+#if 0
 		int As[16];
 		As[0] = index_sensor('B', 5);
 		As[1] = index_sensor('D', 3);
@@ -73,9 +73,12 @@ void conductor(void)
 		Bs[13] = index_sensor('D', 15); // Or 15?
 		Bs[14] = index_sensor('E', 4); //Or E4?
 		int index = 0;
+#endif
 		struct route_request points;
 		char group;
 		int num;
+
+		points.source = index_sensor('B', 5);
 
 		while(1){
 			child_tid = CreateSize(1, precise_stop, TASK_SIZE_NORMAL);
@@ -84,16 +87,9 @@ void conductor(void)
 			group = cgetc();
 			num = cgetc();
 			num = (num >= '0' && num <= '9') ? num - '0' : num - 'a' + 10;
-			points.source =index_sensor(group, num);
-			group = cgetc();
-			num = cgetc();
-			num = (num >= '0' && num <= '9') ? num - '0' : num - 'a' + 10;
 			points.dest = index_sensor(group, num);
 			printf("Route: %c%d to %c%d\n\r", SID_PRINT(points.source), SID_PRINT(points.dest));
-			//points.source = As[index];
-			//points.dest = Bs[index];
 			Send(child_tid, (char *) &points, sizeof(struct route_request), 0, 0);
-			Delay(WhoIs("CLOCK"), 500);
-			index++;
+			points.source = points.dest;
 		}
 }
