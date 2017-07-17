@@ -11,10 +11,6 @@
 #define SIV static inline void
 #define SII static inline int
 
-static inline int index_sensor(char group, int number){
-	return 16 * (group-'A') + number - 1;
-}
-
 void path_maker(void){
 	Service();
 
@@ -38,41 +34,7 @@ void conductor(void)
 		track_calibration cal;
 		track_calibration *ptr_cal = &cal;
 		init_cal(&cal);
-#if 0
-		int As[16];
-		As[0] = index_sensor('B', 5);
-		As[1] = index_sensor('D', 3);
-		As[2] = index_sensor('E', 5);
-		As[3] = index_sensor('D', 6);
-		As[4] = index_sensor('E', 10);
-		As[5] = index_sensor('B', 2);
-		As[6] = index_sensor('D', 13);
-		As[7] = index_sensor('E', 1);
-		As[8] = index_sensor('C', 1);
-		As[9] = index_sensor('B', 4);
-		As[10] = index_sensor('B', 15);
-		As[11] = index_sensor('A', 3);
-		As[12] = index_sensor('A', 3);
-		As[13] = index_sensor('E', 5);
-		As[14] = index_sensor('E', 13);
-		int Bs[16];
-		Bs[0] = index_sensor('B', 2);
-		Bs[1] = index_sensor('C', 9);
-		Bs[2] = index_sensor('B', 15);
-		Bs[3] = index_sensor('A', 3);
-		Bs[4] = index_sensor('C', 11);
-		Bs[5] = index_sensor('B', 5);
-		Bs[6] = index_sensor('D', 3);
-		Bs[7] = index_sensor('B', 15);
-		Bs[8] = index_sensor('A', 3);
-		Bs[9] = index_sensor('C', 11);
-		Bs[10] = index_sensor('C', 13); //Or 14?
-		Bs[11] = index_sensor('D', 7); // Or 7?
-		Bs[12] = index_sensor('E', 13);
-		Bs[13] = index_sensor('D', 15); // Or 15?
-		Bs[14] = index_sensor('E', 4); //Or E4?
-		int index = 0;
-#endif
+#include "data/tr70s10.h"
 		struct route_request points;
 		char group;
 		int num;

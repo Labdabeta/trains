@@ -3,6 +3,8 @@
 
 #define NUM_EXTRA_REC 30
 
+#include "trains/sensors.h"
+
 struct cal_record{
 	int src;
 	int dest;
@@ -36,6 +38,10 @@ static inline void set_dead(track_calibration* cal, int id)
 }
 
 void record_edge(track_calibration* cal, int src, int dest, int time);
+static inline void edge_rec(track_calibration* cal, char g1, int n1, char g2, int n2, int time)
+{
+	record_edge(cal, index_sensor(g1, n1), index_sensor(g2, n2), time);
+}
 void record_mult(track_calibration* cal, int src, int dest, int time);
 int find_time(track_calibration* cal, int src, int dest);
 

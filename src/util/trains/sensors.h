@@ -12,6 +12,10 @@ struct Sensor {
     unsigned int id : 4; /* 0 -> 15 */
 } __attribute__((packed));
 
+static inline int index_sensor(char group, int number){
+	return 16 * (group-'A') + number - 1;
+}
+
 #define SG_NEXT(X) (((X) + 1) % 5)
 #define SG_PREV(X) (((X) + 4) % 5)
 #define S_NONE (struct Sensor){SG_N,-1}

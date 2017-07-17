@@ -60,35 +60,6 @@ SII id_to_ind(struct Data *d, int id, int prev_ind)
 	return (count == d->circle_len) ? -1 : prev_ind;
 }
 
-SIV findCircle(struct Data *d)
-{
-	findRestrictedPath(d->points.source, d->points.dest, &d->restrictions, &d->pathAB);
-	findRestrictedPath(d->points.dest, d->points.source, &d->restrictions, &d->pathBA);
-	d->circle_len = d->pathAB.length + d->pathBA.length - 2;
-}
-
-int is_circ_known(struct Data *d, track_calibration* known)
-{
-	int ind = 0;
-	int src, dest;
-	do{
-		ind = ind_plus(d, ind, -1);
-		src = ind_to_id(d, ind);
-	} while(is_dead(known, src));
-
-	for(ind = 0; ind < d->circle_len; ind++){
-		dest = ind_to_id(d, ind);
-		if(!is_dead(known, dest)){
-			if(find_time(known, src, dest) == -1){
-				return 0;
-			} else{
-				src = dest;
-			}
-		}
-	}
-	return 1;
-}
-
 SIV flip(struct Data *d, struct RestrictedPath *path, int ind)
 {
 	for (int bit = 1; bit <= SWITCH_MAX; ++bit) {
@@ -150,6 +121,41 @@ SII dist_circbetween(struct Data *d, int i1, int i2)
 	}
 }
 
+SIV findCircle(struct Data *d)
+{
+	findRestrictedPath(d->points.source, d->points.dest, &d->restrictions, &d->pathAB);
+	findRestrictedPath(d->points.dest, d->points.source, &d->restrictions, &d->pathBA);
+	d->circle_len = d->pathAB.length + d->pathBA.length - 2;
+}
+
+int is_circ_known(struct Data *d, track_calibration* known)
+{
+	int prev_ind = 0;
+	do{
+		prev_ind = ind_plus(d, prev_ind, -1);
+	} while(is_dead(known, ind_to_id(d, prev_ind)));
+
+	int ind;
+	for(ind = 0; ind < d->circle_len; ind++){
+		int src = ind_to_id(d, prev_ind);
+		int dest = ind_to_id(d, ind);
+		if(!is_dead(known, dest)){
+			if(find_time(known, src, dest) == -1){
+				//return 0; //if not estimating
+				int t = dist_circbetween(d, prev_ind, ind) / 5;
+				int diff = ind_plus(d, ind, -1 * prev_ind);
+				if(diff == 1){
+					record_edge(known, src, dest, t);
+				} else{
+					record_mult(known, src, dest, t);
+				}
+			}
+			prev_ind = ind;
+		}
+	}
+	return 1;
+}
+
 SIV back_dist(struct Data *d, int ind, int dist, int *important, int *b_dist)
 {
 	int res;
@@ -181,6 +187,7 @@ SII vel_from(struct Data *d, int ind, int num)
 		prev_ind = cur_ind;
 	}
 	ret = 100 * ret / total_time;
+	printf("Velocity %d\n\r", ret);
 	return ret;
 }
 
@@ -212,9 +219,11 @@ SIV sensor_logic(struct Data *d, int ind)
 
 SIV reg_sens(struct Data *d)
 {
+	dprintf("In reg_sens\n\r");
 	int cur_id = S_ID(d->activ.data.sensor.sensor);
 	int cur_ind = id_to_ind(d, cur_id, d->prev_ind);
 	int cur_time = Time(d->clock_tid);
+	dprintf("%c%d, %d\n\r", SID_PRINT(cur_id), cur_ind);
 
 	if(cur_ind == -1){
 		printf("Sensor not on my path!\n\r");
@@ -277,9 +286,9 @@ SIV initialize(struct Data *d)
 }
 
 void precise_stop(){
-	printf("Entering precise stop (tid: %d)\n\r", MyTid());
 	struct Data d;
 	initialize(&d);
+	printf("Entering precise stop (tid: %d)\n\r", MyTid());
 	tput2(p_SPEED, p_TRAIN);
 	while(1){
 		Receive(&d.caller, (char *) &d.activ, sizeof(d.activ));
