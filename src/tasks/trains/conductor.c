@@ -25,7 +25,6 @@ void path_maker(void){
 	while(1){
 		Receive(&caller, (char *) &req, sizeof(struct flip_request));
 		Reply(caller, 0, 0);
-		dprintf("Flipping %d to %d\n\r", req.switch_id, req.position);
 		tput2(req.position, req.switch_id);
 		Delay(clock_tid, 7);
 		tputc(32);
