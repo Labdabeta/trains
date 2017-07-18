@@ -339,7 +339,7 @@ struct Sensor parseSensor(const char *str)
 {
 	struct Sensor ret;
 
-	ret.group = str[0] - 'A';
+	ret.group = (str[0] > 'F' ? str[0] - 'a' : str[0] - 'A');
 	ret.id = str[1] - '0';
 	if (str[2]) {
 		ret.id *= 10;

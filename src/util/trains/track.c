@@ -1,5 +1,10 @@
 #include "trains/track.h"
+
+#ifndef REMOTE
 #include "tasks.h"
+#else
+#include <stdio.h>
+#endif
 
 #define TICKS_PER_SEC 100
 #define MAX_NUM_DEAD 5
