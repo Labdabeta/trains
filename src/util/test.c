@@ -1,6 +1,22 @@
 #include "trains/reservation.h"
 #include <stdio.h>
 
+void printRestrictions(struct Restrictions *r)
+{
+    int i;
+    printf("Enabled:\t");
+    for (i = 0; i < TRACK_MAX; ++i) {
+        if (r->isEnabled[i])
+            printf("%s ", track_nodes[i].name);
+    }
+    printf("\nDisabled:\t");
+    for (i = 0; i < TRACK_MAX; ++i) {
+        if (!r->isEnabled[i])
+            printf("%s ", track_nodes[i].name);
+    }
+    printf("\n");
+}
+
 int main(int argc, char *argv[])
 {
     struct ReservationSystem r;
