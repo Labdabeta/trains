@@ -1,21 +1,22 @@
-#include "trains/track.h"
+#include "trains/reservation.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[])
 {
-    struct Track t;
-    int i;
-    initTrackA(&t);
+    struct ReservationSystem r;
+    initReservation(&r);
 
-    addTrain(&t, 70, S_MAKE(B, 5));
+    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("A8"),parseSensor("C7")), 76));
+    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C7"),parseSensor("C3")), 76));
+    printf("%d\n", reserveSpace(&r, SWITCH_SPACE(5), 76));
+    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C3"),parseSensor("C4")), 76));
+    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C4"),parseSensor("C6")), 76));
+    printf("%d\n", reserveSpace(&r, SWITCH_SPACE(18), 76));
+    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C6"),parseSensor("B15")), 76));
 
-    i = 1;
-    for (;;) {
-        char buf[256];
-        scanf("%s", buf);
-        if (buf[0] == 'q')
-            return 0;
-        struct Sensor sen = parseSensor(buf);
-        printf("Train %d hit sensor %c%d\n", saveSensorFlip(&t, sen, i++), S_PRINT(sen));
-    }
+    printf("%d\n", whoOwnsSpace(&r, SENSOR_SPACE(S_MAKE(A, 8), S_MAKE(C, 7))));
+    clearSpace(&r, SENSOR_SPACE(S_MAKE(A, 8), S_MAKE(C, 7)), 76);
+    printf("%d\n", whoOwnsSpace(&r, SENSOR_SPACE(S_MAKE(A, 8), S_MAKE(C, 7))));
+
+    return 0;
 }

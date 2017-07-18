@@ -1,4 +1,5 @@
 #include "trains/track.h"
+#include "tasks.h"
 
 #define TICKS_PER_SEC 100
 #define MAX_NUM_DEAD 5
@@ -35,11 +36,28 @@ static struct Sensor getNextLocation(struct Track *track, struct Sensor location
     return ret;
 }
 
+// Assumes the desired train's next location has not yet been set any existing
+// copy causes a S_NONE return
+static struct Sensor getAltNextLocation(struct Track *track, struct Sensor location)
+{
+    int i;
+    struct Sensor ret = getNextSensor(location, ~track->switches);
+
+    // Search to see if there is already a train heading to that sensor.
+    for (i = 0; i < TRAIN_MAX; ++i) {
+        if (S_EQUAL(track->nextLocation[i][0], ret) ||
+            S_EQUAL(track->nextLocation[i][1], ret))
+            return S_NONE;
+    }
+
+    return ret;
+}
+
 static void doSensorHit(struct Track *track, int train, int time, struct Sensor sen)
 {
     track->lastLocation[train] = sen;
     track->nextLocation[train][0] = getNextLocation(track, track->lastLocation[train]);
-    track->nextLocation[train][1] = track->nextLocation[train][0];
+    track->nextLocation[train][1] = getAltNextLocation(track, track->lastLocation[train]);
     track->lastRegister[train] = time;
 }
 
@@ -66,13 +84,14 @@ int addTrain(struct Track *track, int id, struct Sensor location)
     track->realId[i] = id;
     track->lastLocation[i] = location;
     track->nextLocation[i][0] = getNextLocation(track, location);
-    track->nextLocation[i][1] = track->nextLocation[i][0];
+    track->nextLocation[i][1] = getAltNextLocation(track, location);
 
     return i;
 }
 
 int saveSensorFlip(struct Track *track, struct Sensor sensor, int time)
 {
+    printf("START %s\n\r", __func__);
     int num_dead;
     int i;
 
@@ -91,33 +110,40 @@ int saveSensorFlip(struct Track *track, struct Sensor sensor, int time)
             if (S_EQUAL(checks[0], sensor)) {
 				// if spd > 850
                 doSensorHit(track, i, time, checks[0]);
+    printf("END %s\n\r", __func__);
                 return i;
             } else if (S_EQUAL(checks[1], sensor)) {
                 doSensorHit(track, i, time, checks[1]);
+    printf("END %s\n\r", __func__);
                 return i;
             }
         }
     }
 
+    printf("END %s\n\r", __func__);
     return -1;
 }
 
 int saveSensorUnflip(struct Track *track, struct Sensor sensor, int time)
 {
+    printf("START %s\n\r", __func__);
     int i;
 
     for (i = 0; i < TRAIN_MAX; ++i) {
         if (S_EQUAL(track->lastLocation[i], sensor)) {
             track->lastRegister[i] = time;
+    printf("END %s\n\r", __func__);
             return i;
         }
     }
 
+    printf("END %s\n\r", __func__);
     return -1;
 }
 
 void saveSwitchFlip(struct Track *track, int sw, int isCurved)
 {
+    printf("START %s\n\r", __func__);
     int i;
     switch_state prev = track->switches;
 
@@ -130,4 +156,5 @@ void saveSwitchFlip(struct Track *track, int sw, int isCurved)
         track->nextLocation[i][0] = getNextSensor(track->lastLocation[i], track->switches);
         track->nextLocation[i][1] = getNextSensor(track->lastLocation[i], prev);
     }
+    printf("END %s\n\r", __func__);
 }

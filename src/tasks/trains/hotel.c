@@ -48,18 +48,22 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
     switch (msg->type) {
         case HSM_QUERY:
             reply = whoOwnsSpace(&data->reservations, msg->data.space);
+            dprintf("whoOwnsSpace(%s) = %d\n\r", spaceToString(msg->data.space), reply);
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_REQUEST:
             reply = reserveSpace(&data->reservations, msg->data.space, msg->train);
+            dprintf("reserveSpace(%s, %d) = %d\n\r", spaceToString(msg->data.space), msg->train, reply);
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_STEAL:
             reply = takeSpace(&data->reservations, msg->data.space, msg->train);
+            dprintf("takeSpace(%s, %d) = %d\n\r", spaceToString(msg->data.space), msg->train, reply);
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_FREE:
             clearSpace(&data->reservations, msg->data.space, msg->train);
+            dprintf("clearSpace(%s, %d)\n\r", spaceToString(msg->data.space), msg->train);
             if (!whoOwnsSpace(&data->reservations, msg->data.space)) {
                 for (i = 0; i < data->num_waiters; ++i)
                     Reply(data->waiters[i], (char*)&msg->data.space, sizeof(msg->data.space));

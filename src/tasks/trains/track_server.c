@@ -1,6 +1,7 @@
 #include "trains/track_server.h"
 #include <server.h>
 #include "util/async_send.h"
+#include "gui.h"
 
 #define MAX_CLIENTS 0x10
 
@@ -271,8 +272,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         Reply(tid, 0, 0);
         sensor = msg->datum & 0xFF;
 
-        //dprintf("Sensor %d: %d\n\r", data->last_sensor, sensor);
-
         // Downs
         delta = ~data->sensors[data->last_sensor] & sensor;
         if (delta) {
@@ -290,6 +289,8 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
+                    dprintf("Sendown: %c%d\n\r", S_PRINT(reply));
+
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_DOWN;
                     message.data.sensor.sensor = reply;
@@ -298,6 +299,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (train >= 0)
                         train = data->track.realId[train];
 
+                    display("Sensor %c%d attributed to %d", S_PRINT(reply), train);
                     message.data.sensor.train = train;
 
                     if (train >= 0) {
@@ -337,6 +339,8 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
+                    dprintf("Senup: %c%d\n\r", S_PRINT(reply));
+
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_UP;
                     message.data.sensor.sensor = reply;
@@ -372,6 +376,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         return;
     }
 
+    dprintf("Got message type: %d\n\r", msg->type);
     switch (msg->type) {
         case TM_REGISTER_DOWN: handleRegisterDown(data, tid, msg->datum); break;
         case TM_REGISTER_UP: handleRegisterUp(data, tid, msg->datum); break;

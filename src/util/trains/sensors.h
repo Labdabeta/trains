@@ -20,6 +20,10 @@ struct Sensor {
 
 #define S_MAKE(A,B) (struct Sensor){#A[0] - 'A', B - 1}
 
+#define S_FROM(A,B) (struct Sensor){(A) - 'A', B - 1}
+
+#define S_INDEX(A,B) S_ID(S_FROM(A,B))
+
 #define S_MID(X) (struct Sensor){ (X) / 16, (X) % 16 }
 
 #define S_PRINT(X) (X).group + 'A', (X).id + 1

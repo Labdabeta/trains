@@ -27,9 +27,13 @@ void routeTrain(int train, struct Sensor destination)
 
     // find the first reverse in the path
     for (i = 1; i < path.length; ++i) {
-        if (S_EQUAL(path.sensors[i], getReverseSensor(path.sensors[i-1]))) {
+        struct Sensor pres;
+        struct Sensor rprev;
+        pres = path.sensors[i];
+        rprev = getReverseSensor(path.sensors[i-1]);
+        if (S_EQUAL(pres, rprev)) {
             // go to i-1
-            while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0) {
+            while (getFreePath(reservation, train, start, pres, &current.path) < 0) {
                 dprintf("Waiting for a free path...\n\r");
                 waitForAvailability(reservation);
             }
@@ -44,20 +48,21 @@ void routeTrain(int train, struct Sensor destination)
             dprintf("Reversing train %d\n\r", train);
             tput2(15, train); // reverse the train
             Delay(clock, REVERSE_DELAY);
-            start = path.sensors[i];
+            start = pres;
         }
     }
 
     // go to i-1
-    while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0) {
-        dprintf("Waiting for a free path...\n\r");
-        waitForAvailability(reservation);
-    }
+    getFreePath(reservation, -1, start, path.sensors[path.length-1], &current.path);
     current.isCaboose = 1;
     current.stopIndex = 0;
     current.stopTime = 0;
-    while (!moveTrain(train, current, reservation, track, clock)) {
+    while (moveTrain(train, current, reservation, track, clock)) {
         dprintf("Waiting for a successful movement...\n\r");
         waitForAvailability(reservation);
+        while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0) {
+            dprintf("Waiting for a free path...\n\r");
+            waitForAvailability(reservation);
+        }
     }
 }

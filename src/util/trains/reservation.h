@@ -40,4 +40,6 @@ void getRestrictions(struct ReservationSystem *r, int train, struct Restrictions
 #define SWITCH_SPACE(X) (struct TrackSpace){.isSwitch = 1, .space.sw = (X)}
 #define SENSOR_SPACE(X,Y) (struct TrackSpace){.isSwitch = 0, .space.inter = {(X),(Y)}}
 
+char *spaceToString(struct TrackSpace sp);
+
 #endif /* RESERVATION_H */

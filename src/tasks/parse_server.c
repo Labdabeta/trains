@@ -112,7 +112,6 @@ void registerForCommand(int pid, const char *cmd)
             pm.isInt[pm.numArgs++] = (cmd[i] == 'i');
     }
 
-    dprintf("Sent: %d %s %d\n\r", MyTid(), pm.name, pm.numArgs);
     Send(pid, (char*)&pm, sizeof(pm), 0, 0);
 }
 

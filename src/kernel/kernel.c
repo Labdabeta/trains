@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 	struct KernelData data;
 	struct TaskDescriptor *active;
     int active_tid;
+    int active_state;
 
 	data.inittime = 0;
 	data.lasttick = 0;
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
 
 	init_debugio();
 	DEBUG_PRINT("%s", GIT_NAME);
-    DEBUG_PRINT("Active TID: %x", &active_tid);
+    DEBUG_PRINT("Active TID: %x\tState: %x", &active_tid, &active_state);
 	initScheduler(&data.scheduler);
 
 	initEventBlocks(&data.scheduler);
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
 
 			//dprintf("---------- %d ----------\n\r", active->tid);
             active_tid = active->tid;
+            active_state = active->state;
 			enterTask(active);
 
 #ifdef DEBUG_MODE
