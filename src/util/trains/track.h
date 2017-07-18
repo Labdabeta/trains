@@ -16,12 +16,6 @@ struct Track {
     switch_state switches;
 };
 
-struct Position {
-    struct Sensor lastSensor;
-    struct Sensor nextSensor[2];
-    int distanceFromLast;
-};
-
 void initTrackA(struct Track *track);
 void initTrackB(struct Track *track);
 

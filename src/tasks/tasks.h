@@ -28,6 +28,8 @@ void main_task(void);
     void gui(void);
     void parse_server(void);
     void track_server(void);
+    void hotel(void);
+    void router(void);
     void controller(void);
 void idle(void);
 

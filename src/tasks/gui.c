@@ -43,7 +43,7 @@ ENTRY initialize(struct Data *data)
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     char m[4] = {0};
-    if (tid == data->track_id) {
+    if (msg->data.track.msgid == TRACK_MESSAGE_ID) {
         Reply(tid, 0, 0);
         if (msg->data.track.type == TSMT_SWITCH_FLIP) {
             m[0] = (msg->data.track.data.sw.isCurved ? 'c' : '|');

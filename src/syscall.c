@@ -19,7 +19,8 @@ void Exit(void)
 
 int CreateSize(int priority, void (*code)(), TaskSize size)
 {
-	return asm_callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
+	int ret = asm_callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
+    return ret;
 }
 
 int Create(int priority, void (*code)())

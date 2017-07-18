@@ -1,19 +1,74 @@
 #include "tasks.h"
-#include "trains/path_finder.h"
-#include "trains/sensors.h"
-#include "util/async_delay.h"
+#include "parse_server.h"
 #include "trains/track_server.h"
-#include "conductor.h"
-#include "precise_stopper.h"
-#include "calibration_master.h"
-#include "service.h"
+#include "string.h"
+#include "routing.h"
 
-#define SIV static inline void
-#define SII static inline int
+void async_router(void)
+{
+    int caller;
+    int train;
+    struct Sensor destination;
 
-static inline int index_sensor(char group, int number){
-	return 16 * (group-'A') + number - 1;
+    Receive(&caller, (char*)&train, sizeof(train));
+    Reply(caller, 0, 0);
+
+    Receive(&caller, (char*)&destination, sizeof(destination));
+    Reply(caller, 0, 0);
+
+    routeTrain(train, destination);
+    Exit();
 }
+
+void conductor(void)
+{
+    int parse_id = WhoIs(PARSE_SERVER_NAME);
+    int track_id = WhoIs(TRACK_SERVER_NAME);
+
+    const char *commands[] = {
+        "quit", "q",
+        "add is", "a is",
+        "goto is", "g is"
+    };
+
+    int i;
+    for (i = 0; i < (sizeof(commands) / sizeof(*commands)); ++i)
+        registerForCommand(parse_id, commands[i]);
+
+    for (ever) {
+        struct Command cmd;
+        Receive(&i, (char*)&cmd, sizeof(cmd));
+        Reply(i, 0, 0);
+
+        if (!strcmp(cmd.name, "q") || !strcmp(cmd.name, "quit")) {
+            Exit();
+        }
+
+        if (!strcmp(cmd.name, "a") || !strcmp(cmd.name, "add")) {
+            insertTrain(track_id, cmd.args[0].data.i, parseSensor(cmd.args[1].data.string));
+        }
+
+        if (!strcmp(cmd.name, "g") || !strcmp(cmd.name, "goto")) {
+            int child = CreateSize(1, async_router, TASK_SIZE_TINY);
+            struct Sensor dest = parseSensor(cmd.args[1].data.string);
+            Send(child, (char*)&cmd.args[0].data.i, sizeof(cmd.args[0].data.i), 0, 0);
+            Send(child, (char*)&dest, sizeof(dest), 0, 0);
+        }
+    }
+}
+
+
+#if 0
+#include "tasks.h"
+#include "parse_server.h"
+#include "precise_stopper.h"
+#include "trains/calibration_master.h"
+
+#define T70RA 149
+#define T70RB 10224
+
+#define T69RA 140
+#define T69RB 5577
 
 void path_maker(void){
 	Service();
@@ -21,79 +76,67 @@ void path_maker(void){
 	int caller;
 	struct flip_request req;
 	int clock_tid = WhoIs("CLOCK");
+	int track = WhoIs(TRACK_SERVER_NAME);
 
 	while(1){
 		Receive(&caller, (char *) &req, sizeof(struct flip_request));
 		Reply(caller, 0, 0);
 		dprintf("Flipping %d to %d\n\r", req.switch_id, req.position);
+		notifySwitch(track, req.switch_id, req.position == 34);
 		tput2(req.position, req.switch_id);
-		Delay(clock_tid, 7);
+		Delay(clock_tid, 6);
 		tputc(32);
 	}
 }
 
 void conductor(void)
 {
-    int maker_tid = CreateSize(1, path_maker, TASK_SIZE_TINY);
-		int child_tid;
-		track_calibration cal;
-		track_calibration *ptr_cal = &cal;
-		init_cal(&cal);
+	struct Command cmd;
+	registerForCommand(WhoIs(PARSE_SERVER_NAME, "path iss"));
+	registerForCommand(WhoIs(PARSE_SERVER_NAME, "quit"));
 
-		int As[16];
-		As[0] = index_sensor('B', 5);
-		As[1] = index_sensor('D', 3);
-		As[2] = index_sensor('E', 5);
-		As[3] = index_sensor('D', 6);
-		As[4] = index_sensor('E', 10);
-		As[5] = index_sensor('B', 2);
-		As[6] = index_sensor('D', 13);
-		As[7] = index_sensor('E', 1);
-		As[8] = index_sensor('C', 1);
-		As[9] = index_sensor('B', 4);
-		As[10] = index_sensor('B', 15);
-		As[11] = index_sensor('A', 3);
-		As[12] = index_sensor('A', 3);
-		As[13] = index_sensor('E', 5);
-		As[14] = index_sensor('E', 13);
-		int Bs[16];
-		Bs[0] = index_sensor('B', 2);
-		Bs[1] = index_sensor('C', 9);
-		Bs[2] = index_sensor('B', 15);
-		Bs[3] = index_sensor('A', 3);
-		Bs[4] = index_sensor('C', 11);
-		Bs[5] = index_sensor('B', 5);
-		Bs[6] = index_sensor('D', 3);
-		Bs[7] = index_sensor('B', 15);
-		Bs[8] = index_sensor('A', 3);
-		Bs[9] = index_sensor('C', 11);
-		Bs[10] = index_sensor('C', 13); //Or 14?
-		Bs[11] = index_sensor('D', 7); // Or 7?
-		Bs[12] = index_sensor('E', 13);
-		Bs[13] = index_sensor('D', 15); // Or 15?
-		Bs[14] = index_sensor('E', 4); //Or E4?
-		int index = 0;
-		struct route_request points;
-		char group;
-		int num;
+	track_calibration cal70, cal69, calX;
+	track_calibration *ptr_cal70 = &cal70;
+	track_calibration *ptr_cal69 = &cal69;
+	track_calibration *ptr_calX = &calX;
+	init_cal(&cal70, 70, T70RA, T70RB);
+	init_cal(&cal69, 69, T69RA, T69RB);
+	init_cal(&calX, 0, (T69RA + T70RA)/2, (T69RB + T70RB)/2);
 
-		while(1){
-			child_tid = CreateSize(1, precise_stop, TASK_SIZE_NORMAL);
-			Send(child_tid, (char *) &maker_tid, sizeof(int), 0, 0);
-			Send(child_tid, (char *) &ptr_cal, sizeof(int*), 0, 0);
-			group = cgetc();
-			num = cgetc();
-			num = (num >= '0' && num <= '9') ? num - '0' : num - 'a' + 10;
-			points.source =index_sensor(group, num);
-			group = cgetc();
-			num = cgetc();
-			num = (num >= '0' && num <= '9') ? num - '0' : num - 'a' + 10;
-			points.dest = index_sensor(group, num);
-			printf("Route: %c%d to %c%d\n\r", SID_PRINT(points.source), SID_PRINT(points.dest));
-			//points.source = As[index];
-			//points.dest = Bs[index];
-			Send(child_tid, (char *) &points, sizeof(struct route_request), 0, 0);
-			Delay(WhoIs("CLOCK"), 500);
-			index++;
+
+	int pather = CreateSize(1, path_maker, TASK_SIZE_TINY);
+
+	for (ever) {
+		int tid;
+		Receive(&tid, (char*)&cmd, sizeof(cmd));
+
+		if (!strcmp(cmd.name, "path")) {
+			int train = cmd.args[0].data.i;
+			struct Sensor src = parseSensor(cmd.args[1].data.string);
+			struct Sensor dst = parseSensor(cmd.args[2].data.string);
+			struct route_request req = {.train = train, .src = src, .dest = dst};
+
+			int stopper = Create(1, precise_stop);
+			Send(stopper, (char*)&maker_tid, sizeof(maker_tid), 0, 0);
+
+			switch (train) {
+				case 70:
+					Send(stopper, (char*)&ptr_cal70, sizeof(ptr_cal70), 0, 0);
+					break;
+				case 69:
+					Send(stopper, (char*)&ptr_cal69, sizeof(ptr_cal69), 0, 0);
+					break;
+				default:
+					Send(stopper, (char*)&ptr_calX, sizeof(ptr_calX), 0, 0);
+					break;
+			}
+
+			Send(stopper, (char*)&req, sizeof(req), 0, 0);
 		}
+
+		if (!strcmp(cmd.name, "quit")) {
+			Exit();
+		}
+	}
 }
+#endif

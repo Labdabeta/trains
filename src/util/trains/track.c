@@ -12,7 +12,7 @@ static void initTrack(struct Track *track)
         track->nextLocation[i][0] = S_NONE;
         track->nextLocation[i][1] = S_NONE;
         track->lastRegister[i] = -1;
-        track->realId[i] = -1;
+        track->realId[i] = 0;
     }
 
     track->switches = SWITCH_STATE_CURVED;
@@ -35,12 +35,9 @@ static struct Sensor getNextLocation(struct Track *track, struct Sensor location
     return ret;
 }
 
-static void doSensorHit(struct Track *track, int train, int time)
+static void doSensorHit(struct Track *track, int train, int time, struct Sensor sen)
 {
-    int distance = getDistanceToNext(track->lastLocation[train], track->switches);
-    int duration = time - track->lastRegister[train];
-
-    track->lastLocation[train] = track->nextLocation[train][0];
+    track->lastLocation[train] = sen;
     track->nextLocation[train][0] = getNextLocation(track, track->lastLocation[train]);
     track->nextLocation[train][1] = track->nextLocation[train][0];
     track->lastRegister[train] = time;
@@ -64,7 +61,7 @@ int addTrain(struct Track *track, int id, struct Sensor location)
 {
     int i = 0;
 
-    while (track->realId[i] < 0) ++i;
+    while (track->realId[i] != 0) ++i;
 
     track->realId[i] = id;
     track->lastLocation[i] = location;
@@ -91,12 +88,12 @@ int saveSensorFlip(struct Track *track, struct Sensor sensor, int time)
                 checks[1] = getNextSensor(checks[1], track->switches);
             }
 
-            if (S_EQUAL(track->nextLocation[i][0], sensor)) {
-                doSensorHit(track, i, time);
+            if (S_EQUAL(checks[0], sensor)) {
+				// if spd > 850
+                doSensorHit(track, i, time, checks[0]);
                 return i;
-            } else if (S_EQUAL(track->nextLocation[i][1], sensor)) {
-                track->nextLocation[i][0] = track->nextLocation[i][1];
-                doSensorHit(track, i, time);
+            } else if (S_EQUAL(checks[1], sensor)) {
+                doSensorHit(track, i, time, checks[1]);
                 return i;
             }
         }
@@ -122,13 +119,15 @@ int saveSensorUnflip(struct Track *track, struct Sensor sensor, int time)
 void saveSwitchFlip(struct Track *track, int sw, int isCurved)
 {
     int i;
+    switch_state prev = track->switches;
+
     if (isCurved)
         SET_CURVED(track->switches, sw);
     else
         SET_STRAIGHT(track->switches, sw);
 
     for (i = 0; i < TRAIN_MAX; ++i) {
-        track->nextLocation[i][0] = getNextSensor(track->nextLocation[i][0], track->switches);
-        track->nextLocation[i][1] = getNextSensor(track->nextLocation[i][1], track->switches);
+        track->nextLocation[i][0] = getNextSensor(track->lastLocation[i], track->switches);
+        track->nextLocation[i][1] = getNextSensor(track->lastLocation[i], prev);
     }
 }

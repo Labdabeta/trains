@@ -298,6 +298,7 @@ int findRestrictedPath(int source,
     for (i = 0; i < TRACK_MAX; ++i) {
         distance[i] = INT_MAX;
         visited[i] = 0;
+		previous[i] = 0;
     }
 
     distance[source] = 0;

@@ -6,12 +6,20 @@
 
 void sensor_courier(void);
 
+struct SwitchMessage {
+    int sw;
+    int isCurved;
+};
+
+void switch_flipper(void);
+
 // tid[TRAIN_MAX] means ANY
 struct Data {
     int cid;
     int sensorTid;
     char sensors[10];
     int last_sensor;
+    int flipper;
     struct Track track;
 
     // wait data
@@ -37,13 +45,15 @@ enum TrackMessage {
     TM_WAIT_SWITCH,
     TM_QUERY_SWITCH,
     TM_NOTIFY_SWITCH,
-		TM_QUERY_SENSOR
+	TM_QUERY_SENSOR,
+    TM_QUERY_LAST_LOCATION,
+    TM_ADD_TRAIN
 };
 
 struct Message {
+    // add train is sensorid << 8 | train#
     int datum; // usually train id or switch. For notify -ve means curved.
     enum TrackMessage type;
-    struct AsyncSendMessage _unused;
 };
 
 
@@ -51,6 +61,7 @@ ENTRY initialize(struct Data *data)
 {
     int i;
     data->sensorTid = CreateSize(1, sensor_courier, TASK_SIZE_TINY);
+    data->flipper = CreateSize(0, switch_flipper, TASK_SIZE_TINY);
 
     RegisterAs(TRACK_SERVER_NAME);
 
@@ -81,6 +92,7 @@ ENTRY initialize(struct Data *data)
 /****************************** Message handlers ******************************/
 static inline void handleRegisterDown(struct Data *data, int tid, int train)
 {
+    Reply(tid, 0, 0);
     if (train >= 0)
         data->sendown_clients[train][data->num_sendown_clients[train]++] = tid;
     else
@@ -90,6 +102,7 @@ static inline void handleRegisterDown(struct Data *data, int tid, int train)
 static inline void handleUnregisterDown(struct Data *data, int tid, int train)
 {
     int i;
+    Reply(tid, 0, 0);
     // Find the index
     for (i = 0; i < MAX_CLIENTS; ++i) {
         if (train >= 0 && data->sendown_clients[train][i] == tid) {
@@ -110,6 +123,7 @@ static inline void handleUnregisterDown(struct Data *data, int tid, int train)
 
 static inline void handleRegisterUp(struct Data *data, int tid, int train)
 {
+    Reply(tid, 0, 0);
     if (train >= 0)
         data->senup_clients[train][data->num_senup_clients[train]++] = tid;
     else
@@ -119,6 +133,7 @@ static inline void handleRegisterUp(struct Data *data, int tid, int train)
 static inline void handleUnregisterUp(struct Data *data, int tid, int train)
 {
     int i;
+    Reply(tid, 0, 0);
     // Find the index
     for (i = 0; i < MAX_CLIENTS; ++i) {
         if (train >= 0 && data->senup_clients[train][i] == tid) {
@@ -139,6 +154,7 @@ static inline void handleUnregisterUp(struct Data *data, int tid, int train)
 
 static inline void handleRegisterSwitch(struct Data *data, int tid)
 {
+    Reply(tid, 0, 0);
     data->switch_clients[data->num_switch_clients++] = tid;
 }
 
@@ -146,6 +162,7 @@ static inline void handleRegisterSwitch(struct Data *data, int tid)
 static inline void handleUnregisterSwitch(struct Data *data, int tid)
 {
     int i;
+    Reply(tid, 0, 0);
     // Find the index
     for (i = 0; i < MAX_CLIENTS; ++i) {
         if (data->switch_clients[i] == tid) {
@@ -191,6 +208,10 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
 {
     int client;
     struct TrackServerMessage reply;
+    Reply(tid, 0, 0);
+
+    struct SwitchMessage sm = {sw, isCurved};
+    async_send(data->flipper, (char*)&sm, sizeof(sm));
     saveSwitchFlip(&data->track, sw, isCurved);
 
     reply.type = TSMT_SWITCH_FLIP;
@@ -203,7 +224,7 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
     data->num_switch_tids = 0;
 
     for (client = 0; client < data->num_switch_clients; ++client)
-        Send(data->switch_clients[client], (char*)&reply, sizeof(reply), 0, 0);
+        async_send(data->switch_clients[client], (char*)&reply, sizeof(reply));
 }
 
 static inline void handleQuerySensor(struct Data *data, int tid, int sen)
@@ -217,18 +238,40 @@ static inline void handleQuerySensor(struct Data *data, int tid, int sen)
 	Reply(tid, &reply, sizeof(reply));
 }
 
+static inline void handleAddTrain(struct Data *data, int tid, int train, int sen)
+{
+    (void)addTrain(&data->track, train, S_MID(sen));
+    Reply(tid, 0, 0);
+}
+
+static inline void handleQueryLocation(struct Data *data, int tid, int train)
+{
+    int train_id;
+    for (train_id = 0; train_id < TRAIN_MAX; ++train_id)
+        if (data->track.realId[train_id] == train)
+            break;
+
+    if (train_id == TRAIN_MAX) {
+        struct Sensor reply = S_NONE;
+        Reply(tid, (char*)&reply, sizeof(reply));
+    } else {
+        struct Sensor reply = data->track.lastLocation[train_id];
+        Reply(tid, (char*)&reply, sizeof(reply));
+    }
+}
+
 /************************* Actual recieve/reply cycle *************************/
 
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     (void)msg_size; // unused
-    int async_tid;
-    async_tid = -1;
     if (tid == data->sensorTid) {
         int delta, sensor;
         data->last_sensor = (data->last_sensor + 1) % 10;
         Reply(tid, 0, 0);
         sensor = msg->datum & 0xFF;
+
+        //dprintf("Sensor %d: %d\n\r", data->last_sensor, sensor);
 
         // Downs
         delta = ~data->sensors[data->last_sensor] & sensor;
@@ -240,18 +283,27 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     struct Sensor reply;
                     struct TrackServerMessage message;
                     int client, train;
+
                     reply.group = data->last_sensor / 2;
                     reply.id = bit;
 
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
+                    message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_DOWN;
                     message.data.sensor.sensor = reply;
 
+                    dprintf("Sendown: %c%d\n\r", S_PRINT(reply));
+                    dprintf("Calling saveSensorFlip(%c%d, %d)\n\r", S_PRINT(reply), Time(data->cid));
                     train = saveSensorFlip(&data->track, reply, Time(data->cid));
+                    dprintf("Train was: %d\n\r", train);
+                    if (train >= 0)
+                        train = data->track.realId[train];
 
                     message.data.sensor.train = train;
+
+                    dprintf("NOTIFY: Train %d hit sensor %c%d\n\r", message.data.sensor.train, S_PRINT(message.data.sensor.sensor));
 
                     if (train >= 0) {
                         for (client = 0; client < data->num_sendown_tids[train]; ++client)
@@ -259,7 +311,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                         data->num_sendown_tids[train] = 0;
 
                         for (client = 0; client < data->num_sendown_clients[train]; ++client)
-                            Send(data->sendown_clients[train][client], (char*)&message, sizeof(message), 0, 0);
+                            async_send(data->sendown_clients[train][client], (char*)&message, sizeof(message));
                     }
 
                     // Deal with the any train registrations
@@ -268,7 +320,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     data->num_sendown_tids[TRAIN_MAX] = 0;
 
                     for (client = 0; client < data->num_sendown_clients[TRAIN_MAX]; ++client)
-                        Send(data->sendown_clients[TRAIN_MAX][client], (char*)&message, sizeof(message), 0, 0);
+                        async_send(data->sendown_clients[TRAIN_MAX][client], (char*)&message, sizeof(message));
                 }
                 mask >>= 1;
             }
@@ -290,12 +342,17 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
+                    message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_UP;
                     message.data.sensor.sensor = reply;
 
                     train = saveSensorUnflip(&data->track, reply, Time(data->cid));
+                    if (train >= 0)
+                        train = data->track.realId[train];
 
                     message.data.sensor.train = train;
+
+                    dprintf("NOTIFY: Train %d unhit sensor %c%d\n\r", message.data.sensor.train, S_PRINT(message.data.sensor.sensor));
 
                     if (train >= 0) {
                         for (client = 0; client < data->num_senup_tids[train]; ++client)
@@ -303,7 +360,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                         data->num_senup_tids[train] = 0;
 
                         for (client = 0; client < data->num_senup_clients[train]; ++client)
-                            Send(data->senup_clients[train][client], (char*)&message, sizeof(message), 0, 0);
+                            async_send(data->senup_clients[train][client], (char*)&message, sizeof(message));
                     }
 
                     // Deal with the any train registrations
@@ -312,7 +369,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     data->num_senup_tids[TRAIN_MAX] = 0;
 
                     for (client = 0; client < data->num_senup_clients[TRAIN_MAX]; ++client)
-                        Send(data->senup_clients[TRAIN_MAX][client], (char*)&message, sizeof(message), 0, 0);
+                        async_send(data->senup_clients[TRAIN_MAX][client], (char*)&message, sizeof(message));
                 }
                 mask >>= 1;
             }
@@ -320,13 +377,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 
         data->sensors[data->last_sensor] = sensor;
         return;
-    }
-
-    if (msg->datum == ASYNC_CODE) {
-        struct AsyncSendMessage *real = (struct AsyncSendMessage*)msg;
-        async_tid = tid;
-        tid = real->source_tid;
-        msg = (struct Message*)real->data;
     }
 
     switch (msg->type) {
@@ -341,16 +391,14 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case TM_WAIT_SWITCH: handleWaitSwitch(data, tid); break;
         case TM_QUERY_SWITCH: handleQuerySwitch(data, tid, msg->datum); break;
         case TM_QUERY_SENSOR: handleQuerySensor(data, tid, msg->datum); break;
+        case TM_QUERY_LAST_LOCATION: handleQueryLocation(data, tid, msg->datum); break;
+        case TM_ADD_TRAIN: handleAddTrain(data, tid, msg->datum & 0xFF, msg->datum >> 8); break;
         case TM_NOTIFY_SWITCH:
             if (msg->datum < 0)
                 handleNotifySwitch(data, tid, -msg->datum, 1);
             else
                 handleNotifySwitch(data, tid, msg->datum, 0);
             break;
-    }
-
-    if (async_tid != -1) {
-        Reply(async_tid, 0, 0);
     }
 }
 
@@ -360,7 +408,7 @@ void registerForSensorDown(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_DOWN;
-    async_send(tid, (char*)&msg, sizeof(msg));
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 void registerForSensorUp(int tid, int train)
@@ -368,7 +416,7 @@ void registerForSensorUp(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_UP;
-    async_send(tid, (char*)&msg, sizeof(msg));
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 void registerForSwitch(int tid)
@@ -376,7 +424,7 @@ void registerForSwitch(int tid)
     struct Message msg;
     msg.datum = 0;
     msg.type = TM_REGISTER_SWITCH;
-    async_send(tid, (char*)&msg, sizeof(msg));
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 void unregisterForSensorDown(int tid, int train)
@@ -384,7 +432,7 @@ void unregisterForSensorDown(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_UNREGISTER_DOWN;
-    async_send(tid, (char*)&msg, sizeof(msg));
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 void unregisterForSensorUp(int tid, int train)
@@ -392,7 +440,7 @@ void unregisterForSensorUp(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_UNREGISTER_UP;
-    async_send(tid, (char*)&msg, sizeof(msg));
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 void unregisterForSwitch(int tid)
@@ -400,7 +448,7 @@ void unregisterForSwitch(int tid)
     struct Message msg;
     msg.datum = 0;
     msg.type = TM_UNREGISTER_SWITCH;
-    async_send(tid, (char*)&msg, sizeof(msg));
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 struct Sensor waitForSensorDown(int tid, int train)
@@ -448,7 +496,7 @@ void notifySwitch(int tid, int sw, int isCurved)
     struct Message msg;
     msg.datum = (isCurved ? -sw : sw);
     msg.type = TM_NOTIFY_SWITCH;
-    async_send(tid, (char*)&msg, sizeof(msg));
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 int querySensor(int tid, struct Sensor sen)
@@ -461,5 +509,22 @@ int querySensor(int tid, struct Sensor sen)
 	return (int)rpl;
 }
 
+void insertTrain(int tid, int train, struct Sensor sensor)
+{
+    struct Message msg;
+    msg.datum = S_ID(sensor) << 8 | train;
+    msg.type = TM_ADD_TRAIN;
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+}
+
+struct Sensor lastKnownLocation(int tid, int train)
+{
+    struct Message msg;
+    struct Sensor ret;
+    msg.datum = train;
+    msg.type = TM_QUERY_LAST_LOCATION;
+    Send(tid, (char*)&msg, sizeof(msg), (char*)&ret, sizeof(ret));
+    return ret;
+}
 
 MAKE_SERVER(track_server)

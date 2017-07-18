@@ -1,3 +1,4 @@
+#if 0
 #include "tasks.h"
 #include "trains/path_finder.h"
 #include "trains/sensors.h"
@@ -5,25 +6,11 @@
 #include "trains/track_server.h"
 #include "trains/calibration_master.h"
 #include "conductor.h"
-#include "service.h"
 
 #define SIV static inline void
 #define SII static inline int
 
-#define p_SPEED 10
-#define p_TRAIN 70
-
-#if p_TRAIN == 70
-#define reg_a 149
-#define reg_b 10224
-#endif
-
-#if p_TRAIN == 69
-#define reg_a 140
-#define reg_b 5577
-#endif
-
-// old 69 (145,7852)
+#define TRAIN_SPEED 10
 
 struct Data {
 	int caller, client, maker_tid;
@@ -34,7 +21,6 @@ struct Data {
 	int track_tid, clock_tid;
 	int sensor_index[80];
 	track_calibration* cal;
-	//int times[2 * MAX_PATH_LENGTH];
 	struct TrackServerMessage activ, timeout;
 	int prev_sensor, prev_time, delay, important, circle_len;
 	int stopping_dist, dist_after, future_vel;
@@ -266,8 +252,6 @@ SIV initialize(struct Data *d)
 	Reply(d->client, 0, 0);
 	Receive(&d->client, (char *) &d->points, sizeof(struct route_request));
 	findCircle(d);
-	printPath(&d->pathAB);
-	printPath(&d->pathBA);
 	d->track_tid = WhoIs("TRACK");
 	registerForSensorDown(d->track_tid, -1);
 	d->clock_tid = WhoIs("CLOCK");
@@ -301,3 +285,4 @@ void precise_stop(){
 	unregisterForSensorDown(d.track_tid, -1);
 	Exit();
 }
+#endif

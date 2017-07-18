@@ -15,14 +15,20 @@ typedef struct track_calibration{
 	struct cal_record edge_recs[80][4];
 	int num_extra;
 	struct cal_record mult_recs[NUM_EXTRA_REC];
+	int train;
+	int regA;
+	int regB;
 } track_calibration;
 
-static inline void init_cal(track_calibration* cal){
+static inline void init_cal(track_calibration* cal, int train, int regA, int regB){
 	for(int i = 0; i < 80; i++){
 		cal->is_dead[i] = 0;
 		cal->length[i] = 0;
 	}
 	cal->num_extra = 0;
+	cal->train = train;
+	cal->regA = regA;
+	cal->regB = regB;
 }
 
 static inline int is_dead(track_calibration* cal, int id)

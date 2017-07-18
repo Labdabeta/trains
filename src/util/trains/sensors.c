@@ -334,3 +334,18 @@ int getDistanceToNext(struct Sensor src, switch_state switches)
 {
     return getDistanceFromPrev(getNextSensor(src, switches), switches);
 }
+
+struct Sensor parseSensor(const char *str)
+{
+	struct Sensor ret;
+
+	ret.group = str[0] - 'A';
+	ret.id = str[1] - '0';
+	if (str[2]) {
+		ret.id *= 10;
+		ret.id += str[2] - '0';
+	}
+    ret.id--;
+
+    return ret;
+}

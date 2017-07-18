@@ -47,11 +47,7 @@ struct ParseMessage {
 struct Message {
     union {
         struct GUIMessage g;
-        struct {
-            struct ParseMessage p;
-            struct AsyncSendMessage padding;
-        } unused;
-        struct AsyncSendMessage a;
+        struct ParseMessage p;
     } data;
 };
 
@@ -80,7 +76,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                 found = 0;
                 for (client = 0; client < data->num_clients; ++client) {
                     if (cmdsFit(&data->clients[client], &cmds[i])) {
-                        Send(data->clients[client].tid, (char*)&cmds[i], sizeof(cmds[i]), 0, 0);
+                        async_send(data->clients[client].tid, (char*)&cmds[i], sizeof(cmds[i]));
                         found = 1;
                     }
                 }
@@ -90,15 +86,13 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             }
         }
     } else {
-        struct ParseMessage *p = (struct ParseMessage*)msg->data.a.data;
+        struct ParseMessage *p = &msg->data.p;
         int i;
         Reply(tid, 0, 0);
 
-        dprintf("Got: %d %s %d\n\r", msg->data.a.source_tid, p->name, p->numArgs);
-        data->clients[data->num_clients].tid = msg->data.a.source_tid;
+        data->clients[data->num_clients].tid = tid;
         strcpy(data->clients[data->num_clients].name, p->name);
         data->clients[data->num_clients].numArgs = p->numArgs;
-        dprintf("Wanting %d args.\n\r", p->numArgs);
         for (i = 0; i < p->numArgs; ++i)
             data->clients[data->num_clients].isInt[i] = p->isInt[i];
         data->num_clients++;
@@ -122,7 +116,7 @@ void registerForCommand(int pid, const char *cmd)
     }
 
     dprintf("Sent: %d %s %d\n\r", MyTid(), pm.name, pm.numArgs);
-    async_send(pid, (char*)&pm, sizeof(pm));
+    Send(pid, (char*)&pm, sizeof(pm), 0, 0);
 }
 
 MAKE_SERVER(parse_server)

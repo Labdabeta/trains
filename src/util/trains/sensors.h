@@ -34,5 +34,6 @@ struct Sensor getNextSensor(struct Sensor src, switch_state switches);
 struct Sensor getReverseSensor(struct Sensor src);
 int getDistanceToNext(struct Sensor src, switch_state switches);
 int getDistanceFromPrev(struct Sensor src, switch_state switches);
+struct Sensor parseSensor(const char *str);
 
 #endif /* SENSORS_H */

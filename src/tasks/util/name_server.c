@@ -1,12 +1,21 @@
 #include <server.h>
 #include "kernel/task.h"
 #include "name_server.h"
+#include "string.h"
 
 struct Data {
 	char names[MAX_NAME_LENGTH * NUM_SUPPORTED_TASKS];
 	char tids[NUM_SUPPORTED_TASKS];
 	int size;
 };
+
+void dumpNSData(struct Data *data)
+{
+    int i;
+    dprintf("%d names known:\n\r", data->size);
+    for (i = 0; i < data->size; ++i)
+        dprintf("\t%s -> %d\n\r", &data->names[i * MAX_NAME_LENGTH], data->tids[i]);
+}
 
 struct Message {
 	char *name;
@@ -23,7 +32,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 	(void)size; /* unused */
 	int reply;
 	if (m->isRegister) {
-		char *c,*n;
 		if (data->size == NUM_SUPPORTED_TASKS) {
 			reply = -1;
 			Reply(tid, (char*)&reply, sizeof(reply));
@@ -32,9 +40,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 		data->tids[data->size] = tid;
 
 		/* Copy the name */
-		n = &data->names[(data->size++)*MAX_NAME_LENGTH];
-		for (c = m->name; *c; ++c, ++n) *n = *c;
-        *n = 0;
+        strcpy(&data->names[(data->size++)*MAX_NAME_LENGTH], m->name);
 
 		reply = 0;
 		Reply(tid, (char*)&reply, sizeof(reply));
@@ -42,19 +48,10 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 		int i;
 		int id = -1; /* not found */
 		for (i = data->size - 1; i >= 0; --i) {
-			char *c,*n;
-			int same = 1;
-			n = &data->names[i*MAX_NAME_LENGTH];
-			for (c = m->name; *c || *n; ++c, ++n) {
-				if (*c != *n) {
-					same = 0;
-					break;
-				}
-			}
-			if (same) {
-				id = i;
-				break;
-			}
+            if (!strcmp(m->name, &data->names[i*MAX_NAME_LENGTH])) {
+                id = i;
+                break;
+            }
 		}
 
 		if (id == -1) {

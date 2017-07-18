@@ -31,16 +31,16 @@ int reserveSpace(struct ReservationSystem *r, struct TrackSpace space, int train
     }
 }
 
-void clearSpace(struct ReservationSystem *r, struct TrackSpace space)
+void clearSpace(struct ReservationSystem *r, struct TrackSpace space, int train)
 {
     if (space.isSwitch) {
-        r->whoOwns[80 + (space.space.sw << 1)] = 0;
-        r->whoOwns[80 + (space.space.sw << 1) + 1] = 0;
+        if (r->whoOwns[80 + (space.space.sw << 1)] == train) r->whoOwns[80 + (space.space.sw << 1)] = 0;
+        if (r->whoOwns[80 + (space.space.sw << 1) + 1] == train) r->whoOwns[80 + (space.space.sw << 1) + 1] = 0;
     } else {
-        r->whoOwns[S_ID(space.space.inter.src)] = 0;
-        r->whoOwns[S_ID(space.space.inter.dst)] = 0;
-        r->whoOwns[S_ID(getReverseSensor(space.space.inter.src))] = 0;
-        r->whoOwns[S_ID(getReverseSensor(space.space.inter.dst))] = 0;
+        if (r->whoOwns[S_ID(space.space.inter.src)] == train) r->whoOwns[S_ID(space.space.inter.src)] = 0;
+        if (r->whoOwns[S_ID(space.space.inter.dst)] == train) r->whoOwns[S_ID(space.space.inter.dst)] = 0;
+        if (r->whoOwns[S_ID(getReverseSensor(space.space.inter.src))] == train) r->whoOwns[S_ID(getReverseSensor(space.space.inter.src))] = 0;
+        if (r->whoOwns[S_ID(getReverseSensor(space.space.inter.dst))] == train) r->whoOwns[S_ID(getReverseSensor(space.space.inter.dst))] = 0;
     }
 }
 

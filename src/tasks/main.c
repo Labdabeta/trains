@@ -4,6 +4,8 @@
 #include "trains/track_server.h"
 #include "gui.h"
 #include "parse_server.h"
+#include "trains/hotel.h"
+#include "trains/routing.h"
 
 void gui(void);
 void conductor(void);
@@ -63,6 +65,16 @@ void main_task(void)
     CreateSize(2, parse_server, TASK_SIZE_NORMAL);
     while (WhoIs(PARSE_SERVER_NAME) < 0)
         Pass();
+
+    CreateSize(2, hotel, TASK_SIZE_NORMAL);
+    while (WhoIs(RESERVATION_SERVER_NAME) < 0)
+        Pass();
+
+    /*
+    CreateSize(2, router, TASK_SIZE_NORMAL);
+    while (WhoIs(ROUTING_SERVER_NAME) < 0)
+        Pass();
+        */
 
     Create(1, conductor);
 
