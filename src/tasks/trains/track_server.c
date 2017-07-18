@@ -2,6 +2,7 @@
 #include <server.h>
 #include "util/async_send.h"
 #include "gui.h"
+#include "trains/stop_distance.h"
 
 #define MAX_CLIENTS 0x10
 
@@ -61,6 +62,7 @@ struct Message {
 ENTRY initialize(struct Data *data)
 {
     int i;
+    initStopDistance();
     data->sensorTid = CreateSize(1, sensor_courier, TASK_SIZE_TINY);
     data->flipper = CreateSize(0, switch_flipper, TASK_SIZE_TINY);
 

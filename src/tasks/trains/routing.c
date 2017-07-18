@@ -2,6 +2,7 @@
 #include "tasks.h"
 #include "trains/hotel.h"
 #include "trains/track_server.h"
+#include "trains/stop_distance.h"
 
 #define REVERSE_DELAY 5
 
@@ -37,9 +38,10 @@ void routeTrain(int train, struct Sensor destination)
                 dprintf("Waiting for a free path...\n\r");
                 waitForAvailability(reservation);
             }
+            struct StopOutput calibration = getStopDistance(&current.path, train);
             current.isCaboose = 1;
-            current.stopIndex = 0;
-            current.stopTime = 0;
+            current.stopIndex = calibration.stopIndex;
+            current.stopTime = calibration.stopTime;
             while (moveTrain(train, current, reservation, track, clock)) {
                 dprintf("Waiting for a successful movement...\n\r");
                 waitForAvailability(reservation);
@@ -54,9 +56,10 @@ void routeTrain(int train, struct Sensor destination)
 
     // go to i-1
     getFreePath(reservation, -1, start, path.sensors[path.length-1], &current.path);
+    struct StopOutput calibration = getStopDistance(&current.path, train);
     current.isCaboose = 1;
-    current.stopIndex = 0;
-    current.stopTime = 0;
+    current.stopIndex = calibration.stopIndex;
+    current.stopTime = calibration.stopTime;
     while (moveTrain(train, current, reservation, track, clock)) {
         dprintf("Waiting for a successful movement...\n\r");
         waitForAvailability(reservation);
