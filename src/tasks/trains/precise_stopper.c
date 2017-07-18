@@ -4,6 +4,7 @@
 #include "util/async_delay.h"
 #include "trains/track_server.h"
 #include "calibration_master.h"
+#include "precise_stopper.h"
 #include "conductor.h"
 #include "service.h"
 
@@ -11,19 +12,6 @@
 #define SII static inline int
 
 #define p_SPEED 10
-#define p_TRAIN 70
-
-#if p_TRAIN == 70
-#define reg_a 149
-#define reg_b 10224
-#endif
-
-#if p_TRAIN == 69
-#define reg_a 140
-#define reg_b 5577
-#endif
-
-// old 69 (145,7852)
 
 struct Data {
 	int caller, client, maker_tid;
@@ -35,7 +23,7 @@ struct Data {
 	track_calibration* cal;
 	struct TrackServerMessage activ, timeout;
 	int prev_id, prev_ind, prev_time, delay, important, circle_len;
-	int stopping_dist, dist_after, future_vel;
+	int stopping_dist, dist_after, future_vel, speed;
 	int flag;
 };
 
@@ -141,7 +129,8 @@ int is_circ_known(struct Data *d, track_calibration* known)
 		int dest = ind_to_id(d, ind);
 		if(!is_dead(known, dest)){
 			if(find_time(known, src, dest) == -1){
-				//return 0; //if not estimating
+				if(is_calibration)
+					return 0;
 				int t = dist_circbetween(d, prev_ind, ind) / 5;
 				int diff = ind_plus(d, ind, -1 * prev_ind);
 				if(diff == 1){
@@ -194,10 +183,15 @@ SII vel_from(struct Data *d, int ind, int num)
 SIV set_init_stop_dist(struct Data *d, int ind)
 {
 	d->future_vel = vel_from(d, ind, 2);
-	d->stopping_dist = (d->future_vel * reg_a - reg_b) / 100;
+	d->stopping_dist = (d->future_vel * d->cal->reg_a - d->cal->reg_b) / 100;
+	if(d->pathAB.distances[d->pathAB.length-1] < 850){
+		d->speed = 2;
+		d->stopping_dist = 30;
+	}
 	back_dist(d, ind, d->stopping_dist, &d->important, &d->dist_after);
-	printf("Predicted stop dist: %d\n\r", d->stopping_dist);
-	d->delay = 100 * d->dist_after / vel_from(d, ind_plus(d, d->important, 1), 2);
+	printf("Predicted stop dist: %d, go after %c%d\n\r", d->stopping_dist, SID_PRINT(ind_to_id(d, d->important)));
+	d->delay = (d->speed == 2) ? 77 : vel_from(d, ind_plus(d, d->important, 1), 2);
+	d->delay = 100 * d->dist_after / d->delay;
 }
 
 SIV sensor_logic(struct Data *d, int ind)
@@ -219,11 +213,9 @@ SIV sensor_logic(struct Data *d, int ind)
 
 SIV reg_sens(struct Data *d)
 {
-	dprintf("In reg_sens\n\r");
 	int cur_id = S_ID(d->activ.data.sensor.sensor);
 	int cur_ind = id_to_ind(d, cur_id, d->prev_ind);
 	int cur_time = Time(d->clock_tid);
-	dprintf("%c%d, %d\n\r", SID_PRINT(cur_id), cur_ind);
 
 	if(cur_ind == -1){
 		printf("Sensor not on my path!\n\r");
@@ -279,6 +271,9 @@ SIV initialize(struct Data *d)
 	d->prev_ind = d->prev_id = -1;
 	d->delay = d->important = -1337;
 	d->flag = is_circ_known(d, d->cal) ? 0 : -1;
+	d->speed = p_SPEED;
+	tput2(d->speed, d->cal->train);
+	Delay(d->clock_tid, 10);
 	if(!d->flag){ // This is for far distances
 		set_init_stop_dist(d, d->pathAB.length - 1);
 		d->flag++;
@@ -289,18 +284,18 @@ void precise_stop(){
 	struct Data d;
 	initialize(&d);
 	printf("Entering precise stop (tid: %d)\n\r", MyTid());
-	tput2(p_SPEED, p_TRAIN);
+	tput2(d.speed, d.cal->train);
+	Reply(d.client, 0, 0);
 	while(1){
 		Receive(&d.caller, (char *) &d.activ, sizeof(d.activ));
 		Reply(d.caller, 0, 0);
 		if(d.activ.type == TSMT_SENSOR_DOWN){
 			reg_sens(&d);
 		} else{
-			tput2(16, p_TRAIN);
+			tput2(16, d.cal->train);
 			break;
 		}
 	}
-	Reply(d.client, 0, 0);
 	unregisterForSensorDown(d.track_tid, -1);
 	Exit();
 }

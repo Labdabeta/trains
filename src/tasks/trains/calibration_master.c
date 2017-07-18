@@ -37,6 +37,12 @@ void record_mult(track_calibration* cal, int src, int dest, int trav_time)
 	cal->num_extra++;
 }
 
+void set_dead(track_calibration* cal, int id)
+{
+	cal->is_dead[id] = 1;
+	dprintf("Dead: %c%d\n\r", SID_PRINT(id));
+}
+
 int find_time(track_calibration* cal, int src, int dest)
 {
 	if(cal->is_dead[src] || cal->is_dead[dest])
