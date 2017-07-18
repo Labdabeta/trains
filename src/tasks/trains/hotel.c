@@ -37,6 +37,8 @@ ENTRY initialize(struct Data *data)
 {
     initReservation(&data->reservations);
     data->num_waiters = 0;
+
+    RegisterAs(RESERVATION_SERVER_NAME);
 }
 
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)

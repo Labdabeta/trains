@@ -27,7 +27,6 @@ void courier_task(void)
 void async_send(int tid, char *msg, int msglen)
 {
     int courier = Create(1, courier_task);
-    dprintf("Courier created with id %d\n\r", courier);
 
     Send(courier, (char*)&msglen, sizeof(msglen), 0, 0);
     Send(courier, (char*)&tid, sizeof(tid), 0, 0);

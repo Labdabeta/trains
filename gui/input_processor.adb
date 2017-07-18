@@ -201,8 +201,12 @@ package body Input_Processor is
 
     procedure Process_Keyboard (Key : SDL_Keys.Key) is
     begin
-        if (Key >= KEY_SPACE and Key <= KEY_AT) or
-           (Key >= KEY_a and Key <= KEY_z)
+        if Command_Length < 1 then
+            Command_Length := 1;
+        end if;
+        if ((Key >= KEY_SPACE and Key <= KEY_AT) or
+           (Key >= KEY_a and Key <= KEY_z)) and
+           Command_Length < Constants.Max_Command
         then
             if Key >= KEY_a and Key <= KEY_z and (
                 SDL.Status.Keys (KEY_LSHIFT) /= 0 or

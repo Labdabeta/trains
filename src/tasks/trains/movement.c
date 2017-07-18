@@ -14,6 +14,26 @@ static void setupSwitches(switch_state state, switch_state mask, int track)
     }
 }
 
+static inline void printPath(struct RestrictedPath *p)
+{
+    int i;
+    printf("START\n\r");
+    for (i = 0; i < p->length; ++i) {
+        printf("\tSegment %d: \n\r"
+               "\t\tDistance - %d mm\n\r"
+               "\t\tDestination - %c%d\n\r"
+               "\t\tSwitch Configuration - %x\n\r"
+               "\t\tSwitch Mask - %x\n\r",
+               i + 1,
+               p->distances[i],
+               p->sensors[i].group + 'A',
+               p->sensors[i].id + 1,
+               p->states[i],
+               p->masks[i]);
+    }
+    printf("END\n\r");
+}
+
 void movement_task(void)
 {
     struct Movement move;
@@ -24,6 +44,8 @@ void movement_task(void)
     int reservation_tid;
     int clock_tid;
     int train;
+
+    dprintf("Making a movement...\n\r");
 
     int failure = 1;
     int success = 0;
@@ -43,18 +65,24 @@ void movement_task(void)
     Receive(&caller, (char*)&train, sizeof(move));
     // Replies with 0 = success or X = failure
 
+    dprintf("Reserving a path for %d:\n\r", train);
+
+    printPath(&move.path);
+
     // Reserve spaces
     for (idx = 1; idx < move.path.length; ++idx) {
         int i;
-        if (!requestSpace(reservation_tid,
+        if (requestSpace(reservation_tid,
             SENSOR_SPACE(move.path.sensors[idx-1],
                 move.path.sensors[idx]), train)) {
+            dprintf("Could not reserve: %c%d to %c%d.\n\r", S_PRINT(move.path.sensors[idx-1]), S_PRINT(move.path.sensors[idx]));
             Reply(caller, (char*)&failure, sizeof(failure));
             Exit();
         }
         for (i = 0; i < SWITCH_MAX; ++i) {
             if (IS_CURVED(move.path.masks[idx], i)) {
-                if (!requestSpace(reservation_tid, SWITCH_SPACE(i), train)) {
+                if (requestSpace(reservation_tid, SWITCH_SPACE(i), train)) {
+                    dprintf("Could not reserve switch %d\n\r", SW_ID_TO_NUM(i));
                     Reply(caller, (char*)&failure, sizeof(failure));
                     Exit();
                 }
@@ -62,8 +90,12 @@ void movement_task(void)
         }
     }
 
+    dprintf("Reservations made.\n\r");
+
     registerForSensorDown(track_tid, train);
     registerForSensorUp(track_tid, train);
+
+    dprintf("Registered for train %d activity.\n\r", train);
 
     idx = 0;
     setupSwitches(move.path.states[0], move.path.masks[0], track_tid);
@@ -79,7 +111,8 @@ void movement_task(void)
 
         if (size == 0) {
             // A message from the async delay
-
+            dprintf("Stopping train %d.\n\r", train);
+            tput2(16, train);
         } else if (tsm.type == TSMT_SENSOR_DOWN) {
             int old_idx = idx;
             int i;
@@ -125,6 +158,8 @@ void movement_task(void)
     }
 
     Reply(caller, (char*)success, sizeof(success));
+    unregisterForSensorDown(track_tid, train);
+    unregisterForSensorUp(track_tid, train);
     Exit();
 }
 

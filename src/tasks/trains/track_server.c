@@ -294,16 +294,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     message.type = TSMT_SENSOR_DOWN;
                     message.data.sensor.sensor = reply;
 
-                    dprintf("Sendown: %c%d\n\r", S_PRINT(reply));
-                    dprintf("Calling saveSensorFlip(%c%d, %d)\n\r", S_PRINT(reply), Time(data->cid));
                     train = saveSensorFlip(&data->track, reply, Time(data->cid));
-                    dprintf("Train was: %d\n\r", train);
                     if (train >= 0)
                         train = data->track.realId[train];
 
                     message.data.sensor.train = train;
-
-                    dprintf("NOTIFY: Train %d hit sensor %c%d\n\r", message.data.sensor.train, S_PRINT(message.data.sensor.sensor));
 
                     if (train >= 0) {
                         for (client = 0; client < data->num_sendown_tids[train]; ++client)
@@ -351,8 +346,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                         train = data->track.realId[train];
 
                     message.data.sensor.train = train;
-
-                    dprintf("NOTIFY: Train %d unhit sensor %c%d\n\r", message.data.sensor.train, S_PRINT(message.data.sensor.sensor));
 
                     if (train >= 0) {
                         for (client = 0; client < data->num_senup_tids[train]; ++client)
@@ -408,7 +401,9 @@ void registerForSensorDown(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_DOWN;
+    dprintf("Registering for %d downs.\n\r", train);
     Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    dprintf("Registration complete.\n\r");
 }
 
 void registerForSensorUp(int tid, int train)
@@ -416,7 +411,9 @@ void registerForSensorUp(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_UP;
+    dprintf("Registering for %d ups.\n\r", train);
     Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+    dprintf("Registration complete.\n\r");
 }
 
 void registerForSwitch(int tid)

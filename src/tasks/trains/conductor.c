@@ -3,6 +3,7 @@
 #include "trains/track_server.h"
 #include "string.h"
 #include "routing.h"
+#include "gui.h"
 
 void async_router(void)
 {
@@ -22,6 +23,7 @@ void async_router(void)
 
 void conductor(void)
 {
+    display("Hello");
     int parse_id = WhoIs(PARSE_SERVER_NAME);
     int track_id = WhoIs(TRACK_SERVER_NAME);
 
@@ -32,8 +34,10 @@ void conductor(void)
     };
 
     int i;
-    for (i = 0; i < (sizeof(commands) / sizeof(*commands)); ++i)
+    for (i = 0; i < (sizeof(commands) / sizeof(*commands)); ++i) {
+        dprintf("Registering %s\n\r", commands[i]);
         registerForCommand(parse_id, commands[i]);
+    }
 
     for (ever) {
         struct Command cmd;
@@ -41,16 +45,19 @@ void conductor(void)
         Reply(i, 0, 0);
 
         if (!strcmp(cmd.name, "q") || !strcmp(cmd.name, "quit")) {
+            display("Goodbye");
             Exit();
         }
 
         if (!strcmp(cmd.name, "a") || !strcmp(cmd.name, "add")) {
+            display("Adding %d to %c%d", cmd.args[0].data.i, S_PRINT(parseSensor(cmd.args[1].data.string)));
             insertTrain(track_id, cmd.args[0].data.i, parseSensor(cmd.args[1].data.string));
         }
 
         if (!strcmp(cmd.name, "g") || !strcmp(cmd.name, "goto")) {
             int child = CreateSize(1, async_router, TASK_SIZE_TINY);
             struct Sensor dest = parseSensor(cmd.args[1].data.string);
+            display("Moving %d to %c%d", cmd.args[0].data.i, S_PRINT(dest));
             Send(child, (char*)&cmd.args[0].data.i, sizeof(cmd.args[0].data.i), 0, 0);
             Send(child, (char*)&dest, sizeof(dest), 0, 0);
         }

@@ -7,7 +7,7 @@
 
 #define MAX_PATH_LENGTH 0x40
 
-#define REVERSE_COST 0xFFFFFF
+#define REVERSE_COST 100
 
 struct TrackPath {
 	int length;

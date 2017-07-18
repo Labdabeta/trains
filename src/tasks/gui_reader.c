@@ -42,7 +42,7 @@ ENTRY work(struct Data *data)
         case 'D':
             msg.type = GMT_QUIT;
             DO_SEND;
-            Delay(WhoIs("CLOCK"), 10);
+            Delay(WhoIs("CLOCK"), 10); // give listeners a short time to cleanup
             KQuit();
             break;
         case 'c':

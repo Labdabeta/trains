@@ -16,25 +16,48 @@ void routeTrain(int train, struct Sensor destination)
     int clock = WhoIs("CLOCK");
     struct Sensor start = lastKnownLocation(track, train);
 
-    while (getFreePath(reservation, train, start, destination, &path) < 0)
+    dprintf("Routing %d from %c%d to %c%d\n\r", train, S_PRINT(start), S_PRINT(destination));
+
+    while (getFreePath(reservation, train, start, destination, &path) < 0) {
+        dprintf("Waiting for a good path...\n\r");
         waitForAvailability(reservation);
+    }
+
+    dprintf("Routing path found.\n\r");
 
     // find the first reverse in the path
     for (i = 1; i < path.length; ++i) {
         if (S_EQUAL(path.sensors[i], getReverseSensor(path.sensors[i-1]))) {
             // go to i-1
-            while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0)
+            while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0) {
+                dprintf("Waiting for a free path...\n\r");
                 waitForAvailability(reservation);
+            }
             current.isCaboose = 1;
             current.stopIndex = 0;
             current.stopTime = 0;
-            while (!moveTrain(train, current, reservation, track, clock))
+            while (moveTrain(train, current, reservation, track, clock)) {
+                dprintf("Waiting for a successful movement...\n\r");
                 waitForAvailability(reservation);
+            }
             Delay(clock, REVERSE_DELAY);
             dprintf("Reversing train %d\n\r", train);
             tput2(15, train); // reverse the train
             Delay(clock, REVERSE_DELAY);
             start = path.sensors[i];
         }
+    }
+
+    // go to i-1
+    while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0) {
+        dprintf("Waiting for a free path...\n\r");
+        waitForAvailability(reservation);
+    }
+    current.isCaboose = 1;
+    current.stopIndex = 0;
+    current.stopTime = 0;
+    while (!moveTrain(train, current, reservation, track, clock)) {
+        dprintf("Waiting for a successful movement...\n\r");
+        waitForAvailability(reservation);
     }
 }

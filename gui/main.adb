@@ -108,7 +108,9 @@ begin
         end if;
     end loop;
 
-    Com.Putc ('Q');
+    Com.Putc ('d');
+    Com.Putc ('i');
+    Com.Putc ('e');
 
     Init_Error := Com.Finalize;
     if Init_Error /= Null_Ptr then

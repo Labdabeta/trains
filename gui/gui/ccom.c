@@ -83,5 +83,6 @@ void com2_putc(char x)
 {
     putchar(x);
     write(com2, &x, sizeof(x));
+    usleep(10000);
 }
 

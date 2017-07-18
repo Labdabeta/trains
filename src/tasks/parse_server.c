@@ -16,16 +16,13 @@ struct Client {
 static inline int cmdsFit(struct Client *c, struct Command *cmd)
 {
     int i;
-    dprintf("Comparing %s and %s\n\r", c->name, cmd->name);
     if (strcmp(c->name, cmd->name))
         return 0;
 
-    dprintf("Arg counts %d and %d\n\r", c->numArgs, cmd->num_args);
     if (c->numArgs != cmd->num_args)
         return 0;
 
     for (i = 0; i < c->numArgs; ++i) {
-        dprintf("Argument %d %d and %d\n\r", i, c->isInt[i], cmd->args[i].isInt);
         if (c->isInt[i] != cmd->args[i].isInt)
             return 0;
     }
