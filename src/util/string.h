@@ -9,5 +9,6 @@ char *strcpy(char *dest, const char *src);
 char *strcat(char *dest, const char *src);
 char *strpsh(char *str, char c); // adds c to str
 int strcmp(const char *a, const char *b);
+size_t strlen(const char *s);
 
 #endif /* STRING_H */

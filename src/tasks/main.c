@@ -6,6 +6,8 @@
 #include "parse_server.h"
 #include "trains/hotel.h"
 #include "trains/routing.h"
+#include "string.h"
+#include "logging.h"
 
 void gui(void);
 void conductor(void);
@@ -17,7 +19,8 @@ static int _tin_tid;
 char cgetc(void) { return Getc(_cin_tid, 2); }
 char tgetc(void) { return Getc(_tin_tid, 1); }
 void cputc(char ch) { Putc(_cout_tid, 2, ch); }
-void cputstr(char *str) { Putstr(_cout_tid, 2, str); }
+void cputstr(char *str) { Putstr(_cout_tid, 2, str, strlen(str)); }
+void cputbuf(char *buf, int bufsize) { Putstr(_cout_tid, 2, buf, bufsize); }
 void tputc(char ch) { Putc(_tout_tid, 1, ch); }
 void tput2(char a, char b) { sendToutBytePair(_tout_tid, a, b); }
 void printf_putc(void *unused, char ch) { (void)unused; cputc(ch); }
@@ -37,6 +40,8 @@ void main_task(void)
 	_cout_tid = CreateSize(0, cout_server, TASK_SIZE_NORMAL);
 	while (WhoIs("COUT") < 0)
 		Pass();
+
+    _log_enabled = 1;
 
 	init_printf(0, fn_ptr(printf_putc));
 

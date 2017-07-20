@@ -35,8 +35,6 @@ ENTRY initialize(struct Data *data)
 
     RegisterAs(GUI_SERVER_NAME);
     cputc(2);
-
-    dprintf("Finishing gui startup.\n\r");
 }
 
 #define TO_HEX_CHAR(X) ("0123456789ABCDEF"[(X)])

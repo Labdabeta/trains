@@ -9,7 +9,6 @@ struct Data {
 ENTRY initialize(struct Data *data)
 {
     data->parent = MyParentTid();
-    dprintf("Creating gui reader.\n\r");
 }
 
 int getHexChar(void)

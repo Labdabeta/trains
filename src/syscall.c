@@ -14,12 +14,21 @@ extern void *memcpy(void *dst, const void *src, unsigned int len);
 
 void Exit(void)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s() ", __func__);
+#endif
 	(void)asm_callSystemInterrupt(0,0,0,CODE_EXIT);
 }
 
 int CreateSize(int priority, void (*code)(), TaskSize size)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%d, %d, %d) ", __func__, priority, code, size);
+#endif
 	int ret = asm_callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
     return ret;
 }
 
@@ -30,16 +39,33 @@ int Create(int priority, void (*code)())
 
 int MyTid(void)
 {
-	return asm_callSystemInterrupt(0,0,0,CODE_MY_ID);
+#ifdef DEBUG_MODE
+    dprintf("%s() ", __func__);
+#endif
+	int ret = asm_callSystemInterrupt(0,0,0,CODE_MY_ID);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 int MyParentTid(void)
 {
-	return asm_callSystemInterrupt(0,0,0,CODE_PARENT_ID);
+#ifdef DEBUG_MODE
+    dprintf("%s() ", __func__);
+#endif
+	int ret = asm_callSystemInterrupt(0,0,0,CODE_PARENT_ID);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 void Pass(void)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s() ", __func__);
+#endif
 	(void)asm_callSystemInterrupt(0,0,0,CODE_PASS);
 }
 
@@ -63,18 +89,25 @@ int Send(int tid, char *msg, int msglen, char *reply, int rplen)
 {
 	Buffer m;
 	Buffer r;
+#ifdef DEBUG_MODE
+    int i;
+    dprintf("%s(%d, {", __func__, tid);
+    if (msglen > 0) {
+        dprintf("%d",(int)msg[0]);
+        for (i = 1; i < msglen; ++i)
+           dprintf(",%d",(int)msg[i]);
+    }
+    dprintf("}, %d) ", rplen);
+#endif
 
 	loadBuffer(&m, msg, msglen);
 	loadBuffer(&r, reply, rplen);
 
-	return SendBuffer(tid, &m, &r);
-}
-
-void *Share(int tid, void *msg)
-{
-	void *ret = 0;
-	(void)asm_callSystemInterrupt(tid,(int)msg,(int)&ret,CODE_SHARE);
-	return ret;
+	int ret = SendBuffer(tid, &m, &r);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 int ReceiveBuffer(int *tid, Buffer *msg)
@@ -91,20 +124,18 @@ int ReceiveBuffer(int *tid, Buffer *msg)
 
 int Receive(int *tid, char *msg, int msglen)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%d) ", __func__, msglen);
+#endif
 	Buffer m;
 
 	loadBuffer(&m, msg, msglen);
 
-	return ReceiveBuffer(tid, &m);
-}
-
-void *Obtain(int *tid)
-{
-	void *ret = 0;
-	if (asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN))
-		asm_callSystemInterrupt((int)tid,(int)&ret,0,CODE_OBTAIN);
-
-	return ret;
+	int ret = ReceiveBuffer(tid, &m);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 int ReplyBuffer(int tid, Buffer *reply)
@@ -115,61 +146,109 @@ int ReplyBuffer(int tid, Buffer *reply)
 int Reply(int tid, char *reply, int rplen)
 {
 	Buffer r;
+#ifdef DEBUG_MODE
+    int i;
+    dprintf("%s(%d, {", __func__, tid);
+    if (rplen > 0) {
+        dprintf("%d",(int)reply[0]);
+        for (i = 1; i < rplen; ++i)
+           dprintf(",%d",(int)reply[i]);
+    }
+    dprintf("}) ");
+#endif
 
 	loadBuffer(&r, reply, rplen);
 
-	return ReplyBuffer(tid, &r);
-}
-
-void Respond(int tid, void *rpl)
-{
-	(void)asm_callSystemInterrupt(tid,(int)rpl,0,CODE_RESPOND);
+	int ret = ReplyBuffer(tid, &r);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 int RegisterAs(char *name)
 {
-	return sendRegisterAs(NAMESERVER_TID, name);
+#ifndef DEBUG_MODE
+    dprintf("%s(%s) ", __func__, name);
+#endif
+	int ret = sendRegisterAs(NAMESERVER_TID, name);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 int WhoIs(char *name)
 {
-	return sendWhoIs(NAMESERVER_TID, name);
+#ifndef DEBUG_MODE
+    dprintf("%s(%s) ", __func__, name);
+#endif
+	int ret = sendWhoIs(NAMESERVER_TID, name);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 void AwaitEvent(EventType type)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s() ", __func__);
+#endif
 	(void)asm_callSystemInterrupt(type, 0, 0, CODE_AWAIT);
 }
 
 void AwaitTransmission(EventType type, int value, int *addr)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%d, %x) ", __func__, value, addr);
+#endif
     (void)asm_callSystemInterrupt(type, value, (int)addr, CODE_AWAIT_TX);
 }
 
 int AwaitReceive(EventType type, int *addr)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%x) ", __func__, addr);
+#endif
     return asm_callSystemInterrupt(type, 0, (int)addr, CODE_AWAIT_RX);
 }
 
 int Time(int tid)
 {
-	return sendGetTime(tid);
+#ifdef DEBUG_MODE
+    dprintf("%s(%d) ", __func__, tid);
+#endif
+	int ret = sendGetTime(tid);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 void Delay(int tid, int ticks)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%d, %d) ", __func__, tid, ticks);
+#endif
 	if(ticks > 0)
 		sendDelay(tid, ticks);
 }
 
 void DelayUntil(int tid, int ticks)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%d, %d) ", __func__, tid, ticks);
+#endif
 	if(ticks > 0)
 	 sendDelayUntil(tid, ticks);
 }
 
 unsigned long long int UTime(KernelTimer kt)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%d) ", __func__, kt);
+#endif
 	unsigned long long int ret = 0;
 	(void)asm_callSystemInterrupt((int)&ret, (int)kt, 0, CODE_UTIME);
 	return ret;
@@ -177,25 +256,37 @@ unsigned long long int UTime(KernelTimer kt)
 
 int Getc(int tid, int uart)
 {
-	if (uart == 1)
-		return sendTinGetc(tid);
-	return sendCinGetc(tid);
+#ifdef DEBUG_MODE
+    dprintf("%s(%d, %d) ", __func__, tid, uart);
+#endif
+	if (uart == 1) {
+		int ret = sendTinGetc(tid);
+#ifdef DEBUG_MODE
+        dprintf("=%d ", ret);
+#endif
+        return ret;
+    }
+	int ret = sendCinGetc(tid);
+#ifdef DEBUG_MODE
+    dprintf("=%d ", ret);
+#endif
+    return ret;
 }
 
 int Putc(int tid, int uart, char ch)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s(%d, %d, %d) ", tid, uart, (int)ch);
+#endif
 	if (uart == 1) {
 		sendToutByte(tid, ch);
 		return 0;
 	}
-	char msg[2];
-	msg[0] = ch;
-	msg[1] = 0;
-	sendCoutPutstr(tid, msg);
+	sendCoutPutstr(tid, &ch, 1);
 	return 0;
 }
 
-int Putstr(int tid, int uart, char *str)
+int Putstr(int tid, int uart, char *str, int strlen)
 {
 	if (uart == 1) {
         char *ch;
@@ -205,16 +296,22 @@ int Putstr(int tid, int uart, char *str)
             sendToutByte(tid, *ch);
 		return 0;
 	}
-	sendCoutPutstr(tid, str);
+	sendCoutPutstr(tid, str, strlen);
 	return 0;
 }
 
 void Service(void)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s() ", __func__);
+#endif
 	(void)asm_callSystemInterrupt(0,0,0,CODE_SERVICE);
 }
 
 void KQuit(void)
 {
+#ifdef DEBUG_MODE
+    dprintf("%s() ", __func__);
+#endif
 	(void)asm_callSystemInterrupt(0,0,0,CODE_QUIT);
 }

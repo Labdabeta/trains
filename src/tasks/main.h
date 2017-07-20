@@ -5,6 +5,7 @@ char cgetc(void);
 char tgetc(void);
 void cputc(char ch);
 void cputstr(char *str);
+void cputbuf(char *buf, int bufsize);
 void tputc(char ch);
 void tput2(char a, char b);
 

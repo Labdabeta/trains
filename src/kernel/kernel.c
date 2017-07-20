@@ -5,6 +5,8 @@
 #include "tasks/tasks.h"
 #include "hwi.h"
 
+#include "tasks/logging.h"
+
 //extern void asm_SetupTrap(struct KernelData *kernel_sp);
 extern void asm_SetupTrap(void *one, void *two, void *three);
 
@@ -42,6 +44,8 @@ int main(int argc, char *argv[])
 	struct TaskDescriptor *active;
     int active_tid;
     int active_state;
+
+    _log_enabled = 0; // ensure logging is off!
 
 	data.inittime = 0;
 	data.lasttick = 0;
@@ -92,9 +96,8 @@ int main(int argc, char *argv[])
 			data.tmp = t4t();
 			data.kerntime += data.tmp - data.lasttick;
 			data.lasttick = data.tmp;
+            dprintf("%d ", active->tid);
 #endif
-
-			//dprintf("---------- %d ----------\n\r", active->tid);
             active_tid = active->tid;
             active_state = active->state;
 			enterTask(active);

@@ -123,17 +123,6 @@ int SendBuffer(int tid, Buffer *msg, Buffer *reply);
  */
 int Send(int tid, char *msg, int msglen, char *reply, int rplen);
 
-/* Shares a pointer with the given tid.
- *
- * This is faster than Send, but acts similarly.
- *
- * \param[in] tid              The tid to share with.
- * \param[in] msg              The message to share.
- *
- * \return The replied pointer.
- */
-void *Share(int tid, void *msg);
-
 /* Receives a message from any tid.
  *
  * This blocks until a message is received from any task.
@@ -156,16 +145,6 @@ int ReceiveBuffer(int *tid, Buffer *msg);
  * \return The number of bytes received, or -1 if the message was truncated.
  */
 int Receive(int *tid, char *msg, int msglen);
-
-/* Obtains a shared pointer from any tid.
- *
- * This is faster than Receive, but acts similarly.
- *
- * \param[out] tid             The sender's tid.
- *
- * \return The shared pointer.
- */
-void *Obtain(int *tid);
 
 /* Replies to the given tid.
  *
@@ -192,15 +171,6 @@ int ReplyBuffer(int tid, Buffer *reply);
  * exist, and -3 if the tid is not waiting for a reply.
  */
 int Reply(int tid, char *reply, int rplen);
-
-/* Respond with a shared pointer to the given tid.
- *
- * This is faster than Reply, but acts similarly.
- *
- * \param[in] tid              The tid to respond to.
- * \param[in] rpl              The pointer to share.
- */
-void Respond(int tid, void *rpl);
 
 /* Registers the current task with the name server.
  *
@@ -331,10 +301,11 @@ int Putc(int tid, int uart, char ch);
  * \param[in] tid              The tid of the I/O server.
  * \param[in] uart             The UART to send to (either 1 or 2)
  * \param[in] str              The string to send.
+ * \param[in] strlen           The length of the string to send.
  *
  * \return 0 on success or -1 on failure.
  */
-int Putstr(int tid, int uart, char *str);
+int Putstr(int tid, int uart, char *str, int strlen);
 
 /* Registers the current task as a service.
  *

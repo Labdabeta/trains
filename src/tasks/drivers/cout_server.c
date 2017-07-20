@@ -1,6 +1,7 @@
 #include <server.h>
 #include "kernel/task.h"
 #include "cout_server.h"
+#include "string.h"
 
 /* These should both be multiples of 2 for decent performance. */
 #define OUTPUT_BUFSIZE 0x10000
@@ -15,7 +16,8 @@ struct Data {
 };
 
 struct Message {
-	char *data; /* NULL = ready, otherwise = null-terminated string to send. */
+	char *data; /* NULL = ready, otherwise = string to send. */
+    int size;
 };
 
 ENTRY initialize(struct Data *data)
@@ -33,19 +35,23 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 	if (size) {
 		if (data->ready) {
 			char *ch;
+            int i;
 			data->ready = 0;
 			Reply(data->courier, m->data, sizeof(char));
 
 			/* Copy remaining string */
-			for (ch = &m->data[1]; *ch; ++ch) {
+            ch = &m->data[1];
+			for (i = 0; i < m->size; ++i, ++ch) {
 				int idx = data->output_idx + data->output_size++;
 				data->outputs[idx % OUTPUT_BUFSIZE] = *ch;
 			}
 		} else {
 			char *ch;
+            int i;
 
 			/* Copy string */
-			for (ch = m->data; *ch; ++ch) {
+            ch = m->data;
+			for (i = 0; i < m->size; ++i, ++ch) {
 				int idx = data->output_idx + data->output_size++;
 				data->outputs[idx % OUTPUT_BUFSIZE] = *ch;
 			}
@@ -70,10 +76,11 @@ char sendCoutReady(int tid)
 	return reply;
 }
 
-void sendCoutPutstr(int tid, char *str)
+void sendCoutPutstr(int tid, char *str, int strlen)
 {
 	struct Message msg;
 	msg.data = str;
+    msg.size = strlen;
 	Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 

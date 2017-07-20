@@ -19,8 +19,9 @@ char sendCoutReady(int tid);
  * This is the internal send used by the Putc and related commands.
  *
  * \param[in] tid              The tid of the cout server.
- * \param[in] str              The null-terminated string to send.
+ * \param[in] str              The string to send.
+ * \param[in] strlen           The length of the string to send.
  */
-void sendCoutPutstr(int tid, char *str);
+void sendCoutPutstr(int tid, char *str, int strlen);
 
 #endif /* COUT_SERVER_H */
