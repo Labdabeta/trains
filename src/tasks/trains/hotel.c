@@ -33,6 +33,22 @@ struct Message {
     } data;
 };
 
+void printRestrictions(struct Restrictions *r)
+{
+    int i;
+    printf("Enabled:\t");
+    for (i = 0; i < TRACK_MAX; ++i) {
+        if (r->isEnabled[i])
+            printf("%s ", track_nodes[i].name);
+    }
+    printf("\nDisabled:\t");
+    for (i = 0; i < TRACK_MAX; ++i) {
+        if (!r->isEnabled[i])
+            printf("%s ", track_nodes[i].name);
+    }
+    printf("\n");
+}
+
 ENTRY initialize(struct Data *data)
 {
     initReservation(&data->reservations);
@@ -73,6 +89,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             break;
         case HSM_GET_PATH:
             getRestrictions(&data->reservations, msg->train, &data->restrictions);
+            printRestrictions(&data->restrictions);
             reply = findRestrictedPath(S_ID(msg->data.pair.src), S_ID(msg->data.pair.dst), &data->restrictions, msg->data.pair.path);
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
