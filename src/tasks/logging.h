@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "tasks.h"
 #include "string.h"
+#include "gui.h"
 
 enum LogType {
     LOG_SENSOR_DOWN = 0,
