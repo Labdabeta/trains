@@ -14,6 +14,7 @@ enum LogType {
     LOG_ROUTE = 6,
     LOG_PARSE = 7,
     LOG_HOTEL = 8,
+    LOG_TRACK_CLIENTS = 9
 };
 
 extern int _log_enabled;
