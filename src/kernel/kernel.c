@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 			data.tmp = t4t();
 			data.kerntime += data.tmp - data.lasttick;
 			data.lasttick = data.tmp;
-            dprintf("%d ", active->tid);
+            //dprintf("%d ", active->tid);
 #endif
             active_tid = active->tid;
             active_state = active->state;
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 
 #ifdef DEBUG_MODE
 	unsigned long long int ttime = data.lasttick - data.inittime;
-	dprintf("\n\rKernel time: %u%u\n\rHandler time: %u%u\n\rUser time: %u%u\n\rIdle time: %u%u\n\rTotal time: %u%u\n\rPercent idle: %u%%\n\r",
+	dprintf("\nKernel time: %u%u\nHandler time: %u%u\nUser time: %u%u\nIdle time: %u%u\nTotal time: %u%u\nPercent idle: %u%%\n",
 			(unsigned int)(data.kerntime>>32), (unsigned int)data.kerntime,
 			(unsigned int)(data.handtime>>32), (unsigned int)data.handtime,
 			(unsigned int)(data.usertime>>32), (unsigned int)data.usertime,

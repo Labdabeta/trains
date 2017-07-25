@@ -30,12 +30,13 @@ void conductor(void)
     const char *commands[] = {
         "quit", "q",
         "add is", "a is",
-        "goto is", "g is"
+        "tr ii", "t ii",
+        //"goto is", "g is"
     };
 
     int i;
     for (i = 0; i < (sizeof(commands) / sizeof(*commands)); ++i) {
-        dprintf("Registering %s\n\r", commands[i]);
+        dprintf("Registering %s\n", commands[i]);
         registerForCommand(parse_id, commands[i]);
     }
 
@@ -54,6 +55,7 @@ void conductor(void)
             insertTrain(track_id, cmd.args[0].data.i, parseSensor(cmd.args[1].data.string));
         }
 
+#if 0
         if (!strcmp(cmd.name, "g") || !strcmp(cmd.name, "goto")) {
             int child = CreateSize(1, async_router, TASK_SIZE_TINY);
             struct Sensor dest = parseSensor(cmd.args[1].data.string);
@@ -61,6 +63,10 @@ void conductor(void)
             Send(child, (char*)&cmd.args[0].data.i, sizeof(cmd.args[0].data.i), 0, 0);
             Send(child, (char*)&dest, sizeof(dest), 0, 0);
         }
+#endif
+
+        if (!strcmp(cmd.name, "t") || !strcmp(cmd.name, "tr"))
+            tput2(cmd.args[0].data.i, cmd.args[1].data.i);
     }
 }
 
@@ -88,7 +94,7 @@ void path_maker(void){
 	while(1){
 		Receive(&caller, (char *) &req, sizeof(struct flip_request));
 		Reply(caller, 0, 0);
-		dprintf("Flipping %d to %d\n\r", req.switch_id, req.position);
+		dprintf("Flipping %d to %d\n", req.switch_id, req.position);
 		notifySwitch(track, req.switch_id, req.position == 34);
 		tput2(req.position, req.switch_id);
 		Delay(clock_tid, 6);

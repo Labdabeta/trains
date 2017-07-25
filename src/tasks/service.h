@@ -30,7 +30,7 @@ MAKE_SERVICE(name)
 #define MAKE_SERVICE_LONG(name, d_str, init, work) void name(void) {\
 	struct d_str data; \
 	Service(); \
-	dprintf("\n\rService %s created with tid %d.\n\r", #name, MyTid()); \
+	dprintf("Service %s created with tid %d.\n", #name, MyTid()); \
 	init(&data); \
 	for (ever) work(&data); \
 }

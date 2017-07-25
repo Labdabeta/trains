@@ -76,12 +76,13 @@ int com2_getc(void)
         return -1;
 
     putchar(rd);
+    //printf("%d ", (int)rd);
     return rd;
 }
 
 void com2_putc(char x)
 {
-    putchar(x);
+    //putchar(x);
     write(com2, &x, sizeof(x));
     usleep(10000);
 }

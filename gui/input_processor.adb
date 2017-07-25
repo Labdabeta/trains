@@ -9,6 +9,9 @@ with Trains;
 with SDL.Image; use SDL.Image;
 with Interfaces.C.Strings; use Interfaces.C.Strings;
 with Interfaces.C; use Interfaces.C;
+with Ada.Text_IO;
+with Ada.Calendar;
+with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 
 package body Input_Processor is
     function To_Hex_Char (Val : Integer) return Character;
@@ -35,13 +38,44 @@ package body Input_Processor is
         end loop;
     end Draw;
 
+    procedure Finalize is
+    begin
+        Ada.Text_IO.Close (Log_File);
+    end Finalize;
+
     procedure Initialize is
+        Now : Ada.Calendar.Time;
+        Year : Ada.Calendar.Year_Number;
+        Month : Ada.Calendar.Month_Number;
+        Day : Ada.Calendar.Day_Number;
+        Second : Ada.Calendar.Day_Duration;
     begin
         The_Font := SDL.Font.Open (New_String ("res/font.ttf"), 28);
         SDL.Font.RenderFast (The_Font, New_String (String (Command)), 200, 200,
             200, Command_Image);
         SDL.Font.RenderFast (The_Font, New_String (">"), 255, 255, 255,
             Prompt_Image);
+
+        Now := Ada.Calendar.Clock;
+        Year := Ada.Calendar.Year (Now);
+        Month := Ada.Calendar.Month (Now);
+        Day := Ada.Calendar.Day (Now);
+        Second := Ada.Calendar.Seconds (Now);
+
+        declare
+            Year_String : String := Ada.Calendar.Year_Number'Image (Year);
+            Month_String : String := Ada.Calendar.Month_Number'Image (Month);
+            Day_String : String := Ada.Calendar.Day_Number'Image (Day);
+            Second_String : String := Ada.Calendar.Day_Duration'Image (Second);
+        begin
+            Month_String (Month_String'First) := '-';
+            Day_String (Day_String'First) := '-';
+            Second_String (Second_String'First) := '-';
+
+            Ada.Text_IO.Create (Log_File, Ada.Text_IO.Out_File,
+                "logs/" & Year_String (2 .. Year_String'Length) &
+                Month_String & Day_String & Second_String & ".log");
+        end;
     end Initialize;
 
     function Process (C : Character) return Boolean is
@@ -76,22 +110,17 @@ package body Input_Processor is
                     Input_Args_Length := 0;
                     Is_Log := False;
                 when 'l' =>
-                    Input_Length :=
-                        (Character'Pos (Args (2)) - Character'Pos ('0')) * 10 +
-                        Character'Pos (Args (3)) - Character'Pos ('0');
+                    Log_Type := Character'Pos (Args (2));
+                    Input_Length := Character'Pos (Args (3));
                     Input_Args := (others => ' ');
-                    if Input_Length = 0 then
-                        Input_Length := 100;
-                    end if;
                     Input_Args_Length := 0;
                     Is_Log := True;
                 when 'd' =>
                     return True;
+                when ASCII.ETX =>
+                    return False;
                 when others =>
-                    Put_Line ("Unknown command: "
-                        & Character'Image (Args (1))
-                        & Character'Image (Args (2))
-                        & Character'Image (Args (3)));
+                    return True;
             end case;
             return False;
         end Process_Command;
@@ -125,6 +154,9 @@ package body Input_Processor is
                     SDL.Font.RenderFast (The_Font,
                         New_String (String (Input_Args)),
                         200, 200, 200, Previous_Line_Image (Previous_Line_Idx));
+                else
+                    Ada.Text_IO.Put_Line (Log_File, Integer'Image (Log_Type) &
+                        ":" & Head (String (Input_Args), Input_Length));
                 end if;
             end if;
         else
@@ -282,6 +314,8 @@ package body Input_Processor is
             Command_Length := Command_Length_History (Current_Command_Idx);
             SDL.Font.RenderFast (The_Font, New_String (String (Command)),
                 200, 200, 200, Command_Image);
+        elsif Key = KEY_ESCAPE then
+            Com.Putc ('?');
         end if;
     end Process_Keyboard;
 

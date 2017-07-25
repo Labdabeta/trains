@@ -26,6 +26,9 @@ ENTRY initialize(struct Data *data)
 {
     data->track_id = WhoIs(TRACK_SERVER_NAME);
 
+    while (cgetc() != '?');
+    cputc(2);
+
     registerForSensorDown(data->track_id, -1);
     registerForSensorUp(data->track_id, -1);
     registerForSwitch(data->track_id);
@@ -34,7 +37,6 @@ ENTRY initialize(struct Data *data)
     data->num_clients = 0;
 
     RegisterAs(GUI_SERVER_NAME);
-    cputc(2);
 }
 
 #define TO_HEX_CHAR(X) ("0123456789ABCDEF"[(X)])

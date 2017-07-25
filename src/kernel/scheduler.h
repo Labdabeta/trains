@@ -26,7 +26,7 @@ static inline void dump_scheduler(struct Scheduler *state)
 
     for (i = 0; i < NUM_SUPPORTED_TASKS; ++i)
         visited[i] = 0;
-    dprintf("Scheduler:\n\r");
+    dprintf("Scheduler:\n");
     for (i = 0; i < NUM_PRIORITIES; ++i) {
         struct TaskDescriptor *t = state->active->queues[i]->head;
         while (t) {
@@ -43,7 +43,7 @@ static inline void dump_scheduler(struct Scheduler *state)
             }
             t = t->next;
         }
-        dprintf("|\n\r");
+        dprintf("|\n");
     }
 }
 
@@ -61,7 +61,7 @@ void initScheduler(struct Scheduler *state);
  */
 static inline void scheduleTask(struct Scheduler *state, struct TaskDescriptor *task)
 {
-    //dprintf("Scheduling %d onto %d\n\r", task->tid,
+    //dprintf("Scheduling %d onto %d\n", task->tid,
             //((int)state->active->queues[task->priority]->head > 1 ? state->active->queues[task->priority]->head->tid : state->active->queues[task->priority]->head));
 	task->next = state->active->queues[task->priority]->head;
 	state->active->queues[task->priority]->head = task;
@@ -96,7 +96,7 @@ static inline struct TaskDescriptor *reschedule(struct Scheduler *state)
         if (ret->state) {
             ret->next = (void*)1;
         } else {
-            //dprintf("returning: %d\n\r", ret->tid);
+            //dprintf("returning: %d\n", ret->tid);
             scheduleTask(state,ret);
             return ret;
         }

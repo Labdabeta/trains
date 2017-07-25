@@ -5,7 +5,9 @@
 #include "gui.h"
 #include "util/async_delay.h"
 
-#define PRINT(X) dprintf("%d: %s = %d\n\r", __LINE__, #X, X)
+#warning TODO: implement "Exact knowledge" IE: feel free to overshoot a bit, then backup to land perfectly and reset direction to forward. No need for precise calibration, just "good enough"
+
+#define PRINT(X) dprintf("%d: %s = %d\n", __LINE__, #X, X)
 
 static void setupSwitches(switch_state state, switch_state mask, int track)
 {
@@ -19,13 +21,13 @@ static void setupSwitches(switch_state state, switch_state mask, int track)
 static inline void printPath(struct RestrictedPath *p)
 {
     int i;
-    printf("START\n\r");
+    printf("START\n");
     for (i = 0; i < p->length; ++i) {
-        printf("\tSegment %d: \n\r"
-               "\t\tDistance - %d mm\n\r"
-               "\t\tDestination - %c%d\n\r"
-               "\t\tSwitch Configuration - %x\n\r"
-               "\t\tSwitch Mask - %x\n\r",
+        printf("\tSegment %d: \n"
+               "\t\tDistance - %d mm\n"
+               "\t\tDestination - %c%d\n"
+               "\t\tSwitch Configuration - %x\n"
+               "\t\tSwitch Mask - %x\n",
                i + 1,
                p->distances[i],
                p->sensors[i].group + 'A',
@@ -33,7 +35,7 @@ static inline void printPath(struct RestrictedPath *p)
                p->states[i],
                p->masks[i]);
     }
-    printf("END\n\r");
+    printf("END\n");
 }
 
 void movement_task(void)

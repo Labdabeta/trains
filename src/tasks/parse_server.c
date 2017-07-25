@@ -3,8 +3,9 @@
 #include "string.h"
 #include "gui.h"
 #include "util/async_send.h"
+#include "logging.h"
 
-#define MAX_CLIENTS 0x10
+#define MAX_CLIENTS 0x100
 
 struct Client {
     int tid;
@@ -66,6 +67,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             int num_cmds, i;
             int found;
 
+            LOG(LOG_PARSE, "%s", msg->data.g.type);
             parseCommands(msg->data.g.data.cmd, cmds, &num_cmds);
 
             for (i = 0; i < num_cmds; ++i) {

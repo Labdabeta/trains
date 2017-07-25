@@ -3,6 +3,8 @@
 
 #ifndef REMOTE
 #include "tasks.h"
+#else
+#include <stdio.h>
 #endif
 
 void record_edge(track_calibration* cal, int src, int dest, int trav_time)

@@ -8,6 +8,7 @@ package Constants is
     Message_Height : constant := 11;
 
     type Command_String is new String (1 .. Max_Command);
+    type Long_Command_String is new String (1 .. 256);
 
     Map_Area : constant SDL.Rectangle := (
         0.0000,

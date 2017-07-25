@@ -33,6 +33,10 @@ ENTRY work(struct Data *data)
 {
     struct GUIMessage msg;
     char ch = cgetc();
+    if (ch == '?') {
+        cputc(2);
+        return;
+    }
 
 #define DO_SEND Send(data->parent, (char*)&msg, sizeof(msg), 0, 0)
     // State machine for parsing messages

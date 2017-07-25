@@ -2,22 +2,19 @@
 #include "tasks.h"
 
 int _log_enabled;
+char log_buf[LOG_BUFSIZE];
 
-void log_function(enum LogType type, int numelems, const int *elems)
+void log_function(enum LogType type)
 {
-    int *data = alloc(numelems * sizeof(*elems) + sizeof(type) + sizeof(int));
-    int i;
-    data[0] = 0x20474F4C; // 'log ' in little endian
-    data[1] = type;
-    for (i = 0; i < numelems; ++i)
-        data[i+2] = elems[i];
+    log_buf[0] = 'l';
+    log_buf[1] = type & 0xFF;
+    log_buf[2] = strlen(log_buf + 4) + 1;
+    log_buf[3] = '\t';
+
     if (_log_enabled) {
-        cputbuf((char*)data, numelems * sizeof(*elems) + sizeof(type) + sizeof(int));
+        cputstr(log_buf);
     } else {
-        dprintf("\nBOOT LOG (%d):\t", type);
-        for (i = 0; i < numelems; ++i)
-            dprintf("%d\t", elems[i]);
-        dprintf("\n");
+        dprintf("\nBOOT LOG (%d): %s\t\n", type, log_buf + 4);
     }
 }
 

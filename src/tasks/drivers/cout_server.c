@@ -41,7 +41,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *m, int size)
 
 			/* Copy remaining string */
             ch = &m->data[1];
-			for (i = 0; i < m->size; ++i, ++ch) {
+			for (i = 1; i < m->size; ++i, ++ch) {
 				int idx = data->output_idx + data->output_size++;
 				data->outputs[idx % OUTPUT_BUFSIZE] = *ch;
 			}

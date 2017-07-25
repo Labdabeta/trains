@@ -30,11 +30,15 @@ digraph Tasks {
         label="Tout";
     }
 
-    routing_server;
+    router;
     track_server; sensor_courier;
     gui;
-    conductor[color=red];
+    conductor;
     idle;
+    hotel;
+    parse_server;
+    mover;
+
 
     /* Creations */
     edge [style=bold, color=blue];
@@ -44,31 +48,39 @@ digraph Tasks {
     main -> cout_server;
     main -> tin_server;
     main -> tout_server;
-    main -> routing_server;
-    main -> train_server;
+    main -> router;
+    main -> track_server;
     main -> gui;
     main -> conductor;
+    main -> hotel;
+    main -> parse_server;
     clock_server -> clock_courier;
     cin_server -> cin_courier;
     cout_server -> cout_courier;
     tin_server -> tin_courier;
     tout_server -> tout_courier;
-    routing_server -> track_server;
     clock_courier -> clock_notifier;
     cin_courier -> cin_notifier;
     cout_courier -> cout_notifier;
     tin_courier -> tin_notifier;
     tout_courier -> tout_notifier;
     track_server -> sensor_courier;
+    router -> mover;
 
     /* Messages */
     edge [style=solid, color=black];
     tin_server -> track_server;
-    routing_server -> tout_server;
+    router -> tout_server;
+    track_server -> router;
+    mover -> tout_server;
     cin_server -> gui;
     gui -> cout_server;
-    gui -> conductor;
-    conductor -> routing_server;
+    gui -> parse_server;
+    parse_server -> conductor;
+    conductor -> router;
+    router -> hotel;
     track_server -> gui;
+    track_server -> mover;
+    sensor_courier -> track_server;
 }
 

@@ -9,8 +9,11 @@
 #include "tasks/drivers/tin_server.h"
 #include "tasks/drivers/tout_server.h"
 #include "trains/ts7200.h"
+#include "tasks/logging.h"
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
+
+#define dprintf(...)
 
 void Exit(void)
 {
@@ -28,6 +31,7 @@ int CreateSize(int priority, void (*code)(), TaskSize size)
 	int ret = asm_callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
 #ifdef DEBUG_MODE
     dprintf("=%d ", ret);
+    LOG(LOG_CREATE, "%d - %x", ret, (int)code);
 #endif
     return ret;
 }

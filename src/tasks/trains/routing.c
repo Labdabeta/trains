@@ -17,14 +17,14 @@ void routeTrain(int train, struct Sensor destination)
     int clock = WhoIs("CLOCK");
     struct Sensor start = lastKnownLocation(track, train);
 
-    dprintf("Routing %d from %c%d to %c%d\n\r", train, S_PRINT(start), S_PRINT(destination));
+    dprintf("Routing %d from %c%d to %c%d\n", train, S_PRINT(start), S_PRINT(destination));
 
     while (getFreePath(reservation, train, start, destination, &path) < 0) {
         dprintf("Waiting for a good path...\n\r");
         waitForAvailability(reservation);
     }
 
-    dprintf("Routing path found.\n\r");
+    dprintf("Routing path found.\n");
 
     // find the first reverse in the path
     for (i = 1; i < path.length; ++i) {
@@ -61,10 +61,10 @@ void routeTrain(int train, struct Sensor destination)
     current.stopIndex = calibration.stopIndex;
     current.stopTime = calibration.stopTime;
     while (moveTrain(train, current, reservation, track, clock)) {
-        dprintf("Waiting for a successful movement...\n\r");
+        dprintf("Waiting for a successful movement...\n");
         waitForAvailability(reservation);
         while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0) {
-            dprintf("Waiting for a free path...\n\r");
+            dprintf("Waiting for a free path...\n");
             waitForAvailability(reservation);
         }
     }

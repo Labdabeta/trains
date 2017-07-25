@@ -1,6 +1,9 @@
-#include "trains/reservation.h"
+#include "trains/track.h"
+#include "parse_command.h"
 #include <stdio.h>
+#include <stdlib.h>
 
+#if 0
 void printRestrictions(struct Restrictions *r)
 {
     int i;
@@ -16,23 +19,33 @@ void printRestrictions(struct Restrictions *r)
     }
     printf("\n");
 }
+#endif
 
 int main(int argc, char *argv[])
 {
-    struct ReservationSystem r;
-    initReservation(&r);
+    struct Track tr;
+    struct Command cmds[MAX_COMMAND_COUNT];
+    int num_cmds;
+    int time = 0;
 
-    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("A8"),parseSensor("C7")), 76));
-    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C7"),parseSensor("C3")), 76));
-    printf("%d\n", reserveSpace(&r, SWITCH_SPACE(5), 76));
-    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C3"),parseSensor("C4")), 76));
-    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C4"),parseSensor("C6")), 76));
-    printf("%d\n", reserveSpace(&r, SWITCH_SPACE(18), 76));
-    printf("%d\n", reserveSpace(&r, SENSOR_SPACE(parseSensor("C6"),parseSensor("B15")), 76));
+    initTrackA(&tr);
 
-    printf("%d\n", whoOwnsSpace(&r, SENSOR_SPACE(S_MAKE(A, 8), S_MAKE(C, 7))));
-    clearSpace(&r, SENSOR_SPACE(S_MAKE(A, 8), S_MAKE(C, 7)), 76);
-    printf("%d\n", whoOwnsSpace(&r, SENSOR_SPACE(S_MAKE(A, 8), S_MAKE(C, 7))));
+    addTrain(&tr, 70, S_MAKE(A, 10));
+    addTrain(&tr, 69, S_MAKE(C, 7));
+
+    for (int i = 0; i < 100000; ++i) {
+        int id = rand() % 80;
+        struct Sensor sen = S_MID(id);
+        printf("%d\n", saveSensorFlip(&tr, sen, i));
+        saveSensorUnflip(&tr, sen, i);
+
+        if (rand() % 3 == 0) {
+            int sw = rand() % SWITCH_MAX;
+            int c = rand() % 2;
+            printf("%d %d", sw, c);
+            saveSwitchFlip(&tr, sw, c);
+        }
+    }
 
     return 0;
 }

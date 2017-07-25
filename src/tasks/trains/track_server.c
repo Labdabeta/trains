@@ -95,6 +95,7 @@ ENTRY initialize(struct Data *data)
 /****************************** Message handlers ******************************/
 static inline void handleRegisterDown(struct Data *data, int tid, int train)
 {
+    dprintf("Handling rdown");
     Reply(tid, 0, 0);
     if (train >= 0)
         data->sendown_clients[train][data->num_sendown_clients[train]++] = tid;
@@ -105,6 +106,7 @@ static inline void handleRegisterDown(struct Data *data, int tid, int train)
 static inline void handleUnregisterDown(struct Data *data, int tid, int train)
 {
     int i;
+    dprintf("Handling urdown");
     Reply(tid, 0, 0);
     // Find the index
     for (i = 0; i < MAX_CLIENTS; ++i) {
@@ -126,6 +128,7 @@ static inline void handleUnregisterDown(struct Data *data, int tid, int train)
 
 static inline void handleRegisterUp(struct Data *data, int tid, int train)
 {
+    dprintf("Handling rup");
     Reply(tid, 0, 0);
     if (train >= 0)
         data->senup_clients[train][data->num_senup_clients[train]++] = tid;
@@ -136,6 +139,7 @@ static inline void handleRegisterUp(struct Data *data, int tid, int train)
 static inline void handleUnregisterUp(struct Data *data, int tid, int train)
 {
     int i;
+    dprintf("Handling urup");
     Reply(tid, 0, 0);
     // Find the index
     for (i = 0; i < MAX_CLIENTS; ++i) {
@@ -157,6 +161,7 @@ static inline void handleUnregisterUp(struct Data *data, int tid, int train)
 
 static inline void handleRegisterSwitch(struct Data *data, int tid)
 {
+    dprintf("Handling rs");
     Reply(tid, 0, 0);
     data->switch_clients[data->num_switch_clients++] = tid;
 }
@@ -165,6 +170,7 @@ static inline void handleRegisterSwitch(struct Data *data, int tid)
 static inline void handleUnregisterSwitch(struct Data *data, int tid)
 {
     int i;
+    dprintf("Handling urs");
     Reply(tid, 0, 0);
     // Find the index
     for (i = 0; i < MAX_CLIENTS; ++i) {
@@ -180,6 +186,7 @@ static inline void handleUnregisterSwitch(struct Data *data, int tid)
 
 static inline void handleWaitDown(struct Data *data, int tid, int train)
 {
+    dprintf("Handling wd");
     if (train >= 0)
         data->sendown_tids[train][data->num_sendown_tids[train]++] = tid;
     else
@@ -188,6 +195,7 @@ static inline void handleWaitDown(struct Data *data, int tid, int train)
 
 static inline void handleWaitUp(struct Data *data, int tid, int train)
 {
+    dprintf("Handling wu");
     if (train >= 0)
         data->senup_tids[train][data->num_senup_tids[train]++] = tid;
     else
@@ -196,11 +204,13 @@ static inline void handleWaitUp(struct Data *data, int tid, int train)
 
 static inline void handleWaitSwitch(struct Data *data, int tid)
 {
+    dprintf("Handling ws");
     data->switch_tids[data->num_switch_tids++] = tid;
 }
 
 static inline void handleQuerySwitch(struct Data *data, int tid, int sw)
 {
+    dprintf("Handling qs");
     char reply;
 
     reply = !!IS_CURVED(data->track.switches, sw);
@@ -209,6 +219,7 @@ static inline void handleQuerySwitch(struct Data *data, int tid, int sw)
 
 static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int isCurved)
 {
+    dprintf("Handling ns");
     int client;
     struct TrackServerMessage reply;
     Reply(tid, 0, 0);
@@ -232,6 +243,7 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
 
 static inline void handleQuerySensor(struct Data *data, int tid, int sen)
 {
+    dprintf("Handling qs");
 	char reply;
 
 	int block = sen >> 3;
@@ -243,12 +255,14 @@ static inline void handleQuerySensor(struct Data *data, int tid, int sen)
 
 static inline void handleAddTrain(struct Data *data, int tid, int train, int sen)
 {
+    dprintf("Handling as");
     (void)addTrain(&data->track, train, S_MID(sen));
     Reply(tid, 0, 0);
 }
 
 static inline void handleQueryLocation(struct Data *data, int tid, int train)
 {
+    dprintf("Handling ql");
     int train_id;
     for (train_id = 0; train_id < TRAIN_MAX; ++train_id)
         if (data->track.realId[train_id] == train)
@@ -268,6 +282,7 @@ static inline void handleQueryLocation(struct Data *data, int tid, int train)
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     (void)msg_size; // unused
+
     if (tid == data->sensorTid) {
         int delta, sensor;
         data->last_sensor = (data->last_sensor + 1) % 10;
@@ -291,7 +306,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
-                    dprintf("Sendown: %c%d\n\r", S_PRINT(reply));
+                    LOG(LOG_SENSOR_DOWN, "%c%d", S_PRINT(reply));
 
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_DOWN;
@@ -301,7 +316,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (train >= 0)
                         train = data->track.realId[train];
 
-                    display("Sensor %c%d attributed to %d", S_PRINT(reply), train);
+                    LOG(LOG_ATTRIBUTION, "%c%d - %d", S_PRINT(reply), train);
                     message.data.sensor.train = train;
 
                     if (train >= 0) {
@@ -341,7 +356,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
-                    dprintf("Senup: %c%d\n\r", S_PRINT(reply));
+                    LOG(LOG_SENSOR_UP, "%c%d", S_PRINT(reply));
 
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_UP;
@@ -378,7 +393,8 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         return;
     }
 
-    dprintf("Got message type: %d\n\r", msg->type);
+    LOG(LOG_TRAIN_MSG, "%d sends %d", tid, msg->type);
+
     switch (msg->type) {
         case TM_REGISTER_DOWN: handleRegisterDown(data, tid, msg->datum); break;
         case TM_REGISTER_UP: handleRegisterUp(data, tid, msg->datum); break;
@@ -399,6 +415,8 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             else
                 handleNotifySwitch(data, tid, msg->datum, 0);
             break;
+        default:
+            ERROR("BAD TRACK SERVER MESSAGE.");
     }
 }
 
@@ -408,9 +426,7 @@ void registerForSensorDown(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_DOWN;
-    dprintf("Registering for %d downs.\n\r", train);
     Send(tid, (char*)&msg, sizeof(msg), 0, 0);
-    dprintf("Registration complete.\n\r");
 }
 
 void registerForSensorUp(int tid, int train)
@@ -418,9 +434,7 @@ void registerForSensorUp(int tid, int train)
     struct Message msg;
     msg.datum = train;
     msg.type = TM_REGISTER_UP;
-    dprintf("Registering for %d ups.\n\r", train);
     Send(tid, (char*)&msg, sizeof(msg), 0, 0);
-    dprintf("Registration complete.\n\r");
 }
 
 void registerForSwitch(int tid)

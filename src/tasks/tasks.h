@@ -3,6 +3,7 @@
 
 #include "syscall.h"
 #include "debugio.h" /* Safe now that debugio doesn't print to the UARTS */
+#include "logging.h"
 
 #define EMPTY char _unused[0]
 #define IGNORED char _unused[0];

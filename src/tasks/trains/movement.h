@@ -6,6 +6,7 @@
 struct Movement {
     struct RestrictedPath path;
     int isCaboose;
+    //int speed;
     int stopIndex; // number of sensors back after which to issue stop
     int stopTime; // number of ticks after it to issue it
 };

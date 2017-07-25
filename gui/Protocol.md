@@ -56,6 +56,7 @@ These are the commands that can be sent to the UI:
  - `c switch`: Indicate that switch is now curved.
  - `| switch`: Indicate that switch is now straight.
  - `p length`: The following length characters are printed to the message space.
+ - `l byte byte`: Log with type "first byte" the following "second byte" bytes.
  - `die`: Terminate execution.
 
 ## Commands from the UI

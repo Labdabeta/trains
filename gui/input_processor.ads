@@ -2,9 +2,11 @@ with SDL_Keys;
 with SDL.Font;
 with SDL.Image;
 with Constants;
+with Ada.Text_IO;
 
 package Input_Processor is
     procedure Initialize;
+    procedure Finalize;
     function Process (C : Character) return Boolean;
     procedure Process_Click;
     procedure Process_Keyboard (Key : SDL_Keys.Key);
@@ -12,10 +14,11 @@ package Input_Processor is
 private
     Init : Boolean := False;
     Args : array (1 .. 3) of Character := (others => ASCII.NUL);
-    Input_Args : Constants.Command_String := (others => ' ');
+    Input_Args : Constants.Long_Command_String := (others => ' ');
     Input_Args_Length : Integer := 1;
     Input_Length : Integer := 1;
     Is_Log : Boolean := False;
+    Log_Type : Integer := 0;
     Next_Arg : Integer := 1;
     Command : Constants.Command_String := (others => ' ');
     Command_Length : Integer := 1;
@@ -34,4 +37,5 @@ private
     Command_Image : SDL.Image.Image := SDL.Image.Null_Image;
     Prompt_Image : SDL.Image.Image := SDL.Image.Null_Image;
     The_Font : SDL.Font.SDL_Font;
+    Log_File : Ada.Text_IO.File_Type;
 end Input_Processor;

@@ -123,6 +123,7 @@ begin
     Switches.Finalize;
     Sensors.Finalize;
     SDL.Finalize;
+    Input_Processor.Finalize;
 
     exception
         when Serial_Error =>
