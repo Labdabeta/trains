@@ -71,7 +71,6 @@ void main_task(void)
     while (WhoIs(PARSE_SERVER_NAME) < 0)
         Pass();
 
-#if 0
     CreateSize(2, hotel, TASK_SIZE_NORMAL);
     while (WhoIs(RESERVATION_SERVER_NAME) < 0)
         Pass();
@@ -82,7 +81,6 @@ void main_task(void)
         Pass();
         */
 
-#endif
     Create(1, conductor);
 
 	Exit();

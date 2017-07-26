@@ -1,5 +1,12 @@
 #include "path_finder.h"
 #include "limits.h"
+#include "string.h"
+
+#ifndef REMOTE
+#include "tasks.h"
+#else
+#include <stdio.h>
+#endif
 
 #define PQ_CAPACITY 300
 #include "data/pq.h"
@@ -343,4 +350,27 @@ int findRestrictedPath(int source,
     }
 
     return -1;
+}
+
+static char rpathbuf[1000];
+
+char *restrictedPathToString(struct RestrictedPath *path)
+{
+    int i;
+    rpathbuf[0] = 0;
+    char tmp[100];
+
+    for (i = 0; i < path->length; ++i) {
+        int s;
+        sprintf(tmp, i ? " -> %c%d" : "%c%d", S_PRINT(path->sensors[i]));
+        strcat(rpathbuf, tmp);
+        for (s = 0; s < SWITCH_MAX; ++s) {
+            if (IS_CURVED(path->masks[i], s)) {
+                sprintf(tmp, " (%d%c)", s, (IS_CURVED(path->states[i], s) ? 'C' : 'S'));
+                strcat(rpathbuf, tmp);
+            }
+        }
+    }
+
+    return rpathbuf;
 }

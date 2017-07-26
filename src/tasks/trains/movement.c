@@ -4,10 +4,7 @@
 #include "trains/hotel.h"
 #include "gui.h"
 #include "util/async_delay.h"
-
-#warning TODO: implement "Exact knowledge" IE: feel free to overshoot a bit, then backup to land perfectly and reset direction to forward. No need for precise calibration, just "good enough"
-
-#define PRINT(X) dprintf("%d: %s = %d\n", __LINE__, #X, X)
+#include "logging.h"
 
 static void setupSwitches(switch_state state, switch_state mask, int track)
 {
@@ -16,26 +13,6 @@ static void setupSwitches(switch_state state, switch_state mask, int track)
         if (IS_CURVED(mask, i))
             notifySwitch(track, i, IS_CURVED(state, i));
     }
-}
-
-static inline void printPath(struct RestrictedPath *p)
-{
-    int i;
-    printf("START\n");
-    for (i = 0; i < p->length; ++i) {
-        printf("\tSegment %d: \n"
-               "\t\tDistance - %d mm\n"
-               "\t\tDestination - %c%d\n"
-               "\t\tSwitch Configuration - %x\n"
-               "\t\tSwitch Mask - %x\n",
-               i + 1,
-               p->distances[i],
-               p->sensors[i].group + 'A',
-               p->sensors[i].id + 1,
-               p->states[i],
-               p->masks[i]);
-    }
-    printf("END\n");
 }
 
 void movement_task(void)
@@ -49,7 +26,8 @@ void movement_task(void)
     int clock_tid;
     int train;
 
-    dprintf("Making a movement...\n\r");
+
+    LOG(LOG_MOVING, "Mover created");
 
     int failure = 1;
     int success = 0;
@@ -69,9 +47,7 @@ void movement_task(void)
     Receive(&caller, (char*)&train, sizeof(move));
     // Replies with 0 = success or X = failure
 
-    dprintf("Reserving a path for %d:\n\r", train);
-
-    printPath(&move.path);
+    LOG(LOG_MOVING, "Reserving %s for %d", restrictedPathToString(&move.path), train);
 
     // Reserve spaces
     for (idx = 1; idx < move.path.length; ++idx) {
@@ -79,14 +55,14 @@ void movement_task(void)
         if (requestSpace(reservation_tid,
             SENSOR_SPACE(move.path.sensors[idx-1],
                 move.path.sensors[idx]), train)) {
-            dprintf("Could not reserve: %c%d to %c%d.\n\r", S_PRINT(move.path.sensors[idx-1]), S_PRINT(move.path.sensors[idx]));
+            LOG(LOG_MOVING, "Could not reserve: %c%d -> %c%d", S_PRINT(move.path.sensors[idx-1]), S_PRINT(move.path.sensors[idx]));
             Reply(caller, (char*)&failure, sizeof(failure));
             Exit();
         }
         for (i = 0; i < SWITCH_MAX; ++i) {
             if (IS_CURVED(move.path.masks[idx], i)) {
                 if (requestSpace(reservation_tid, SWITCH_SPACE(i), train)) {
-                    dprintf("Could not reserve switch %d\n\r", SW_ID_TO_NUM(i));
+                    LOG(LOG_MOVING, "Could not reserve: %d", SW_ID_TO_NUM(i));
                     Reply(caller, (char*)&failure, sizeof(failure));
                     Exit();
                 }
@@ -94,51 +70,36 @@ void movement_task(void)
         }
     }
 
-    dprintf("Reservations made.\n\r");
+    LOG(LOG_MOVING, "Reservations made.");
 
     registerForSensorDown(track_tid, -1);
-
-    dprintf("Registered for train %d activity.\n\r", train);
 
     setupSwitches(move.path.states[0], move.path.masks[0], track_tid);
     setupSwitches(move.path.states[1], move.path.masks[1], track_tid);
 
     int speed = 2;
-    dprintf("Setting train %d to speed %d.\n\r", train, speed);
     tput2(speed, train);
-    dprintf("Speed set!\n\r", train, speed);
     idx = 0;
     while (idx < move.path.length) {
-        dprintf("%d: %d %d", __LINE__, idx, move.path.length);
         int sender;
         int size = Receive(&sender, (char*)&tsm, sizeof(tsm));
-        PRINT(sender);
         Reply(sender, 0, 0);
-
-        PRINT(size);
-        PRINT(sender);
 
         if (size == 0) {
             // A message from the async delay
-            display("Stopping train %d.", train);
+            LOG(LOG_MOVING, "Stopping %d", train);
             tput2(16, train);
         } else {
             int old_idx = idx;
             int i;
             for (i = idx; i < move.path.length; ++i) {
-                dprintf("%d: %d %d", __LINE__, idx, move.path.length);
                 if (S_EQUAL(tsm.data.sensor.sensor, move.path.sensors[i])) {
                     idx = i;
-                    dprintf("%d: %d %d", __LINE__, idx, move.path.length);
                     break;
                 }
             }
 
-            PRINT(old_idx);
-            PRINT(idx);
-
             if (idx == old_idx) {
-                PRINT("NOT ON PATH");
                 // Not on path, this is bad, abort
                 unregisterForSensorDown(track_tid, train);
                 unregisterForSensorUp(track_tid, train);
@@ -146,7 +107,6 @@ void movement_task(void)
                 Reply(caller, (char*)&failure, sizeof(failure));
                 Exit();
             } else {
-                PRINT("ON PATH");
                 // Update to next segment of path
                 setupSwitches(move.path.states[idx], move.path.masks[idx], track_tid);
                 setupSwitches(move.path.states[idx+1], move.path.masks[idx+1], track_tid);
@@ -156,13 +116,11 @@ void movement_task(void)
                 if (move.isCaboose) {
                     int index;
                     for (index = 1; index < idx; ++index) {
-                        dprintf("%d: %d %d", __LINE__, idx, move.path.length);
                         int i;
                         freeSpace(reservation_tid,
                             SENSOR_SPACE(move.path.sensors[index-1],
                                 move.path.sensors[index]), train);
                         for (i = 0; i < SWITCH_MAX; ++i) {
-                            dprintf("%d: %d %d", __LINE__, idx, move.path.length);
                             if (IS_CURVED(move.path.masks[index], i))
                                 freeSpace(reservation_tid, SWITCH_SPACE(i), train);
                         }

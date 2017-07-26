@@ -65,5 +65,6 @@ int findRestrictedPath(int source,
                        struct Restrictions *rest,
                        struct RestrictedPath *path);
 
+char *restrictedPathToString(struct RestrictedPath *path);
 
 #endif /* PATH_FINDER_H */

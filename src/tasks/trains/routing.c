@@ -17,14 +17,14 @@ void routeTrain(int train, struct Sensor destination)
     int clock = WhoIs("CLOCK");
     struct Sensor start = lastKnownLocation(track, train);
 
-    dprintf("Routing %d from %c%d to %c%d\n", train, S_PRINT(start), S_PRINT(destination));
+    LOG(LOG_ROUTING, "%c%d -> %c%d", S_PRINT(start), S_PRINT(destination));
 
     while (getFreePath(reservation, train, start, destination, &path) < 0) {
-        dprintf("Waiting for a good path...\n\r");
+        LOG(LOG_ROUTING, "No path yet");
         waitForAvailability(reservation);
     }
 
-    dprintf("Routing path found.\n");
+    LOG(LOG_ROUTING, "Got path: %s", restrictedPathToString(&path));
 
     // find the first reverse in the path
     for (i = 1; i < path.length; ++i) {
@@ -33,9 +33,10 @@ void routeTrain(int train, struct Sensor destination)
         pres = path.sensors[i];
         rprev = getReverseSensor(path.sensors[i-1]);
         if (S_EQUAL(pres, rprev)) {
+            LOG(LOG_ROUTING, "Reverse over %c%d", S_PRINT(pres));
             // go to i-1
             while (getFreePath(reservation, train, start, pres, &current.path) < 0) {
-                dprintf("Waiting for a free path...\n\r");
+                LOG(LOG_ROUTING, "Waiting");
                 waitForAvailability(reservation);
             }
             struct StopOutput calibration = getStopDistance(&current.path, train);
@@ -43,11 +44,11 @@ void routeTrain(int train, struct Sensor destination)
             current.stopIndex = calibration.stopIndex;
             current.stopTime = calibration.stopTime;
             while (moveTrain(train, current, reservation, track, clock)) {
-                dprintf("Waiting for a successful movement...\n\r");
+                LOG(LOG_ROUTING, "Moving failed, trying again");
                 waitForAvailability(reservation);
             }
             Delay(clock, REVERSE_DELAY);
-            dprintf("Reversing train %d\n\r", train);
+            LOG(LOG_ROUTING, "Reversing %d", train);
             tput2(15, train); // reverse the train
             Delay(clock, REVERSE_DELAY);
             start = pres;
@@ -61,10 +62,10 @@ void routeTrain(int train, struct Sensor destination)
     current.stopIndex = calibration.stopIndex;
     current.stopTime = calibration.stopTime;
     while (moveTrain(train, current, reservation, track, clock)) {
-        dprintf("Waiting for a successful movement...\n");
+        LOG(LOG_ROUTING, "Moving failed, trying again...");
         waitForAvailability(reservation);
         while (getFreePath(reservation, train, start, path.sensors[i-1], &current.path) < 0) {
-            dprintf("Waiting for a free path...\n");
+            LOG(LOG_ROUTING, "Waiting...");
             waitForAvailability(reservation);
         }
     }
