@@ -6,17 +6,16 @@
 #define SIV static inline void
 
 void set_speed(struct speed_combination *speed, int value){
-	if(value == 14) {
+	if(value >= 14) {
 		speed->speedA = 13;
 		speed->speedB = 14;
 		speed->timeA = 0;
 		speed->timeB = TRANSMISSION_INTERVAL;
-	} else if(value == 0) {
+	} else if(value <= 0) {
 		speed->speedA = 0;
 		speed->speedB = 1;
 		speed->timeA = TRANSMISSION_INTERVAL;
 		speed->timeB = 0;
-		return;
 	} else {
 		speed->speedA = value;
 		speed->speedB = value + 1;
@@ -53,7 +52,7 @@ void adjust_speed(struct speed_combination *speed, int steps){
 struct Data{
 	int caller, clock_tid, train, parity;
 	struct speed_combination speed;
-	struct transmit_message request, timeout;
+	struct TransmitMessage request, timeout;
 };
 
 SIV initialize(struct Data *d){
@@ -108,7 +107,7 @@ void transmission_test(){
 	int train = 24;
 	int init_speed = 0;
 	int clock_tid = WhoIs("CLOCK");
-	struct transmit_message request;
+	struct TransmitMessage request;
 	request.code = TRANSMIT_TYPE_ADJUST;
 	request.arg = 1;
 	Send(child_tid, (char *) &train, sizeof(train), 0, 0);

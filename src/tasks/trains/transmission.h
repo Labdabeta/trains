@@ -16,11 +16,12 @@ typedef enum transmit_type{
 	TRANSMIT_TYPE_TIMEOUT
 } transmit_type;
 
-struct transmit_message{
+struct TransmitMessage{
 	transmit_type code;
 	int arg;
 };
 
+void transmission();
 void transmission_test();
 
 #endif
