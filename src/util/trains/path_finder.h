@@ -65,5 +65,6 @@ int findRestrictedPath(int source,
                        struct Restrictions *rest,
                        struct RestrictedPath *path);
 
+void restrictedPathAppend(struct RestrictedPath *pathAB, struct RestrictedPath *pathBC);
 
 #endif /* PATH_FINDER_H */

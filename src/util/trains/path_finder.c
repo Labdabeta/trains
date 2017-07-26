@@ -344,3 +344,17 @@ int findRestrictedPath(int source,
 
     return -1;
 }
+
+void restrictedPathAppend(struct RestrictedPath *pathAB, struct RestrictedPath *pathBC)
+{
+	int offset = pathBA->length - 1;
+	int ABdist = pathBA->distances[offset];
+	pathBA->length = pathBA->length + pathBC->length - 1;
+	pathBA->trueLength = pathBA->trueLength + pathBC->trueLength - 1;
+	for(int index = 0; index < pathBC->length; index++){
+		pathAB->sensors[index + offset] = pathBC->pathBC->sensors[index];
+		pathAB->distances[index + offset] = ABdist + pathBC->pathBC->distances[index];
+		pathAB->states[index + offset] = pathBC->pathBC->states[index];
+		pathAB->masks[index + offset] = pathBC->pathBC->masks[index];
+	}
+}
