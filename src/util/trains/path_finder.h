@@ -30,14 +30,6 @@ struct RestrictedPath {
     switch_state masks[MAX_PATH_LENGTH]; // we only care about the masked switches
 };
 
-struct ReasonablePath {
-    int length;
-		int stations[MAX_PATH_LENGTH];
-		int distances[MAX_PATH_LENGTH];
-		int switches[MAX_PATH_LENGTH];
-		int positions[MAX_PATH_LENGTH];
-};
-
 struct Restrictions {
     int isEnabled[TRACK_MAX];
 };
@@ -57,8 +49,6 @@ int findPath(int source,
              int destination,
              struct TrackPath *path,
              struct PathSwitchPositions *switches);
-
-int findReasonablePath(int source, int destination, struct ReasonablePath *path);
 
 int findRestrictedPath(int source,
                        int destination,

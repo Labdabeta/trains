@@ -12,6 +12,7 @@
 
 void gui(void);
 void conductor(void);
+void conformTest(void);
 
 static int _cout_tid;
 static int _tout_tid;
@@ -49,6 +50,16 @@ void main_task(void)
 	_tout_tid = CreateSize(2, tout_server, TASK_SIZE_TINY);
 	while (WhoIs("TOUT") < 0)
 		Pass();
+
+#ifdef TRACK_a
+		init_tracka();
+#else
+		init_trackb();
+#endif
+
+	CreateSize(3, track_server, TASK_SIZE_NORMAL);
+	while (WhoIs(TRACK_SERVER_NAME) < 0)
+			Pass();
 #if 0
     CreateSize(2, gui, TASK_SIZE_SMALL);
     while (WhoIs(GUI_SERVER_NAME) < 0)
@@ -57,16 +68,6 @@ void main_task(void)
     _log_enabled = 1;
 
 	init_printf(0, fn_ptr(printf_putc));
-
-    CreateSize(3, track_server, TASK_SIZE_NORMAL);
-    while (WhoIs(TRACK_SERVER_NAME) < 0)
-        Pass();
-
-#ifdef TRACK_a
-		init_tracka();
-#else
-		init_trackb();
-#endif
 
     CreateSize(2, parse_server, TASK_SIZE_NORMAL);
     while (WhoIs(PARSE_SERVER_NAME) < 0)
@@ -85,7 +86,7 @@ void main_task(void)
 
 #endif
 #endif
-    Create(1, transmission_test);
+    Create(1, conformTest);
 
 	Exit();
 }

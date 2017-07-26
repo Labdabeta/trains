@@ -1,8 +1,8 @@
 #ifndef TRANSMISSION_H
 #define TRANSMISSION_H
 
-#define TRANSMISSION_INTERVAL 20
-#define TRANSMISSION_STEP 5
+#define TRANSMISSION_INTERVAL 15
+#define TRANSMISSION_STEP 3
 
 struct speed_combination{
 	int speedA, speedB;
