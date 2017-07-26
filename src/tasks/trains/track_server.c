@@ -299,6 +299,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     message.data.sensor.sensor = reply;
 
                     train = saveSensorFlip(&data->track, reply, Time(data->cid));
+
                     if (train >= 0)
                         train = data->track.realId[train];
 
@@ -306,19 +307,23 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     message.data.sensor.train = train;
 
                     if (train >= 0) {
+                        LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[train]);
                         for (client = 0; client < data->num_sendown_tids[train]; ++client)
                             Reply(data->sendown_tids[train][client], (char*)&reply, sizeof(reply));
                         data->num_sendown_tids[train] = 0;
 
+                        LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[train]);
                         for (client = 0; client < data->num_sendown_clients[train]; ++client)
                             async_send(data->sendown_clients[train][client], (char*)&message, sizeof(message));
                     }
 
                     // Deal with the any train registrations
+                    LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[TRAIN_MAX]);
                     for (client = 0; client < data->num_sendown_tids[TRAIN_MAX]; ++client)
                         Reply(data->num_sendown_tids[client], (char*)&reply, sizeof(reply));
                     data->num_sendown_tids[TRAIN_MAX] = 0;
 
+                    LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[TRAIN_MAX]);
                     for (client = 0; client < data->num_sendown_clients[TRAIN_MAX]; ++client)
                         async_send(data->sendown_clients[TRAIN_MAX][client], (char*)&message, sizeof(message));
                 }

@@ -56,5 +56,6 @@ int findRestrictedPath(int source,
                        struct RestrictedPath *path);
 
 void restrictedPathAppend(struct RestrictedPath *pathAB, struct RestrictedPath *pathBC);
+char *restrictedPathToString(struct RestrictedPath *path);
 
 #endif /* PATH_FINDER_H */

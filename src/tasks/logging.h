@@ -7,14 +7,17 @@
 #include "gui.h"
 
 enum LogType {
-    LOG_SENSOR_DOWN = 0,
-    LOG_CREATE = 1,
-    LOG_SENSOR_UP = 2,
-    LOG_ATTRIBUTION = 3,
-    LOG_TRAIN_MSG = 4,
-    LOG_ROUTE = 5,
-    LOG_PARSE = 6,
-    LOG_HOTEL = 7
+    LOG_SENSOR_DOWN = 1,
+    LOG_CREATE = 2,
+    LOG_SENSOR_UP = 3,
+    LOG_ATTRIBUTION = 4,
+    LOG_TRAIN_MSG = 5,
+    LOG_ROUTE = 6,
+    LOG_PARSE = 7,
+    LOG_HOTEL = 8,
+    LOG_TRACK_CLIENTS = 9,
+    LOG_ROUTING = 10,
+    LOG_MOVING = 11
 };
 
 extern int _log_enabled;

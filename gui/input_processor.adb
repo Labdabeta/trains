@@ -118,9 +118,9 @@ package body Input_Processor is
                 when 'd' =>
                     return True;
                 when ASCII.ETX =>
-                    return False;
-                when others =>
                     return True;
+                when others =>
+                    return False;
             end case;
             return False;
         end Process_Command;

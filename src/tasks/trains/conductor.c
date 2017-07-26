@@ -31,7 +31,8 @@ void conductor(void)
         "quit", "q",
         "add is", "a is",
         "tr ii", "t ii",
-        //"goto is", "g is"
+        "goto is", "g is",
+        "help", "h"
     };
 
     int i;
@@ -50,12 +51,16 @@ void conductor(void)
             Exit();
         }
 
+        if (!strcmp(cmd.name, "h") || !strcmp(cmd.name, "help")) {
+            for (i = 0; i < (sizeof(commands) / sizeof(*commands)); ++i)
+                display(commands[i]);
+        }
+
         if (!strcmp(cmd.name, "a") || !strcmp(cmd.name, "add")) {
             display("Adding %d to %c%d", cmd.args[0].data.i, S_PRINT(parseSensor(cmd.args[1].data.string)));
             insertTrain(track_id, cmd.args[0].data.i, parseSensor(cmd.args[1].data.string));
         }
 
-#if 0
         if (!strcmp(cmd.name, "g") || !strcmp(cmd.name, "goto")) {
             int child = CreateSize(1, async_router, TASK_SIZE_TINY);
             struct Sensor dest = parseSensor(cmd.args[1].data.string);
@@ -63,7 +68,6 @@ void conductor(void)
             Send(child, (char*)&cmd.args[0].data.i, sizeof(cmd.args[0].data.i), 0, 0);
             Send(child, (char*)&dest, sizeof(dest), 0, 0);
         }
-#endif
 
         if (!strcmp(cmd.name, "t") || !strcmp(cmd.name, "tr"))
             tput2(cmd.args[0].data.i, cmd.args[1].data.i);

@@ -9,6 +9,7 @@ int queryOwner(int tid, struct TrackSpace space);
 int requestSpace(int tid, struct TrackSpace space, int train); // 0 = success
 int stealSpace(int tid, struct TrackSpace space, int train); // returns previous
 void freeSpace(int tid, struct TrackSpace space, int train);
+void freeTrain(int tid, int train);
 
 // >=0 = distance, -1 = failure
 int getFreePath(int tid, int train, struct Sensor src, struct Sensor dst, struct RestrictedPath *path);

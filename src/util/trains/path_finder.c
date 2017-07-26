@@ -1,5 +1,12 @@
 #include "path_finder.h"
 #include "limits.h"
+#include "string.h"
+
+#ifndef REMOTE
+#include "tasks.h"
+#else
+#include <stdio.h>
+#endif
 
 #define PQ_CAPACITY 300
 #include "data/pq.h"

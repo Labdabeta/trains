@@ -18,6 +18,7 @@ enum HotelServerMessage {
     HSM_REQUEST,
     HSM_STEAL,
     HSM_FREE,
+    HSM_FREEALL,
     HSM_GET_PATH,
     HSM_WAIT
 };
@@ -69,18 +70,22 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
     switch (msg->type) {
         case HSM_QUERY:
             reply = whoOwnsSpace(&data->reservations, msg->data.space);
+            LOG(LOG_HOTEL, "%d owns %s", reply, spaceToString(msg->data.space));
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_REQUEST:
             reply = reserveSpace(&data->reservations, msg->data.space, msg->train);
+            LOG(LOG_HOTEL, "%d wants %s - %d", msg->train, spaceToString(msg->data.space), reply);
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_STEAL:
             reply = takeSpace(&data->reservations, msg->data.space, msg->train);
+            LOG(LOG_HOTEL, "%d took %s from %d", msg->train, spaceToString(msg->data.space), reply);
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_FREE:
             clearSpace(&data->reservations, msg->data.space, msg->train);
+            LOG(LOG_HOTEL, "%s cleared by %d", spaceToString(msg->data.space), msg->train);
             if (!whoOwnsSpace(&data->reservations, msg->data.space)) {
                 for (i = 0; i < data->num_waiters; ++i)
                     Reply(data->waiters[i], (char*)&msg->data.space, sizeof(msg->data.space));
@@ -88,14 +93,20 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             }
             Reply(tid, 0, 0);
             break;
+        case HSM_FREEALL:
+            clearAll(&data->reservations, msg->train);
+            LOG(LOG_HOTEL, "%d cleared", msg->train);
+#error TODO: FINISH IT!
         case HSM_GET_PATH:
             getRestrictions(&data->reservations, msg->train, &data->restrictions);
             printRestrictions(&data->restrictions);
             reply = findRestrictedPath(S_ID(msg->data.pair.src), S_ID(msg->data.pair.dst), &data->restrictions, msg->data.pair.path);
+            LOG(LOG_HOTEL, "%d's path from %c%d to %c%d is %dmm long", msg->train, S_PRINT(msg->data.pair.src), S_PRINT(msg->data.pair.dst), reply);
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_WAIT:
             data->waiters[data->num_waiters++] = tid;
+            LOG(LOG_HOTEL, "%d is waiting", tid);
             break;
         default:
             ERROR("BAD HOTEL SERVER MESSAGE.");

@@ -29,6 +29,7 @@ void initReservation(struct ReservationSystem *r);
 /* 0 = success. */
 int reserveSpace(struct ReservationSystem *r, struct TrackSpace space, int train);
 void clearSpace(struct ReservationSystem *r, struct TrackSpace space, int train);
+void clearAll(struct ReservationSystem *r, int train);
 
 /* Returns a previous owner bitmask, or 0 for no owner. */
 int takeSpace(struct ReservationSystem *r, struct TrackSpace space, int train);
