@@ -12,7 +12,8 @@
 
 void gui(void);
 void conductor(void);
-void conformTest(void);
+void publicTrain(void);
+void privateTrain(void);
 
 static int _cout_tid;
 static int _tout_tid;
@@ -31,7 +32,7 @@ void main_task(void)
 {
 	CreateSize(2, name_server, TASK_SIZE_NORMAL);
 
-	CreateSize(2, clock_server, TASK_SIZE_TINY);
+	int clock_tid = CreateSize(2, clock_server, TASK_SIZE_TINY);
 	while (WhoIs("CLOCK") < 0)
 		Pass();
 
@@ -88,19 +89,29 @@ void main_task(void)
 
 
 #endif
-		int train, index, child;
-		/*train = 69;
-		insertTrain(track_tid, train, S_MAKE(B, 15));
-		index = 0;
-    child = Create(1, conformTest);
+		int train, index, child, cycle_time;
+		train = 74;
+		insertTrain(track_tid, train, S_MAKE(C, 10));
+		index = 4;
+    child = Create(1, publicTrain);
 		Send(child, (char *) &train, sizeof(int), 0, 0);
-		Send(child, (char *) &index, sizeof(int), 0, 0);*/
-		train = 24;
-		insertTrain(track_tid, train, S_MAKE(E, 8));
-		index = 10;
-    child = Create(1, conformTest);
+		Send(child, (char *) &index, sizeof(int), (char *) &cycle_time, sizeof(int));
+		train = 70;
+		insertTrain(track_tid, train, S_MAKE(C, 12));
+		index = 1;
+    child = Create(1, publicTrain);
 		Send(child, (char *) &train, sizeof(int), 0, 0);
-		Send(child, (char *) &index, sizeof(int), 0, 0);
+		Send(child, (char *) &index, sizeof(int), (char *) &cycle_time, sizeof(int));
+		train = 76;
+		insertTrain(track_tid, train, S_MAKE(B, 9));
+		Delay(clock_tid, 3000);
+		int init_id = S_INDEX('B', 9);
+		int final_id = S_INDEX('A', 15);
+		child = Create(1, privateTrain);
+		Send(child, (char *) &train, sizeof(int), 0, 0);
+		Send(child, (char *) &init_id, sizeof(int), 0, 0);
+		Send(child, (char *) &final_id, sizeof(int), 0, 0);
+		Send(child, (char *) &cycle_time, sizeof(int), 0, 0);
 
 	Exit();
 }

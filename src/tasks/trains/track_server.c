@@ -85,7 +85,7 @@ ENTRY initialize(struct Data *data)
     data->num_switch_tids = 0;
     data->num_switch_clients = 0;
 
-#ifdef TRACK_A
+#ifdef TRACK_a
     initTrackA(&data->track);
 #else
     initTrackB(&data->track);
