@@ -9,6 +9,7 @@
 #include "string.h"
 #include "logging.h"
 #include "trains/transmission.h"
+#include "trains/decoder.h"
 
 void gui(void);
 void conductor(void);
@@ -32,7 +33,7 @@ void main_task(void)
 {
 	CreateSize(2, name_server, TASK_SIZE_NORMAL);
 
-	int clock_tid = CreateSize(2, clock_server, TASK_SIZE_TINY);
+	CreateSize(2, clock_server, TASK_SIZE_TINY);
 	while (WhoIs("CLOCK") < 0)
 		Pass();
 
@@ -64,6 +65,7 @@ void main_task(void)
 		init_trackb();
 #endif
 
+#if 0
     CreateSize(2, gui, TASK_SIZE_SMALL);
     while (WhoIs(GUI_SERVER_NAME) < 0)
         Pass();
@@ -73,7 +75,6 @@ void main_task(void)
     CreateSize(2, parse_server, TASK_SIZE_NORMAL);
     while (WhoIs(PARSE_SERVER_NAME) < 0)
         Pass();
-
 
 #endif
 		int train, index, child, cycle_time;
@@ -89,9 +90,8 @@ void main_task(void)
     child = Create(1, publicTrain);
 		Send(child, (char *) &train, sizeof(int), 0, 0);
 		Send(child, (char *) &index, sizeof(int), (char *) &cycle_time, sizeof(int));
-		train = 76;
+		train = decodeTrain();
 		insertTrain(track_tid, train, S_MAKE(B, 9));
-		Delay(clock_tid, 3000);
 		int init_id = S_INDEX('B', 9);
 		int final_id = S_INDEX('A', 15);
 		child = Create(1, privateTrain);
