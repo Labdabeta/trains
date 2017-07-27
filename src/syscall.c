@@ -13,6 +13,7 @@
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
 
+#undef dprintf
 #define dprintf(...)
 
 void Exit(void)

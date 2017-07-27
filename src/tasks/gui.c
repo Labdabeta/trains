@@ -106,6 +106,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         int i;
         for (i = 0; i < data->num_clients; ++i)
             Send(data->clients[i], (char*)msg, msg_size, 0, 0);
+        // notify the train server of the result if necessary
+        if (msg->data.gui.type == GMT_CURVE)
+            notifySwitch(data->track_id, msg->data.gui.data.switch_id, 1);
+        else if (msg->data.gui.type == GMT_STRAIGHT)
+            notifySwitch(data->track_id, msg->data.gui.data.switch_id, 0);
         Reply(tid, 0, 0);
     } else {
         data->clients[data->num_clients++] = tid;
