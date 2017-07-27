@@ -58,14 +58,18 @@ void conform()
 			if(S_ID(d.activ.data.sensor.sensor) == d.slow_id){
 				printf("Slowing\n\r");
 				d.control.code = TRANSMIT_TYPE_SET;
-				d.control.arg = 8;
+				d.control.arg = 9;
 				Send(d.transmission_tid, (char *) &d.control, sizeof(d.control), 0, 0);
 			} else if(S_ID(d.activ.data.sensor.sensor) == d.quit_id){
 				printf("Stopping\n\r");
 				d.control.code = TRANSMIT_TYPE_SET;
 				d.control.arg = 0;
 				Send(d.transmission_tid, (char *) &d.control, sizeof(d.control), 0, 0);
-				Exit();
+                Delay(d.clock_tid, 250);
+                tputc(97);
+                Delay(d.clock_tid, 20);
+                unregisterForSensorDown(d.track_tid, d.schedule.train);
+				KQuit();
 			} else{
 	      printf("Ind: %d. Train %d is off by %dmm. Velocity: %d\n\r", d.schedule.last_ind, d.schedule.train, error, velocity);
 				velocity = velocity - d.schedule.target_velocity;

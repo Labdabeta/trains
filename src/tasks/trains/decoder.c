@@ -24,7 +24,7 @@ int decodeTrain(void)
     } while (!S_EQUAL(test, incoming));
 
     // must be 24, bring it in
-    tput2(28, 24);
+    tput2(27, 24);
 
     incoming = S_MAKE(C, 8);
     do {

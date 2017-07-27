@@ -2,7 +2,7 @@
 
 case $(whoami) in
 	'louis' )
-		scp -3 kernel.elf laburke@linux.student.cs.uwaterloo.ca:/u/cs452/tftp/ARM/laburke/kernel.elf
+		scp -3 kernel.elf laburke@linux.student.cs.uwaterloo.ca:/u/cs452/tftp/ARM/laburke/kernelZ.elf
 		;;
 	'laburke' )
 		cp kernel.elf /u/cs452/tftp/ARM/laburke/kernel.elf
