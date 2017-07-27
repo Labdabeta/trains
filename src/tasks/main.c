@@ -41,12 +41,6 @@ void main_task(void)
 	while (WhoIs("COUT") < 0)
 		Pass();
 
-    CreateSize(2, gui, TASK_SIZE_SMALL);
-    while (WhoIs(GUI_SERVER_NAME) < 0)
-        Pass();
-
-    _log_enabled = 1;
-
 	init_printf(0, fn_ptr(printf_putc));
 
 	_tin_tid = CreateSize(2, tin_server, TASK_SIZE_TINY);
@@ -67,12 +61,18 @@ void main_task(void)
 		init_trackb();
 #endif
 
-    CreateSize(2, parse_server, TASK_SIZE_NORMAL);
-    while (WhoIs(PARSE_SERVER_NAME) < 0)
-        Pass();
-
     CreateSize(2, hotel, TASK_SIZE_NORMAL);
     while (WhoIs(RESERVATION_SERVER_NAME) < 0)
+        Pass();
+
+    CreateSize(2, gui, TASK_SIZE_SMALL);
+    while (WhoIs(GUI_SERVER_NAME) < 0)
+        Pass();
+
+    _log_enabled = 1;
+
+    CreateSize(2, parse_server, TASK_SIZE_NORMAL);
+    while (WhoIs(PARSE_SERVER_NAME) < 0)
         Pass();
 
     /*

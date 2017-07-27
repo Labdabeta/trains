@@ -12,6 +12,7 @@ with Interfaces.C; use Interfaces.C;
 with Ada.Text_IO;
 with Ada.Calendar;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
+with Reservations; use Reservations;
 
 package body Input_Processor is
     function To_Hex_Char (Val : Integer) return Character;
@@ -115,6 +116,18 @@ package body Input_Processor is
                     Input_Args := (others => ' ');
                     Input_Args_Length := 0;
                     Is_Log := True;
+                when 'v' =>
+                    Reserve_Switch (Parse_Switch_Id (Args (2), Args (3)));
+                when 'V' =>
+                    Unreserve_Switch (Parse_Switch_Id (Args (2), Args (3)));
+                when '_' =>
+                    Reserve_Sensor (
+                        Group => Char_To_Sensor_Group (Args (2)),
+                        Id => Char_To_Sensor_Id (Args (3)));
+                when '-' =>
+                    Unreserve_Sensor (
+                        Group => Char_To_Sensor_Group (Args (2)),
+                        Id => Char_To_Sensor_Id (Args (3)));
                 when 'd' =>
                     return True;
                 when ASCII.ETX =>
