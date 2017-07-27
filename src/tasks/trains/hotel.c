@@ -96,7 +96,12 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case HSM_FREEALL:
             clearAll(&data->reservations, msg->train);
             LOG(LOG_HOTEL, "%d cleared", msg->train);
-#error TODO: FINISH IT!
+            msg->data.space = SWITCH_SPACE(-1);
+            for (i = 0; i < data->num_waiters; ++i)
+                Reply(data->waiters[i], (char*)&msg->data.space, sizeof(msg->data.space));
+            data->num_waiters = 0;
+            Reply(tid, 0, 0);
+            break;
         case HSM_GET_PATH:
             getRestrictions(&data->reservations, msg->train, &data->restrictions);
             printRestrictions(&data->restrictions);
@@ -154,6 +159,15 @@ void freeSpace(int tid, struct TrackSpace space, int train)
     msg.type = HSM_FREE;
     msg.train = train;
     msg.data.space = space;
+
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+}
+
+void freeTrain(int tid, int train)
+{
+    struct Message msg;
+    msg.type = HSM_FREEALL;
+    msg.train = train;
 
     Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }

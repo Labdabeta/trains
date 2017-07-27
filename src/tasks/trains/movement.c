@@ -57,6 +57,7 @@ void movement_task(void)
                 move.path.sensors[idx]), train)) {
             LOG(LOG_MOVING, "Could not reserve: %c%d -> %c%d", S_PRINT(move.path.sensors[idx-1]), S_PRINT(move.path.sensors[idx]));
             Reply(caller, (char*)&failure, sizeof(failure));
+            freeTrain(reservation_tid, train);
             Exit();
         }
         for (i = 0; i < SWITCH_MAX; ++i) {
@@ -64,6 +65,7 @@ void movement_task(void)
                 if (requestSpace(reservation_tid, SWITCH_SPACE(i), train)) {
                     LOG(LOG_MOVING, "Could not reserve: %d", SW_ID_TO_NUM(i));
                     Reply(caller, (char*)&failure, sizeof(failure));
+                    freeTrain(reservation_tid, train);
                     Exit();
                 }
             }
@@ -77,7 +79,7 @@ void movement_task(void)
     setupSwitches(move.path.states[0], move.path.masks[0], track_tid);
     setupSwitches(move.path.states[1], move.path.masks[1], track_tid);
 
-    int speed = 2;
+    int speed = 10;
     tput2(speed, train);
     idx = 0;
     while (idx < move.path.length) {
@@ -105,6 +107,7 @@ void movement_task(void)
                 unregisterForSensorUp(track_tid, train);
                 display("Spurrious attribution of %c%d to train %d", S_PRINT(tsm.data.sensor.sensor), train);
                 Reply(caller, (char*)&failure, sizeof(failure));
+                freeTrain(reservation_tid, train);
                 Exit();
             } else {
                 // Update to next segment of path

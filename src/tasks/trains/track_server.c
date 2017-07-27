@@ -96,6 +96,7 @@ ENTRY initialize(struct Data *data)
 static inline void handleRegisterDown(struct Data *data, int tid, int train)
 {
     Reply(tid, 0, 0);
+    LOG(LOG_TRACK_CLIENTS, "Adding client %d", data->num_sendown_clients[train >= 0 ? train : TRAIN_MAX]);
     if (train >= 0)
         data->sendown_clients[train][data->num_sendown_clients[train]++] = tid;
     else
@@ -409,6 +410,8 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         default:
             ERROR("BAD TRACK SERVER MESSAGE.");
     }
+
+    LOG(LOG_TRAIN_MSG, "%d's %d handled", tid, msg->type);
 }
 
 /*********************** Public space message wrappers: ***********************/

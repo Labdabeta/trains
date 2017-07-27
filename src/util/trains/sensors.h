@@ -14,7 +14,7 @@ struct Sensor {
 
 #define SG_NEXT(X) (((X) + 1) % 5)
 #define SG_PREV(X) (((X) + 4) % 5)
-#define S_NONE (struct Sensor){SG_N,-1}
+#define S_NONE (struct Sensor){SG_N,0}
 
 #define S_ID(X) (((int)((X).group) << 4) | (X).id)
 
