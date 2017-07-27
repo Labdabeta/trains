@@ -40,9 +40,6 @@ ENTRY initialize(struct Data *data)
     registerForSensorDown(data->track_id, -1);
     registerForSensorUp(data->track_id, -1);
     registerForSwitch(data->track_id);
-    dprintf("REGISTERING FOR HOTEL MESSAGES\n");
-    registerForChanges(data->hotel_id);
-    dprintf("REGISTERED FOR HOTEL MESSAGES\n");
 
     data->child_id = CreateSize(1, gui_reader, TASK_SIZE_TINY);
     data->num_clients = 0;

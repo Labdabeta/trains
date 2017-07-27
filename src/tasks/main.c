@@ -61,10 +61,6 @@ void main_task(void)
 		init_trackb();
 #endif
 
-    CreateSize(2, hotel, TASK_SIZE_NORMAL);
-    while (WhoIs(RESERVATION_SERVER_NAME) < 0)
-        Pass();
-
     CreateSize(2, gui, TASK_SIZE_SMALL);
     while (WhoIs(GUI_SERVER_NAME) < 0)
         Pass();
