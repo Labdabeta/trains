@@ -61,7 +61,7 @@ void main_task(void)
 	while (WhoIs("TOUT") < 0)
 		Pass();
 
-    CreateSize(3, track_server, TASK_SIZE_NORMAL);
+    int track_tid = CreateSize(3, track_server, TASK_SIZE_NORMAL);
     while (WhoIs(TRACK_SERVER_NAME) < 0)
         Pass();
 
@@ -88,7 +88,19 @@ void main_task(void)
 
 
 #endif
-    Create(1, conformTest);
+		int train, index, child;
+		/*train = 69;
+		insertTrain(track_tid, train, S_MAKE(B, 15));
+		index = 0;
+    child = Create(1, conformTest);
+		Send(child, (char *) &train, sizeof(int), 0, 0);
+		Send(child, (char *) &index, sizeof(int), 0, 0);*/
+		train = 24;
+		insertTrain(track_tid, train, S_MAKE(E, 8));
+		index = 10;
+    child = Create(1, conformTest);
+		Send(child, (char *) &train, sizeof(int), 0, 0);
+		Send(child, (char *) &index, sizeof(int), 0, 0);
 
 	Exit();
 }

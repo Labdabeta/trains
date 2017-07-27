@@ -66,6 +66,7 @@ void init_schedule_times(struct TransitSchedule *ts, int last_ind, int last_time
   ts->observed_times[last_ind] = last_time;
   rotate_schedule(ts, ind_plus(ts, last_ind, -1));
   rotate_schedule(ts, last_ind);
+	printSchedule(ts);
 }
 
 int transit_register_hit(struct TransitSchedule *ts, int id, int cur_time)
@@ -73,10 +74,11 @@ int transit_register_hit(struct TransitSchedule *ts, int id, int cur_time)
   int new_ind = id_to_ind(ts, id);
   if(new_ind < 0)
     ERROR("Public transit misatribution or off path!");
-	printf("Ind: %d, Time diference: %d\n\r", new_ind, ts->expected_times[new_ind] - cur_time);
+	printf("Expected_time: %d, Obs_time: %d\n\r", ts->expected_times[new_ind], cur_time);
   int delta = (ts->expected_times[new_ind] - cur_time) * ts->target_velocity / 100;
   rotate_schedule(ts, new_ind);
   ts->observed_times[new_ind] = cur_time;
+	printSchedule(ts);
   return delta;
 }
 
@@ -85,19 +87,11 @@ void printSchedule(struct TransitSchedule *ts)
     int i;
     printf("START %d\n\r", ts->route.length);
     for (i = 0; i < ts->route.length; ++i) {
-        printf("\tSegment %d: \n\r"
-               "\t\tDistance - %d mm\n\r"
-               "\t\tDestination - %c%d\n\r"
-               "\t\tSwitch Configuration - %x\n\r"
-               "\t\tSwitch Mask - %x\n\r"
-							 "\t\tExpected time - %d\n\r"
-							 "\t\tObserved time - %d\n\r",
-               i + 1,
-               ts->route.distances[i],
+        printf("Ind: %d, Dest: %c%d, "
+							 "Exp_time: %d, Obs_time: %d\n\r",
+               i,
                ts->route.sensors[i].group + 'A',
                ts->route.sensors[i].id + 1,
-               ts->route.states[i],
-               ts->route.masks[i],
 							 ts->expected_times[i],
 							 ts->observed_times[i]
 						 );

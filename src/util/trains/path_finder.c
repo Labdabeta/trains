@@ -275,3 +275,26 @@ void restrictedPathAppend(struct RestrictedPath *pathAB, struct RestrictedPath *
 		pathAB->masks[index + offset] = pathBC->masks[index];
 	}
 }
+
+static char rpathbuf[1000];
+
+char *restrictedPathToString(struct RestrictedPath *path)
+{
+    int i;
+    rpathbuf[0] = 0;
+    char tmp[100];
+
+    for (i = 0; i < path->length; ++i) {
+        int s;
+        sprintf(tmp, i ? " -> %c%d" : "%c%d", S_PRINT(path->sensors[i]));
+        strcat(rpathbuf, tmp);
+        for (s = 0; s < SWITCH_MAX; ++s) {
+            if (IS_CURVED(path->masks[i], s)) {
+                sprintf(tmp, " (%d%c)", s, (IS_CURVED(path->states[i], s) ? 'C' : 'S'));
+                strcat(rpathbuf, tmp);
+            }
+        }
+    }
+
+    return rpathbuf;
+}

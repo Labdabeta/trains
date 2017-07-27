@@ -96,7 +96,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case HSM_FREEALL:
             clearAll(&data->reservations, msg->train);
             LOG(LOG_HOTEL, "%d cleared", msg->train);
-#error TODO: FINISH IT!
         case HSM_GET_PATH:
             getRestrictions(&data->reservations, msg->train, &data->restrictions);
             printRestrictions(&data->restrictions);

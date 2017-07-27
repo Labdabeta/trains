@@ -77,11 +77,11 @@ void transmission(){
 		switch(d.request.code){
 			case TRANSMIT_TYPE_SET:
 				set_speed(&d.speed, d.request.arg);
-				printf("SET. A: %d, B: %d\n\r", d.speed.speedA, d.speed.speedB);
+				printf("SET. A: %d, B: %d, At %d, Bt %d\n\r", d.speed.speedA, d.speed.speedB, d.speed.timeA, d.speed.timeB);
 			break;
 			case TRANSMIT_TYPE_ADJUST:
 				adjust_speed(&d.speed, d.request.arg);
-				printf("ADJUST. A: %d, B: %d\n\r", d.speed.speedA, d.speed.speedB);
+				printf("ADJUST. A: %d, B: %d, At %d, Bt %d\n\r", d.speed.speedA, d.speed.speedB, d.speed.timeA, d.speed.timeB);
 			break;
 			case TRANSMIT_TYPE_REVERSE:
 				if(d.speed.speedA == 0 && d.speed.timeA == TRANSMISSION_INTERVAL){
