@@ -78,7 +78,8 @@ int transit_register_hit(struct TransitSchedule *ts, int id, int cur_time)
   int delta = (ts->expected_times[new_ind] - cur_time) * ts->target_velocity / 100;
   rotate_schedule(ts, new_ind);
   ts->observed_times[new_ind] = cur_time;
-	printSchedule(ts);
+	if(new_ind == 0)
+		printSchedule(ts);
   return delta;
 }
 
