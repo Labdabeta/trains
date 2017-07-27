@@ -17,4 +17,13 @@ int getFreePath(int tid, int train, struct Sensor src, struct Sensor dst, struct
 // returns which space became available
 struct TrackSpace waitForAvailability(int tid);
 
+
+#define HOTEL_MESSAGE_ID 0xB001CED
+struct HotelMessage {
+    unsigned int identifier;
+    struct Restrictions restrictions;
+};
+
+void registerForChanges(int tid);
+
 #endif /* HOTEL_H */

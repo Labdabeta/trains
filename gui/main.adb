@@ -10,6 +10,7 @@ with Sensors; use Sensors;
 with Switches;
 with Input_Processor;
 with Constants;
+with Reservations;
 
 procedure Main is
     -- Our map is 1242 x 682
@@ -65,6 +66,7 @@ begin
     Switches.Initialize;
     Sensors.Initialize;
     Input_Processor.Initialize;
+    Reservations.Initialize;
 
     Last_Ticks := SDL.Get_Ticks;
 
@@ -99,6 +101,7 @@ begin
         Switches.Draw;
         Sensors.Draw;
         Input_Processor.Draw;
+        Reservations.Draw;
         SDL.Render_Present;
 
         Current_Ticks := SDL.Get_Ticks - Last_Ticks;
@@ -124,6 +127,7 @@ begin
     Sensors.Finalize;
     SDL.Finalize;
     Input_Processor.Finalize;
+    Reservations.Finalize;
 
     exception
         when Serial_Error =>

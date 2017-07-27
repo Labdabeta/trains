@@ -103,9 +103,8 @@ void getRestrictions(struct ReservationSystem *r, int train, struct Restrictions
     int i;
     if (train >= 0) {
         // Specific train
-        int mask = train;
         for (i = 0; i < TRACK_MAX; ++i)
-            rest->isEnabled[i] = !(r->whoOwns[i] & ~mask);
+            rest->isEnabled[i] = (!r->whoOwns[i] || r->whoOwns[i] == train);
     } else {
         // any train
         for (i = 0; i < TRACK_MAX; ++i)

@@ -2,12 +2,16 @@
 #include <server.h>
 #include "gui.h"
 #include "logging.h"
+#include "util/async_send.h"
 
 #define MAX_WAITING_CLIENTS 0x10
 
 struct Data {
     int waiters[MAX_WAITING_CLIENTS];
     int num_waiters;
+
+    int clients[MAX_WAITING_CLIENTS];
+    int num_clients;
 
     struct ReservationSystem reservations;
     struct Restrictions restrictions;
@@ -20,7 +24,8 @@ enum HotelServerMessage {
     HSM_FREE,
     HSM_FREEALL,
     HSM_GET_PATH,
-    HSM_WAIT
+    HSM_WAIT,
+    HSM_REGISTER
 };
 
 struct Message {
@@ -56,6 +61,7 @@ ENTRY initialize(struct Data *data)
 {
     initReservation(&data->reservations);
     data->num_waiters = 0;
+    data->num_clients = 0;
 
     RegisterAs(RESERVATION_SERVER_NAME);
 }
@@ -64,38 +70,52 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     int reply;
     int i;
-
-    //LOG(LOG_HOTEL, "%d sends %d", tid, msg->type);
+    struct HotelMessage rpl;
+    rpl.identifier = HOTEL_MESSAGE_ID;
 
     switch (msg->type) {
         case HSM_QUERY:
             reply = whoOwnsSpace(&data->reservations, msg->data.space);
-            LOG(LOG_HOTEL, "%d owns %s", reply, spaceToString(msg->data.space));
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_REQUEST:
             reply = reserveSpace(&data->reservations, msg->data.space, msg->train);
-            LOG(LOG_HOTEL, "%d wants %s - %d", msg->train, spaceToString(msg->data.space), reply);
+            getRestrictions(&data->reservations, -1, &rpl.restrictions);
+            for (i = 0; i < data->num_clients; ++i)
+                async_send(data->clients[i], (char*)&rpl, sizeof(rpl));
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_STEAL:
             reply = takeSpace(&data->reservations, msg->data.space, msg->train);
-            LOG(LOG_HOTEL, "%d took %s from %d", msg->train, spaceToString(msg->data.space), reply);
+            getRestrictions(&data->reservations, -1, &rpl.restrictions);
+            for (i = 0; i < data->num_clients; ++i)
+                async_send(data->clients[i], (char*)&rpl, sizeof(rpl));
             Reply(tid, (char*)&reply, sizeof(reply));
             break;
         case HSM_FREE:
             clearSpace(&data->reservations, msg->data.space, msg->train);
-            LOG(LOG_HOTEL, "%s cleared by %d", spaceToString(msg->data.space), msg->train);
             if (!whoOwnsSpace(&data->reservations, msg->data.space)) {
                 for (i = 0; i < data->num_waiters; ++i)
                     Reply(data->waiters[i], (char*)&msg->data.space, sizeof(msg->data.space));
                 data->num_waiters = 0;
+
+                getRestrictions(&data->reservations, -1, &rpl.restrictions);
+                for (i = 0; i < data->num_clients; ++i)
+                    async_send(data->clients[i], (char*)&rpl, sizeof(rpl));
             }
             Reply(tid, 0, 0);
             break;
         case HSM_FREEALL:
             clearAll(&data->reservations, msg->train);
-            LOG(LOG_HOTEL, "%d cleared", msg->train);
+            getRestrictions(&data->reservations, -1, &rpl.restrictions);
+            for (i = 0; i < data->num_clients; ++i)
+                async_send(data->clients[i], (char*)&rpl, sizeof(rpl));
+            msg->data.space = SWITCH_SPACE(-1);
+            for (i = 0; i < data->num_waiters; ++i)
+                Reply(data->waiters[i], (char*)&msg->data.space, sizeof(msg->data.space));
+            data->num_waiters = 0;
+            Reply(tid, 0, 0);
+            break;
         case HSM_GET_PATH:
             getRestrictions(&data->reservations, msg->train, &data->restrictions);
             printRestrictions(&data->restrictions);
@@ -106,6 +126,11 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         case HSM_WAIT:
             data->waiters[data->num_waiters++] = tid;
             LOG(LOG_HOTEL, "%d is waiting", tid);
+            break;
+        case HSM_REGISTER:
+            data->clients[data->num_clients++] = tid;
+            LOG(LOG_HOTEL, "%d is a client", tid);
+            Reply(tid, 0, 0);
             break;
         default:
             ERROR("BAD HOTEL SERVER MESSAGE.");
@@ -157,6 +182,15 @@ void freeSpace(int tid, struct TrackSpace space, int train)
     Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
+void freeTrain(int tid, int train)
+{
+    struct Message msg;
+    msg.type = HSM_FREEALL;
+    msg.train = train;
+
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
+}
+
 int getFreePath(int tid, int train, struct Sensor src, struct Sensor dst, struct RestrictedPath *path)
 {
     struct Message msg;
@@ -179,6 +213,14 @@ struct TrackSpace waitForAvailability(int tid)
 
     Send(tid, (char*)&msg, sizeof(msg), (char*)&reply, sizeof(reply));
     return reply;
+}
+
+void registerForChanges(int tid)
+{
+    struct Message msg;
+    msg.type = HSM_REGISTER;
+
+    Send(tid, (char*)&msg, sizeof(msg), 0, 0);
 }
 
 MAKE_SERVER(hotel)

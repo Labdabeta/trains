@@ -70,7 +70,7 @@ void conductor(void)
         }
 
         if (!strcmp(cmd.name, "t") || !strcmp(cmd.name, "tr"))
-            tput2(cmd.args[0].data.i, cmd.args[1].data.i);
+            tput2(cmd.args[1].data.i, cmd.args[0].data.i);
     }
 }
 

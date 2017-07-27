@@ -220,9 +220,9 @@ struct Sensor getReverseSensor(struct Sensor src)
     struct Sensor ret;
     ret.group = src.group;
     if (src.id & 1)
-        ret.id = src.id + 1;
-    else
         ret.id = src.id - 1;
+    else
+        ret.id = src.id + 1;
     return ret;
 }
 

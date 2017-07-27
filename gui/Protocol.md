@@ -58,6 +58,10 @@ These are the commands that can be sent to the UI:
  - `p length`: The following length characters are printed to the message space.
  - `l byte byte`: Log with type "first byte" the following "second byte" bytes.
  - `die`: Terminate execution.
+ - `v switch`: Indicate that switch is now reserved.
+ - `V switch`: Indicate that switch is now unreserved.
+ - `_ sensor`: Indicate that sensor is now reserved.
+ - `- sensor`: Indicate that sensor is now unreserved.
 
 ## Commands from the UI
 
