@@ -9,6 +9,15 @@ void conformTest(void);
 
 void conductor(void)
 {
+//    cgetc();
+//    int train;
+//    train = 70;
+//    int index;
+//    index = 10;
+//    int child = Create(1, conformTest);
+//    Send(child, (char*)&train, sizeof(int), 0, 0);
+//    Send(child, (char*)&index, sizeof(int), 0, 0);
+//    cgetc();
     display("Hello");
     int parse_id = WhoIs(PARSE_SERVER_NAME);
     int track_id = WhoIs(TRACK_SERVER_NAME);
@@ -25,6 +34,13 @@ void conductor(void)
         dprintf("Registering %s\n", commands[i]);
         registerForCommand(parse_id, commands[i]);
     }
+
+    insertTrain(track_id, 70, S_MAKE(E, 8));
+    int train = 70;
+    int index = 10;
+    int child = Create(1, conformTest);
+    Send(child, (char*)&train, sizeof(int), 0, 0);
+    Send(child, (char*)&index, sizeof(int), 0, 0);
 
     for (ever) {
         struct Command cmd;

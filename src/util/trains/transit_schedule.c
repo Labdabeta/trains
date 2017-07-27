@@ -73,7 +73,7 @@ void init_schedule_times(struct TransitSchedule *ts, int last_ind, int last_time
   ts->observed_times[last_ind] = last_time;
   rotate_schedule(ts, ind_plus(ts, last_ind, -1));
   rotate_schedule(ts, last_ind);
-	printSchedule(ts);
+	printf("%s\n", printSchedule(ts));
 }
 
 int transit_register_hit(struct TransitSchedule *ts, int id, int cur_time)
@@ -85,7 +85,7 @@ int transit_register_hit(struct TransitSchedule *ts, int id, int cur_time)
   int delta = (ts->expected_times[new_ind] - cur_time) * ts->target_velocity / 100;
   rotate_schedule(ts, new_ind);
   ts->observed_times[new_ind] = cur_time;
-	printSchedule(ts);
+	printf("%s\n", printSchedule(ts));
   return delta;
 }
 
@@ -97,7 +97,7 @@ char *printSchedule(struct TransitSchedule *ts)
     char tmp[100];
 
     for (i = 0; i < ts->route.length; ++i) {
-        sprintf(tmp, i ? " -> %c%d (E: %d, O: %d)" : "%c% (E: %d, O: %d)d",
+        sprintf(tmp, i ? " -> %c%d (E: %d, O: %d)" : "%c%d (E: %d, O: %d)",
                 S_PRINT(ts->route.sensors[i]),
                 ts->expected_times[i], ts->observed_times[i]);
         strcat(tsprintbuf, tmp);

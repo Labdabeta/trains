@@ -62,13 +62,13 @@ void main_task(void)
 		init_trackb();
 #endif
 
-    CreateSize(2, gui, TASK_SIZE_SMALL);
+    CreateSize(2, gui, TASK_SIZE_NORMAL);
     while (WhoIs(GUI_SERVER_NAME) < 0)
         Pass();
 
     _log_enabled = 1;
 
-    CreateSize(2, parse_server, TASK_SIZE_NORMAL);
+    CreateSize(2, parse_server, TASK_SIZE_BIG);
     while (WhoIs(PARSE_SERVER_NAME) < 0)
         Pass();
 

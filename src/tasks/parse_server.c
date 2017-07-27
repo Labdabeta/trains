@@ -55,13 +55,13 @@ ENTRY initialize(struct Data *data)
     data->num_clients = 0;
     data->gui_tid = WhoIs(GUI_SERVER_NAME);
     registerForMessages(data->gui_tid);
+    dprintf("REQUIRED PSERVER SIZE: %d bytes\n", sizeof(struct Data) + sizeof(struct Message) + 100);
 }
 
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
+    Reply(tid, 0, 0);
     if (tid == data->gui_tid) {
-        Reply(tid, 0, 0);
-
         if (msg->data.g.type == GMT_CMD) {
             struct Command cmds[MAX_COMMAND_COUNT];
             int num_cmds, i;
@@ -87,7 +87,6 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
     } else {
         struct ParseMessage *p = &msg->data.p;
         int i;
-        Reply(tid, 0, 0);
 
         data->clients[data->num_clients].tid = tid;
         strcpy(data->clients[data->num_clients].name, p->name);

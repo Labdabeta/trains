@@ -39,7 +39,9 @@ ENTRY initialize(struct Data *d)
 ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
 {
     if (msg_size) { // actual message
+        Reply(tid, 0, 0);
         if (msg->data.type == TSMT_SENSOR_DOWN) {
+            dprintf("DOING SENDOWN\n");
             int cur_time = Time(data->clock_tid);
             int error = transit_register_hit(&data->schedule, S_ID(msg->data.data.sensor.sensor), cur_time);
             int velocity = transit_vel_from(&data->schedule, 1);
@@ -77,6 +79,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     Send(data->transmission_tid, (char *) &data->control, sizeof(data->control), 0, 0);
                 }
             }
+            dprintf("DONE SENDOWN\n");
         }
     }
 }

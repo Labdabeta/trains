@@ -30,6 +30,9 @@ static inline int handleCreate(struct KernelData *data, struct TaskDescriptor *a
 		data->alive++;
 	}
 
+    if (newid < 0)
+        dprintf("COULD NOT FIND TASK!\n");
+
 	/* convert -1 to -2 */
 	return newid - (newid == -1);
 }

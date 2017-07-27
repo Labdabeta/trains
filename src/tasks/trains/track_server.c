@@ -85,7 +85,7 @@ ENTRY initialize(struct Data *data)
     data->num_switch_tids = 0;
     data->num_switch_clients = 0;
 
-#ifdef TRACK_A
+#ifdef TRACK_a
     initTrackA(&data->track);
 #else
     initTrackB(&data->track);
@@ -227,8 +227,12 @@ static inline void handleNotifySwitch(struct Data *data, int tid, int sw, int is
         Reply(data->switch_tids[client], (char*)&data->track.switches, sizeof(data->track.switches));
     data->num_switch_tids = 0;
 
+    dprintf("NOTIFYING %d CLIENTS\n", data->num_switch_clients);
+
     for (client = 0; client < data->num_switch_clients; ++client)
         async_send(data->switch_clients[client], (char*)&reply, sizeof(reply));
+
+    dprintf("DONE");
 }
 
 static inline void handleQuerySensor(struct Data *data, int tid, int sen)
@@ -279,6 +283,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         // Downs
         delta = ~data->sensors[data->last_sensor] & sensor;
         if (delta) {
+            dprintf("PROCESSING SENSOR FLIP\n");
             int bit;
             int mask = 1 << 7;
             for (bit = 0; bit < 8; ++bit) {
@@ -293,7 +298,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
-                    //LOG(LOG_SENSOR_DOWN, "%c%d", S_PRINT(reply));
+                    LOG(LOG_SENSOR_DOWN, "%c%d", S_PRINT(reply));
 
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_DOWN;
@@ -308,33 +313,35 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     message.data.sensor.train = train;
 
                     if (train >= 0) {
-                        //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[train]);
+                        LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[train]);
                         for (client = 0; client < data->num_sendown_tids[train]; ++client)
                             Reply(data->sendown_tids[train][client], (char*)&reply, sizeof(reply));
                         data->num_sendown_tids[train] = 0;
 
-                        //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[train]);
+                        LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[train]);
                         for (client = 0; client < data->num_sendown_clients[train]; ++client)
                             async_send(data->sendown_clients[train][client], (char*)&message, sizeof(message));
                     }
 
                     // Deal with the any train registrations
-                    //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[TRAIN_MAX]);
+                    LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[TRAIN_MAX]);
                     for (client = 0; client < data->num_sendown_tids[TRAIN_MAX]; ++client)
                         Reply(data->num_sendown_tids[client], (char*)&reply, sizeof(reply));
                     data->num_sendown_tids[TRAIN_MAX] = 0;
 
-                    //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[TRAIN_MAX]);
+                    LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[TRAIN_MAX]);
                     for (client = 0; client < data->num_sendown_clients[TRAIN_MAX]; ++client)
                         async_send(data->sendown_clients[TRAIN_MAX][client], (char*)&message, sizeof(message));
                 }
                 mask >>= 1;
             }
+            dprintf("DONE PROCESSING SENSOR FLIP\n");
         }
 
         // Ups
         delta = data->sensors[data->last_sensor] & ~sensor;
         if (delta) {
+            dprintf("PROCESSING SENSOR UNFLIP\n");
             int bit;
             int mask = 1 << 7;
             for (bit = 0; bit < 8; ++bit) {
@@ -348,7 +355,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
-                    //LOG(LOG_SENSOR_UP, "%c%d", S_PRINT(reply));
+                    LOG(LOG_SENSOR_UP, "%c%d", S_PRINT(reply));
 
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_UP;
@@ -379,13 +386,14 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                 }
                 mask >>= 1;
             }
+            dprintf("DONE PROCESSING SENSOR UNFLIP\n");
         }
 
         data->sensors[data->last_sensor] = sensor;
         return;
     }
 
-    //LOG(LOG_TRAIN_MSG, "%d sends %d", tid, msg->type);
+    LOG(LOG_TRAIN_MSG, "%d sends %d", tid, msg->type);
 
     switch (msg->type) {
         case TM_REGISTER_DOWN: handleRegisterDown(data, tid, msg->datum); break;
@@ -411,7 +419,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             ERROR("BAD TRACK SERVER MESSAGE.");
     }
 
-    //LOG(LOG_TRAIN_MSG, "%d's %d handled", tid, msg->type);
+    LOG(LOG_TRAIN_MSG, "%d's %d handled", tid, msg->type);
 }
 
 /*********************** Public space message wrappers: ***********************/

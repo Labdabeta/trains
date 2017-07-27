@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 			data.tmp = t4t();
 			data.kerntime += data.tmp - data.lasttick;
 			data.lasttick = data.tmp;
-            //dprintf("%d ", active->tid);
+            //dprintf("--%d--\n", active->tid);
 #endif
             active_tid = active->tid;
             active_state = active->state;
@@ -146,6 +146,8 @@ int main(int argc, char *argv[])
 			(unsigned int)data.tasks[NUM_SUPPORTED_TASKS-1].ticks,
 			(unsigned int)(ttime>>32), (unsigned int)ttime,
 			(unsigned int)((data.tasks[NUM_SUPPORTED_TASKS-1].ticks*100)/ttime));
+    for (int i = 1; i < NUM_SUPPORTED_TASKS; ++i)
+        dprintf("Time spent in task %d: %u%u\n", i, (unsigned int)(data.tasks[i].ticks>>32), (unsigned int)data.tasks[i].ticks);
 #endif
 
 	cleanupTimer1();
