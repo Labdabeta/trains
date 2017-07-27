@@ -19,6 +19,6 @@ int transit_register_hit(struct TransitSchedule *ts, int sensor_id, int time);
 
 int transit_vel_from(struct TransitSchedule *ts, int num);
 
-void printSchedule(struct TransitSchedule *ts);
+char *printSchedule(struct TransitSchedule *ts);
 
 #endif

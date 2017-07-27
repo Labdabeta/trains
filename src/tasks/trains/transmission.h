@@ -12,11 +12,10 @@ struct speed_combination{
 typedef enum transmit_type{
 	TRANSMIT_TYPE_SET,
 	TRANSMIT_TYPE_ADJUST,
-	TRANSMIT_TYPE_REVERSE,
-	TRANSMIT_TYPE_TIMEOUT
+	TRANSMIT_TYPE_REVERSE
 } transmit_type;
 
-struct TransmitMessage{
+struct TransmitMessage {
 	transmit_type code;
 	int arg;
 };

@@ -12,7 +12,6 @@
 
 void gui(void);
 void conductor(void);
-void conformTest(void);
 
 static int _cout_tid;
 static int _tout_tid;
@@ -53,7 +52,7 @@ void main_task(void)
 	while (WhoIs("TOUT") < 0)
 		Pass();
 
-    int track_tid = CreateSize(3, track_server, TASK_SIZE_NORMAL);
+    CreateSize(3, track_server, TASK_SIZE_NORMAL);
     while (WhoIs(TRACK_SERVER_NAME) < 0)
         Pass();
 
@@ -73,6 +72,9 @@ void main_task(void)
     while (WhoIs(PARSE_SERVER_NAME) < 0)
         Pass();
 
+    Create(1, conductor);
+
+#if 0
 		int train, index, child;
 		/*train = 69;
 		insertTrain(track_tid, train, S_MAKE(B, 15));
@@ -86,6 +88,7 @@ void main_task(void)
     child = Create(1, conformTest);
 		Send(child, (char *) &train, sizeof(int), 0, 0);
 		Send(child, (char *) &index, sizeof(int), 0, 0);
+#endif
 
 	Exit();
 }

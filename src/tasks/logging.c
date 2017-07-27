@@ -14,6 +14,6 @@ void log_function(enum LogType type)
     if (_log_enabled) {
         cputstr(log_buf);
     } else {
-        //dprintf("\nBOOT LOG (%d): %s\t\n", type, log_buf + 4);
+        dprintf("\nBOOT LOG (%d): %s\t\n", type, log_buf + 4);
     }
 }

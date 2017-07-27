@@ -13,6 +13,9 @@
 
 extern void *memcpy(void *dst, const void *src, unsigned int len);
 
+#ifdef dprintf
+#undef dprintf
+#endif
 #define dprintf(...)
 
 void Exit(void)
@@ -31,7 +34,7 @@ int CreateSize(int priority, void (*code)(), TaskSize size)
 	int ret = asm_callSystemInterrupt(priority, (int)code, (int)size, CODE_CREATE);
 #ifdef DEBUG_MODE
     dprintf("=%d ", ret);
-    LOG(LOG_CREATE, "%d - %x", ret, (int)code);
+    //LOG(LOG_CREATE, "%d - %x", ret, (int)code);
 #endif
     return ret;
 }

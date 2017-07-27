@@ -1,5 +1,12 @@
 #include "transit_schedule.h"
 #include "logging.h"
+#include "string.h"
+
+#ifndef REMOTE
+#include "tasks.h"
+#else
+#include <stdio.h>
+#endif
 
 #define SII static inline int
 
@@ -82,19 +89,18 @@ int transit_register_hit(struct TransitSchedule *ts, int id, int cur_time)
   return delta;
 }
 
-void printSchedule(struct TransitSchedule *ts)
+static char tsprintbuf[1000];
+char *printSchedule(struct TransitSchedule *ts)
 {
     int i;
-    printf("START %d\n\r", ts->route.length);
+    tsprintbuf[0] = 0;
+    char tmp[100];
+
     for (i = 0; i < ts->route.length; ++i) {
-        printf("Ind: %d, Dest: %c%d, "
-							 "Exp_time: %d, Obs_time: %d\n\r",
-               i,
-               ts->route.sensors[i].group + 'A',
-               ts->route.sensors[i].id + 1,
-							 ts->expected_times[i],
-							 ts->observed_times[i]
-						 );
+        sprintf(tmp, i ? " -> %c%d (E: %d, O: %d)" : "%c% (E: %d, O: %d)d",
+                S_PRINT(ts->route.sensors[i]),
+                ts->expected_times[i], ts->observed_times[i]);
+        strcat(tsprintbuf, tmp);
     }
-    printf("END\n\r");
+    return tsprintbuf;
 }

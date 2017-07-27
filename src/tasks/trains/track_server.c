@@ -293,7 +293,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
-                    LOG(LOG_SENSOR_DOWN, "%c%d", S_PRINT(reply));
+                    //LOG(LOG_SENSOR_DOWN, "%c%d", S_PRINT(reply));
 
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_DOWN;
@@ -308,23 +308,23 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     message.data.sensor.train = train;
 
                     if (train >= 0) {
-                        LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[train]);
+                        //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[train]);
                         for (client = 0; client < data->num_sendown_tids[train]; ++client)
                             Reply(data->sendown_tids[train][client], (char*)&reply, sizeof(reply));
                         data->num_sendown_tids[train] = 0;
 
-                        LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[train]);
+                        //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[train]);
                         for (client = 0; client < data->num_sendown_clients[train]; ++client)
                             async_send(data->sendown_clients[train][client], (char*)&message, sizeof(message));
                     }
 
                     // Deal with the any train registrations
-                    LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[TRAIN_MAX]);
+                    //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_tids[TRAIN_MAX]);
                     for (client = 0; client < data->num_sendown_tids[TRAIN_MAX]; ++client)
                         Reply(data->num_sendown_tids[client], (char*)&reply, sizeof(reply));
                     data->num_sendown_tids[TRAIN_MAX] = 0;
 
-                    LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[TRAIN_MAX]);
+                    //LOG(LOG_TRACK_CLIENTS, "%d", data->num_sendown_clients[TRAIN_MAX]);
                     for (client = 0; client < data->num_sendown_clients[TRAIN_MAX]; ++client)
                         async_send(data->sendown_clients[TRAIN_MAX][client], (char*)&message, sizeof(message));
                 }
@@ -348,7 +348,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
                     if (data->last_sensor & 1)
                         reply.id += 8;
 
-                    LOG(LOG_SENSOR_UP, "%c%d", S_PRINT(reply));
+                    //LOG(LOG_SENSOR_UP, "%c%d", S_PRINT(reply));
 
                     message.msgid = TRACK_MESSAGE_ID;
                     message.type = TSMT_SENSOR_UP;
@@ -385,7 +385,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
         return;
     }
 
-    LOG(LOG_TRAIN_MSG, "%d sends %d", tid, msg->type);
+    //LOG(LOG_TRAIN_MSG, "%d sends %d", tid, msg->type);
 
     switch (msg->type) {
         case TM_REGISTER_DOWN: handleRegisterDown(data, tid, msg->datum); break;
@@ -411,7 +411,7 @@ ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
             ERROR("BAD TRACK SERVER MESSAGE.");
     }
 
-    LOG(LOG_TRAIN_MSG, "%d's %d handled", tid, msg->type);
+    //LOG(LOG_TRAIN_MSG, "%d's %d handled", tid, msg->type);
 }
 
 /*********************** Public space message wrappers: ***********************/

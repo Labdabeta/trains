@@ -9,8 +9,7 @@
 typedef enum TrackServerMessageType {
     TSMT_SENSOR_DOWN,
     TSMT_SENSOR_UP,
-    TSMT_SWITCH_FLIP,
-    TSMT_NONE
+    TSMT_SWITCH_FLIP
 } TrackServerMessageType;
 
 // This is what you get when you register. NOT when you wait.

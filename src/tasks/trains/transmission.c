@@ -2,8 +2,7 @@
 #include "util/async_delay.h"
 #include "transmission.h"
 #include "logging.h"
-
-#define SIV static inline void
+#include <server.h>
 
 void set_speed(struct speed_combination *speed, int value){
 	if(value >= 14) {
@@ -52,57 +51,67 @@ void adjust_speed(struct speed_combination *speed, int steps){
 struct Data{
 	int caller, clock_tid, train, parity;
 	struct speed_combination speed;
-	struct TransmitMessage request, timeout;
 };
 
-SIV initialize(struct Data *d){
+struct Message {
+    struct TransmitMessage data;
+};
+
+ENTRY initialize(struct Data *d)
+{
+	int init_speed;
 	d->clock_tid = WhoIs("CLOCK");
-	d->timeout.code = TRANSMIT_TYPE_TIMEOUT;
 	d->parity = 0;
+
 	Receive(&d->caller, (char *) &d->train, sizeof(d->train));
 	Reply(d->caller, 0, 0);
-	int init_speed;
+
 	Receive(&d->caller, (char *) &init_speed, sizeof(init_speed));
 	Reply(d->caller, 0, 0);
+
 	set_speed(&d->speed, init_speed);
+
+    async_delay(d->clock_tid, 0, 0, 0);
 }
 
-void transmission(){
-	struct Data d;
-	initialize(&d);
-	async_delay(d.clock_tid, 0, (char *) &d.timeout, sizeof(d.timeout));
-	while(1){
-		Receive(&d.caller, (char *) &d.request, sizeof(d.request));
-		Reply(d.caller, 0, 0);
-		switch(d.request.code){
-			case TRANSMIT_TYPE_SET:
-				set_speed(&d.speed, d.request.arg);
-				printf("SET. A: %d, B: %d, At %d, Bt %d\n\r", d.speed.speedA, d.speed.speedB, d.speed.timeA, d.speed.timeB);
-			break;
-			case TRANSMIT_TYPE_ADJUST:
-				adjust_speed(&d.speed, d.request.arg);
-				printf("ADJUST. A: %d, B: %d, At %d, Bt %d\n\r", d.speed.speedA, d.speed.speedB, d.speed.timeA, d.speed.timeB);
-			break;
-			case TRANSMIT_TYPE_REVERSE:
-				if(d.speed.speedA == 0 && d.speed.timeA == TRANSMISSION_INTERVAL){
-					tput2(15, d.train);
+ENTRY handle(struct Data *data, int tid, struct Message *msg, int msg_size)
+{
+    Reply(tid, 0, 0);
+    if (msg_size) { // actual message
+        switch (msg->data.code) {
+            case TRANSMIT_TYPE_SET:
+                set_speed(&data->speed, msg->data.arg);
+                LOG(LOG_TRANSMISSION, "SET. A: %d, B: %d, At %d, Bt %d",
+                        data->speed.speedA, data->speed.speedB,
+                        data->speed.timeA, data->speed.timeB);
+                break;
+            case TRANSMIT_TYPE_ADJUST:
+				adjust_speed(&data->speed, msg->data.arg);
+				LOG(LOG_TRANSMISSION, "ADJUST. A: %d, B: %d, At %d, Bt %d",
+                        data->speed.speedA, data->speed.speedB,
+                        data->speed.timeA, data->speed.timeB);
+                break;
+            case TRANSMIT_TYPE_REVERSE:
+				if(data->speed.speedA == 0 && data->speed.timeA == TRANSMISSION_INTERVAL){
+					tput2(15, data->train);
 				} else{
 					ERROR("PANIC: TRIED TO REVERSE AT SPEED NOT 0!");
 				}
-			break;
-			case TRANSMIT_TYPE_TIMEOUT:
-				d.parity = !d.parity;
-				if(d.parity){
-					tput2(d.speed.speedB, d.train);
-					async_delay(d.clock_tid, d.speed.timeB, (char *) &d.timeout, sizeof(d.timeout));
-				} else{
-					tput2(d.speed.speedA, d.train);
-					async_delay(d.clock_tid, d.speed.timeA, (char *) &d.timeout, sizeof(d.timeout));
-				}
-			break;
-		}
-	}
+                break;
+        }
+    } else { // timeout
+        data->parity = !data->parity;
+        if (data->parity) {
+            tput2(data->speed.speedB, data->train);
+            async_delay(data->clock_tid, data->speed.timeB, 0, 0);
+        } else {
+            tput2(data->speed.speedA, data->train);
+            async_delay(data->clock_tid, data->speed.timeA, 0, 0);
+        }
+    }
 }
+
+MAKE_SERVER(transmission)
 
 void transmission_test(){
 	int child_tid = CreateSize(2, transmission, TASK_SIZE_TINY);
