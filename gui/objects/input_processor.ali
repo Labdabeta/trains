@@ -1,0 +1,347 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_CALENDAR
+RV NO_DELAY
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_FIXED_POINT
+RV NO_IO
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+RV SPARK_05
+
+U input_processor%b	input_processor.adb	bbe292d1 NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.calendar%s	a-calend.adb		a-calend.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W com%s			com.ads			com.ali
+W constants%s		constants.ads		constants.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W interfaces.c.strings%s  i-cstrin.adb		i-cstrin.ali
+W reservations%s	reservations.adb	reservations.ali
+W sdl%s			sdl.adb			sdl.ali
+W sdl.image%s		sdl-image.adb		sdl-image.ali
+W sdl_keys%s		sdl_keys.ads		sdl_keys.ali
+W sensors%s		sensors.adb		sensors.ali
+W switches%s		switches.adb		switches.ali
+W system.concat_3%s	s-conca3.adb		s-conca3.ali
+W system.concat_6%s	s-conca6.adb		s-conca6.ali
+W system.img_int%s	s-imgint.adb		s-imgint.ali
+W system.img_lld%s	s-imglld.adb		s-imglld.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+W trains%s		trains.adb		trains.ali
+
+U input_processor%s	input_processor.ads	3e736a83 EE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W constants%s		constants.ads		constants.ali
+W sdl%s			sdl.adb			sdl.ali
+W sdl.font%s		sdl-font.ads		sdl-font.ali
+W sdl.image%s		sdl-image.adb		sdl-image.ali
+W sdl_keys%s		sdl_keys.ads		sdl_keys.ali
+
+D ada.ads		20170630112710 76789da1 ada%s
+D a-calend.ads		20170630112710 2d5f01d4 ada.calendar%s
+D a-charac.ads		20170630112710 2d3ec45b ada.characters%s
+D a-chlat1.ads		20170630112710 66457d31 ada.characters.latin_1%s
+D a-except.ads		20170630112714 291912d5 ada.exceptions%s
+D a-ioexce.ads		20170630112710 e4a01f64 ada.io_exceptions%s
+D a-stream.ads		20170630112714 119b8fb3 ada.streams%s
+D a-string.ads		20170630112710 90ac6797 ada.strings%s
+D a-strfix.ads		20170630112710 d07c346e ada.strings.fixed%s
+D a-strmap.ads		20170630112710 e8bb714a ada.strings.maps%s
+D a-tags.ads		20170630112714 01f5e3ef ada.tags%s
+D a-textio.ads		20170630112710 386df5d4 ada.text_io%s
+D a-unccon.ads		20170630112710 31484697 ada.unchecked_conversion%s
+D com.ads		20170703010015 394223d6 com%s
+D constants.ads		20170720193222 e2a6dc3a constants%s
+D input_processor.ads	20170720195230 626e4ed8 input_processor%s
+D input_processor.adb	20170727032147 3673b38f input_processor%b
+D interfac.ads		20170630112710 5ab55268 interfaces%s
+D i-c.ads		20170630112710 5421119b interfaces.c%s
+D i-cstrin.ads		20170630112710 341d0ddf interfaces.c.strings%s
+D i-cstrea.ads		20170630112710 e53d8b8e interfaces.c_streams%s
+D reservations.ads	20170727032135 b96ed546 reservations%s
+D sdl.ads		20170713054412 5a456819 sdl%s
+D sdl-font.ads		20170703010015 f82ce24a sdl.font%s
+D sdl-image.ads		20170713054412 cd181a4a sdl.image%s
+D sdl_keys.ads		20170713054412 b3e2f5b5 sdl_keys%s
+D sensors.ads		20170713054412 99ab7c4e sensors%s
+D switches.ads		20170713054412 78b972f6 switches%s
+D system.ads		20170630112710 4635ec04 system%s
+D s-conca3.ads		20170630112710 0b705ca5 system.concat_3%s
+D s-conca6.ads		20170630112710 d2c72db2 system.concat_6%s
+D s-crtl.ads		20170630112710 0ebbdb71 system.crtl%s
+D s-exctab.ads		20170630112710 54135002 system.exception_table%s
+D s-ficobl.ads		20170630112714 078245e4 system.file_control_block%s
+D s-imgint.ads		20170630112710 02dbe0c2 system.img_int%s
+D s-imglld.ads		20170630112710 f3220969 system.img_lld%s
+D s-parame.ads		20170630112710 7e2a0d7f system.parameters%s
+D s-secsta.ads		20170630112710 9751b57e system.secondary_stack%s
+D s-soflin.ads		20170630112710 14e1eb6c system.soft_links%s
+D s-stache.ads		20170630112710 a37c21ec system.stack_checking%s
+D s-stalib.ads		20170630112710 09bd3940 system.standard_library%s
+D s-stoele.ads		20170630112710 2dc34a04 system.storage_elements%s
+D s-traent.ads		20170630112710 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20170630112710 34867c83 system.unsigned_types%s
+D s-wchcon.ads		20170630112710 1b7d22d2 system.wch_con%s
+D trains.ads		20170713054412 d5c7e58c trains%s
+X 1 ada.ads
+16K9*Ada 20e8 16|5r6 40r16 17|1r6 1r23 12r6 13r6 14r6 14r29 44r9 48r15 49r16
+. 50r17 51r15 52r18 60r16 61r17 62r18 63r16 64r19 67r37 68r38 69r36 70r39
+. 76r13 76r43 171r21
+X 2 a-calend.ads
+36K13*Calendar 395e17 17|13w10 48r19 49r20 50r21 51r19 52r22 60r20 61r21
+. 62r22 63r20 64r23 67r41 68r42 69r40 70r43
+44I9*Time<213I9> 17|48r28
+50I12*Year_Number{integer} 17|49r29 67r50
+51I12*Month_Number{integer} 17|50r30 68r51
+52I12*Day_Number{integer} 17|51r28 69r49
+56O12*Day_Duration{duration} 17|52r31 70r52
+58V13*Clock{44I9} 17|60s29
+66V13*Year{50I12} 17|61s30
+67V13*Month{51I12} 17|62s31
+68V13*Day{52I12} 17|63s29
+69V13*Seconds{56O12} 17|64s32
+213I9 Time_Rep<long_long_integer>
+X 8 a-string.ads
+16K13*Strings 35e16 17|14r10 14r33
+X 9 a-strfix.ads
+18K21*Fixed 251e22 17|14w18 14r41
+217V13*Head{string} 17|172s31
+X 12 a-textio.ads
+49K13*Text_IO 471e16 16|5w10 40r20 17|1w10 1r27 12w10 44r13 76r17 76r47 171r25
+52P9*File_Type 16|40r28
+53n32*Out_File{53E9} 17|76r55
+86U14*Create 17|76s25
+98U14*Close 17|44s21
+259U14*Put_Line 17|171s33
+263U14*Put_Line 17|145s17
+X 14 com.ads
+4K9*Com 16e8 17|2w6 197r21 199r21 201r17 202r17 212r21 212r37 212r53 213r21
+. 213r37 213r53 215r21 215r37 215r53 216r21 216r37 216r53 218r21 218r37 218r53
+. 219r21 219r37 219r53 221r21 221r37 221r53 222r21 222r37 222r53 232r21 232r37
+. 232r53 233r21 233r37 233r53 235r21 235r37 235r53 236r21 236r37 236r53 238r21
+. 238r37 238r53 239r21 239r37 239r53 241r21 241r37 241r53 242r21 242r37 242r53
+. 299r17 300r17 302r17 305r21 331r13
+10U15*Putc 17|197s25 199s25 201s21 202s21 212s25 212s41 212s57 213s25 213s41
+. 213s57 215s25 215s41 215s57 216s25 216s41 216s57 218s25 218s41 218s57 219s25
+. 219s41 219s57 221s25 221s41 221s57 222s25 222s41 222s57 232s25 232s41 232s57
+. 233s25 233s41 233s57 235s25 235s41 235s57 236s25 236s41 236s57 238s25 238s41
+. 238s57 239s25 239s41 239s57 241s25 241s41 241s57 242s25 242s41 242s57 299s21
+. 300s21 302s21 305s25 331s17
+X 15 constants.ads
+5K9*Constants 451e14 16|4w6 17r18 23r15 26r35 27r9 28r42 32r33 33r9 34r39
+. 17|7w6 24r25 27r25 31r37 35r33 38r34 158r25 159r25 194r26 208r22 228r22
+. 254r29 283r21 288r21 289r21 321r17 322r17 325r17
+6N5*Command_History_Length 16|26r45 28r52 17|283r31 321r27 322r27 325r27
+7N5*Max_Command 17|254r39
+8N5*Message_Height 16|32r43 34r49 17|31r47 38r44 158r35 159r35 288r31 289r31
+10A10*Command_String<string>(character)<integer> 16|23r25 27r19 33r19
+11A10*Long_Command_String<string>(character)<integer> 16|17r28
+19r5*Command_Prompt_Spot{23|23R10} 17|27r35
+20r5*Command_Text_Spot{23|23R10} 17|24r35
+21a5*Previous_Lines_Spots(23|23R10) 17|35r43
+35a5*BiSwitch_Area(23|28R10) 17|194r36
+108a5*TriSwitch_Area(23|28R10) 17|208r32 228r32
+X 16 input_processor.ads
+7K9*Input_Processor 15E5 41l5 41e20 17|17b14 343l5 343t20
+8U15*Initialize 17|47b15 80l9 80t19
+9U15*Finalize 17|42b15 45l9 45t17
+10V14*Process{boolean} 10>23 17|82b14 185l9 185t16
+10e23 C{character} 17|82b23 143r16 153r47 176r32
+11U15*Process_Click 17|187b15 245l9 245t22
+12U15*Process_Keyboard 12>33 17|247b15 333l9 333t25
+12i33 Key{26|2I10} 17|247b33 252r14 252r35 253r13 253r30 256r16 256r33 260r60
+. 262r60 270r15 280r15 314r15 323r15 330r15
+13U15*Draw 17|19b15 40l9 40t13
+15b5 Init{boolean} 17|142r16 144m17
+16a5 Args(character) 17|84r18 87r51 87r61 91r51 91r61 95r56 96r50 100r56
+. 101r50 105r41 106r40 114r48 115r52 120r54 120r64 122r56 122r66 125r56 126r50
+. 129r56 130r50 176m13
+17a5 Input_Args{15|11A10} 17|107m21 116m21 153m13 168r45 172r45
+18i5 Input_Args_Length{integer} 17|111m21 117m21 151r27 152m13 152r34 153r25
+. 155r31
+19i5 Input_Length{integer} 17|104m21 108r24 109m25 115m21 151r12 155r16 172r58
+20b5 Is_Log{boolean} 17|112m21 118m21 156r24
+21i5 Log_Type{integer} 17|114m21 171r68
+22i5 Next_Arg{integer} 17|146m17 176r19 177m13 177r25 178r16 179m17
+23a5 Command{15|10A10} 17|55r60 160r58 260m17 262m17 268r64 273m17 278r64
+. 284r58 290r54 305r31 306m21 308r68 315m13 317r64 326m13 328r64
+24i5 Command_Length{integer} 17|249r12 250m13 254r12 260r26 262r26 264m13
+. 264r31 271r16 272m17 272r35 273r26 281r16 285r65 298m17 298r35 301r45 303r45
+. 304r45 311m17 316m13 327m13
+26a5 Command_History(15|10A10) 17|284m17 315r24 326r24
+28a5 Command_Length_History(integer) 17|285m17 316r31 327r31
+30i5 Current_History_Idx{integer} 17|282m17 282r41 284r34 285r41 312r40
+31i5 Current_Command_Idx{integer} 17|312m17 315r41 316r55 320m13 320r37 324m13
+. 324r37 326r41 327r55
+32a5 Previous_Line(15|10A10) 17|160m21 290m17
+34a5 Previous_Line_Image(25|3R10) 17|32r16 34r28 161r24 164r41 169m40 169r40
+. 291r20 294r37 296m17
+36i5 Previous_Line_Idx{integer} 17|29r16 157m21 157r43 160r36 161r45 165r30
+. 169r61 287m17 287r39 290r32 291r41 294r58 296r38
+37r5 Command_Image{25|3R10} 17|23r20 56m18 265r16 266r33 269m27 275r16 276r33
+. 279m27 296r60 309m36 318m32 329m32
+38r5 Prompt_Image{25|3R10} 17|26r20 58m13
+39m5 The_Font{24|4M13} 17|54m9 55r30 57r30 167r42 268r34 278r34 308r38 317r34
+. 328r34
+40p5 Log_File{12|52P9} 17|44m28 44r28 76m33 76r33 171r43
+X 17 input_processor.adb
+18V14 To_Hex_Char{character} 18>27 201s27 202s27 335b14 342l9 342t20
+18i27 Val{integer} 335b27 337r12 338r35 340r35
+20i9 Idx{integer} 29m9 32r37 34r49 38m13 38r21
+31i13 I{integer} 35r65
+48i9 Now{2|44I9} 60m9 61r36 62r38 63r34 64r41
+49i9 Year{2|50I12} 61m9 67r69
+50i9 Month{2|51I12} 62m9 68r71
+51i9 Day{2|52I12} 63m9 69r67
+52o9 Second{2|56O12} 64m9 70r72
+67a13 Year_String{string} 77r27 77r45
+68a13 Month_String{string} 72m13 72r27 78r17
+69a13 Day_String{string} 73m13 73r25 78r32
+70a13 Second_String{string} 74m13 74r28 78r45
+83V18 Process_Command{boolean} 83b18 139l13 139t28 180s24
+188o9 X{23|22O10} 193r27 207r23 227r23
+189o9 Y{23|22O10} 193r30 207r26 227r26
+191i13 Bi{28|4I10} 194r51 196r35 201r49 202r49
+304i21 I{integer} 305r40 306r30
+X 18 interfac.ads
+38K9*Interfaces 17|10r6 10r32 11r6 11r24 18|184e15
+X 19 i-c.ads
+18K20*C 17|10r17 10r43 11w17 11r35 19|230e17
+35I9*int<integer>
+X 20 i-cstrin.ads
+36K22*Strings 17|10w19 10r45 20|106e25
+47P9*chars_ptr
+60V13*New_String{47P9} 17|54s36 55s40 57s40 168s25 268s44 278s44 308s48 317s44
+. 328s44
+X 22 reservations.ads
+5K9*Reservations 17|15w6 15r24 22|24e17
+10U15*Reserve_Switch 17|120s21
+11U15*Unreserve_Switch 17|122s21
+12U15*Reserve_Sensor 17|124s21
+13e9 Group{27|4E10} 17|125r25
+14i9 Id{27|5I10} 17|126r25
+15U15*Unreserve_Sensor 17|128s21
+16e9 Group{27|4E10} 17|129r25
+17i9 Id{27|5I10} 17|130r25
+X 23 sdl.ads
+7K9*SDL 16|2r6 3r6 35r9 35r39 37r21 37r40 38r20 38r39 39r16 17|5w6 5r15 9r6
+. 9r21 22r9 25r9 32r45 33r17 54r21 55r9 57r9 162r25 164r25 167r21 188r13
+. 189r13 257r17 258r17 265r33 266r17 268r13 275r33 276r17 278r13 292r21 294r21
+. 308r17 317r13 328r13 23|120e8
+22O10*Dimension 17|188r17 189r17
+33V14*Within{boolean} 17|192s16 206s12 226s12
+34r9 Point{23R10} 17|193r17 207r13 227r13
+35r9 Space{28R10} 17|194r17 208r13 228r13
+55A10*Key_State(19|35I9)<26|2I10>
+62a13*Keys{55A10} 17|257r28 258r28
+66r5*Status{57R10} 17|257r21 258r21
+69V14*Get_Mouse_X{22O10} 17|188s30
+70V14*Get_Mouse_Y{22O10} 17|189s30
+X 24 sdl-font.ads
+3K13*Font 16|2w10 39r20 17|54r25 55r13 57r13 167r25 268r17 278r17 308r21
+. 317r17 328r17 24|45e13
+4M13*SDL_Font{29|67M9} 16|39r25
+6V14*Open{4M13} 17|54s30
+15U15*RenderFast 17|55s18 57s18 167s30 268s22 278s22 308s26 317s22 328s22
+X 25 sdl-image.ads
+1K13*Image 16|3w10 35r13 35r43 37r25 37r44 38r24 38r43 17|9w10 9r25 22r13
+. 25r13 32r49 33r21 162r29 164r29 265r37 266r21 275r37 276r21 292r25 294r25
+. 25|37e14
+3R10*Image 16|35r19 37r31 38r30 25|8e19
+11r5*Null_Image{3R10} 16|35r49 37r50 38r49 17|32r55 162r35 265r43 275r43
+. 292r31
+18U15*Free 17|164s35 266s27 276s27 294s31
+33U15*Draw_Raw 17|22s19 25s19 33s27
+34r9 Img{3R10} 17|23r13 26r13 34r21
+35r9 Top_Left{23|23R10} 17|24r13 27r13 35r21
+X 26 sdl_keys.ads
+1K9*SDL_Keys 16|1w6 12r39 17|6w6 6r20 247r39 26|84e13
+2I10*Key<short_integer> 16|12r48 17|247r48
+6i5*KEY_BACKSPACE{2I10} 17|270r21
+8i5*KEY_RETURN{2I10} 17|280r21
+9i5*KEY_ESCAPE{2I10} 17|330r21
+10i5*KEY_SPACE{2I10} 17|252r21
+42i5*KEY_AT{2I10} 17|252r42
+45i5*KEY_DOWN{2I10} 17|323r21
+46i5*KEY_UP{2I10} 17|314r21
+53i5*KEY_a{2I10} 17|253r20 256r23
+78i5*KEY_z{2I10} 17|253r37 256r40
+81i5*KEY_LSHIFT{2I10} 17|257r34
+82i5*KEY_RSHIFT{2I10} 17|258r34
+X 27 sensors.ads
+3K9*Sensors 17|3w6 3r19 27|24e12
+5I10*SensorId<short_short_integer>
+7V14*Char_To_Sensor_Group{4E10} 17|95s34 100s34 125s34 129s34
+8V14*Char_To_Sensor_Id{5I10} 17|96s31 101s31 126s31 130s31
+14U15*Draw_Sensor 17|94s21 99s21
+15e9 Group{4E10} 17|95r25 100r25
+16i9 Id{5I10} 17|96r25 101r25
+17b9 Active{boolean} 17|97r25 102r25
+X 28 switches.ads
+3K9*Switches 17|4w6 4r20 191r19 28|43e13
+4I10*BiSwitch<short_short_integer> 17|191r28
+5n28*BISWITCH_STRAIGHT{5E10} 17|196r41
+7n24*NORTH_SWITCH{7E10} 17|208r48 210r34
+7n38*SOUTH_SWITCH{7E10} 17|228r48 230r34
+8n29*TRISWITCH_LEFT{8E10} 17|211r22 231r22
+8n45*TRISWITCH_STRAIGHT{8E10} 17|214r22 234r22
+9n9*TRISWITCH_RIGHT{8E10} 17|217r22 237r22
+9n26*TRISWITCH_DERAIL{8E10} 17|220r22 240r22
+22V14*Parse_Switch_Id{11R10} 17|87s34 91s34 120s37 122s39
+28V14*Next_BiSwitch{5E10} 17|196s20
+30V14*Next_TriSwitch{8E10} 17|210s18 230s18
+32U15*Set_Switch 17|86s21 90s21
+32r27 Which{11R10} 17|87r25 91r25
+32b50 Curved{boolean} 17|88r25 92r25
+X 29 system.ads
+67M9*Address
+X 46 trains.ads
+1K9*Trains 17|8w6 46|5e11
+

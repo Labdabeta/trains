@@ -1,0 +1,175 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_FIXED_POINT
+RV NO_FLOATING_POINT
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+
+U sdl%b			sdl.adb			44ffbea9 NE OO PK IU
+W interfaces%s		interfac.ads		interfac.ali
+W system.fat_flt%s	s-fatflt.ads		s-fatflt.ali
+
+U sdl%s			sdl.ads			a9eb10dd EE NE OO PK IU
+W ada%s			ada.ads			ada.ali
+W ada.characters%s	a-charac.ads		a-charac.ali
+W ada.characters.latin_1%s  a-chlat1.ads	a-chlat1.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W interfaces.c.strings%s  i-cstrin.adb		i-cstrin.ali
+W sdl_keys%s		sdl_keys.ads		sdl_keys.ali
+W system%s		system.ads		system.ali
+W system.unsigned_types%s  s-unstyp.ads		s-unstyp.ali
+
+D ada.ads		20170630112710 76789da1 ada%s
+D a-charac.ads		20170630112710 2d3ec45b ada.characters%s
+D a-chlat1.ads		20170630112710 66457d31 ada.characters.latin_1%s
+D a-unccon.ads		20170630112710 31484697 ada.unchecked_conversion%s
+D interfac.ads		20170630112710 5ab55268 interfaces%s
+D i-c.ads		20170630112710 5421119b interfaces.c%s
+D i-cstrin.ads		20170630112710 341d0ddf interfaces.c.strings%s
+D sdl.ads		20170713054412 5a456819 sdl%s
+D sdl.adb		20170705044510 1ebad6b0 sdl%b
+D sdl_keys.ads		20170713054412 b3e2f5b5 sdl_keys%s
+D system.ads		20170630112710 4635ec04 system%s
+D s-exctab.ads		20170630112710 54135002 system.exception_table%s
+D s-fatflt.ads		20170630112710 11beb392 system.fat_flt%s
+D s-fatgen.ads		20170630112710 49cbaf86 system.fat_gen%s
+D s-parame.ads		20170630112710 7e2a0d7f system.parameters%s
+D s-stalib.ads		20170630112710 09bd3940 system.standard_library%s
+D s-unstyp.ads		20170630112710 34867c83 system.unsigned_types%s
+X 1 ada.ads
+16K9*Ada 20e8 8|4r6
+X 2 a-charac.ads
+16K13*Characters 18e19 8|4r10
+X 3 a-chlat1.ads
+18K24*Latin_1 296e27 8|4w21
+X 5 interfac.ads
+38K9*Interfaces 184e15 8|1r6 2r6 55r55 76r20 77r21 78r20 86r20 87r22 91r20
+. 92r22 96r20 97r22 100r32
+X 6 i-c.ads
+18K20*C 230e17 8|1w17 2r17 55r66 76r31 77r32 78r31 86r31 87r33 91r31 92r33
+. 96r31 97r33 100r43
+35I9*int<integer> 8|55r68 76r33 77r34
+X 7 i-cstrin.ads
+36K22*Strings 106e25 8|2w19 78r33 86r33 87r35 91r33 92r35 96r33 97r35 100r45
+47P9*chars_ptr 8|78r41 86r41 87r43 91r41 92r43 96r41 97r43 100r53
+X 8 sdl.ads
+7K9*SDL 120l5 120e8 9|1b14 35l5 35t8
+8M10*Uint8 9r27
+10M10*Uint32 11r27 112r31 115r28
+12I10*Sint32<integer> 13r27 51r22 59r40 60r61 61r51 118r35
+14M10*Milliseconds 15r27 48r25
+16E10*Mouse_Button 16e80 17r9 20r27 50r22
+16n27*MOUSE_LEFT{16E10} 18r9
+16n39*MOUSE_MIDDLE{16E10} 18r26
+16n53*MOUSE_RIGHT{16E10} 19r9
+16n66*MOUSE_UNKNOWN{16E10} 19r27
+22O10*Dimension 25r20 30r40 69r33 70r33 9|2r33 5r20 11r33 14r20
+23R10*Coordinate 26e19 34r17 9|21r17
+25o13*X{22O10} 9|25r19 26r19
+25o16*Y{22O10} 9|27r19 28r19
+28R10*Rectangle 31e19 35r17 9|22r17
+30o13*Top{22O10} 9|27r29 28r29
+30o18*Left{22O10} 9|25r29 26r29
+30o24*Width{22O10} 9|26r42
+30o31*Height{22O10} 9|28r41
+33V14*Within{boolean} 34>9 35>9 9|20b14 34l9 34t15
+34r9 Point{23R10} 9|21b9 25r13 26r13 27r13 28r13
+35r9 Space{28R10} 9|22b9 25r23 26r23 26r36 27r23 28r23 28r35
+37E10*Event_Type 39e17 40r9 43r27 47r20
+38n9*NONE{37E10} 41r9
+38n15*QUIT{37E10} 41r20
+38n21*KEYDOWN{37E10} 41r31
+38n30*KEYUP{37E10} 41r45
+38n37*MOUSEMOVE{37E10} 41r57
+38n48*MOUSEDOWN{37E10} 42r9
+38n59*MOUSEUP{37E10} 42r25
+38n68*WHEELMOVE{37E10} 42r39
+39n9*UNKNOWN{37E10} 42r55
+45R10*Event 52e19 53r27 72r35
+47e13*Kind{37E10}
+48m13*Timestamp{14M10}
+49i13*Key{10|2I10}
+50e13*Button{16E10}
+51i13*Dx{12I10}
+51i17*Dy{12I10}
+55A10*Key_State(6|35I9)<10|2I10> 56r27 62r20
+57R10*Input_Status 63e19 64r27 66r22
+59i13*Mouse_X{12I10} 9|4r19 4r43 5r45
+59i22*Mouse_Y{12I10} 9|13r19 13r43 14r45
+60i13*Mouse_Left{12I10}
+60i25*Mouse_Right{12I10}
+60i38*Mouse_Middle{12I10}
+61i13*Window_Width{12I10} 9|4r61 6r31
+61i27*Window_Height{12I10} 9|13r61 15r31
+62a13*Keys{55A10}
+66r5*Status{57R10} 67m23 67r23 9|4r12 4r36 4r54 5r38 6r24 13r12 13r36 13r54
+. 14r38 15r24
+69V14*Get_Mouse_X{22O10} 9|2b14 9l9 9t20
+70V14*Get_Mouse_Y{22O10} 9|11b14 18l9 18t20
+72U15*Poll_Event 72<27 73b<c,poll_event_sdl>23
+72r27 E{45R10}
+75U15*Open_Window 76>9 77>9 78>9 79b<c,open_window_sdl>23
+76i9 Width{6|35I9}
+77i9 Height{6|35I9}
+78p9 Title{7|47P9}
+81U15*Close_Window 82b<c,close_window_sdl>23
+85U15*Error_Popup 86>9 87>9 88b<c,error_popup_sdl>23
+86p9 Title{7|47P9}
+87p9 Message{7|47P9}
+90U15*Warning_Popup 91>9 92>9 93b<c,warning_popup_sdl>23
+91p9 Title{7|47P9}
+92p9 Message{7|47P9}
+95U15*Info_Popup 96>9 97>9 98b<c,info_popup_sdl>23
+96p9 Title{7|47P9}
+97p9 Message{7|47P9}
+100V14*Initialize{7|47P9} 101b<c,initialize_sdl>23
+103U15*Finalize 104b<c,finalize_sdl>23
+106U15*Render_Clear 107b<c,render_clear_sdl>23
+109U15*Render_Present 110b<c,render_present_sdl>23
+112V14*Get_Ticks{10M10} 113b<c,get_ticks_sdl>23
+115U15*Wait 115>21 116b<c,delay_sdl>23
+115m21 Time{10M10}
+118U15*Show_Cursor 118>28 119b<c,show_cursor_sdl>23
+118i28 Show{12I10}
+X 10 sdl_keys.ads
+1K9*SDL_Keys 8|5w6 49r19 55r30 10|84e13
+2I10*Key<short_integer> 8|49r28 55r39
+X 11 system.ads
+37K9*System 8|3w6 11|156e11
+

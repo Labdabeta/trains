@@ -1,0 +1,140 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_ELABORATION_CODE
+RV SPARK_05
+
+U reservations%b	reservations.adb	2ad46d00 NE OO PK
+W constants%s		constants.ads		constants.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W interfaces.c.strings%s  i-cstrin.adb		i-cstrin.ali
+W sdl%s			sdl.adb			sdl.ali
+W sdl.image%s		sdl-image.adb		sdl-image.ali
+W sensors%s		sensors.adb		sensors.ali
+W switches%s		switches.adb		switches.ali
+
+U reservations%s	reservations.ads	9564c1b4 EE OO PK
+W sdl%s			sdl.adb			sdl.ali
+W sdl.image%s		sdl-image.adb		sdl-image.ali
+W sensors%s		sensors.adb		sensors.ali
+W switches%s		switches.adb		switches.ali
+
+D ada.ads		20170630112710 76789da1 ada%s
+D a-charac.ads		20170630112710 2d3ec45b ada.characters%s
+D a-chlat1.ads		20170630112710 66457d31 ada.characters.latin_1%s
+D a-unccon.ads		20170630112710 31484697 ada.unchecked_conversion%s
+D constants.ads		20170720193222 e2a6dc3a constants%s
+D interfac.ads		20170630112710 5ab55268 interfaces%s
+D i-c.ads		20170630112710 5421119b interfaces.c%s
+D i-cstrin.ads		20170630112710 341d0ddf interfaces.c.strings%s
+D reservations.ads	20170727032135 b96ed546 reservations%s
+D reservations.adb	20170727032224 690b7d51 reservations%b
+D sdl.ads		20170713054412 5a456819 sdl%s
+D sdl-image.ads		20170713054412 cd181a4a sdl.image%s
+D sdl_keys.ads		20170713054412 b3e2f5b5 sdl_keys%s
+D sensors.ads		20170713054412 99ab7c4e sensors%s
+D switches.ads		20170713054412 78b972f6 switches%s
+D system.ads		20170630112710 4635ec04 system%s
+D s-exctab.ads		20170630112710 54135002 system.exception_table%s
+D s-parame.ads		20170630112710 7e2a0d7f system.parameters%s
+D s-stalib.ads		20170630112710 09bd3940 system.standard_library%s
+D s-unstyp.ads		20170630112710 34867c83 system.unsigned_types%s
+X 5 constants.ads
+5K9*Constants 451e14 10|4w6 16r40 24r36 31r36
+35a5*BiSwitch_Area(11|28R10) 10|24r46
+108a5*TriSwitch_Area(11|28R10) 10|31r46
+118a5*Sensor_Area(11|28R10) 10|16r50
+X 6 interfac.ads
+38K9*Interfaces 184e15 10|5r6 5r32
+X 7 i-c.ads
+18K20*C 230e17 10|5r17 5r43
+X 8 i-cstrin.ads
+36K22*Strings 106e25 10|5w19 5r45
+47P9*chars_ptr
+60V13*New_String{47P9} 10|44s22
+X 9 reservations.ads
+5K9*Reservations 19E5 24l5 24e17 10|7b14 79l5 79t17
+6U15*Initialize 10|41b15 46l9 46t19
+7U15*Finalize 10|36b15 39l9 39t17
+8U15*Draw 10|9b15 34l9 34t13
+10U15*Reserve_Switch 10>31 10|55b15 62l9 62t23
+10r31 Which{15|11R10} 10|55b31 57r12 58r24 60r23
+11U15*Unreserve_Switch 11>33 10|71b15 78l9 78t25
+11r33 Which{15|11R10} 10|71b33 73r12 74r24 76r23
+12U15*Reserve_Sensor 13>9 14>9 10|48b15 53l9 53t23
+13e9 Group{14|4E10} 10|49b9 52r23
+14i9 Id{14|5I10} 10|50b9 52r30
+15U15*Unreserve_Sensor 16>9 17>9 10|64b15 69l9 69t25
+16e9 Group{14|4E10} 10|65b9 68r23
+17i9 Id{14|5I10} 10|66b9 68r30
+19a5 BiStates(boolean) 10|21r16 60m13 76m13
+20a5 TriStates(boolean) 10|28r16 58m13 74m13
+21a5 SensorStates(boolean) 10|13r20 52m9 68m9
+23r5 Occupied{12|3R10} 10|15r32 23r28 30r28 38r25 45m20
+X 10 reservations.adb
+11e13 Group{14|4E10} 13r34 16r63
+12i17 Id{14|5I10} 13r41 16r70
+20i13 Bi{15|4I10} 21r26 24r61
+27e13 Tri{15|7E10} 28r27 31r62
+X 11 sdl.ads
+7K9*SDL 9|1r6 23r16 10|1r6 14r21 22r17 29r17 38r9 43r9 11|120e8
+X 12 sdl-image.ads
+1K13*Image 9|1w10 23r20 10|1w10 14r25 22r21 29r21 38r13 43r13 12|37e14
+3R10*Image 9|23r26 12|8e19
+13U15*Open 10|43s19
+14p9 Fname{8|47P9} 10|44r13
+15r9 Img{3R10} 10|45r13
+18U15*Free 10|38s19
+22U15*Draw 10|14s31 22s27 29s27
+23r9 Img{3R10} 10|15r25 23r21 30r21
+26r9 Destination{11|28R10} 10|16r25 24r21 31r21
+X 14 sensors.ads
+3K9*Sensors 9|3w6 13r17 14r14 16r17 17r14 21r27 21r48 10|3w6 3r19 49r17 50r14
+. 65r17 66r14 14|24e12
+4E10*SensorGroup 9|13r25 16r25 21r35 10|11r22 49r25 65r25 14|4e55
+5I10*SensorId<short_short_integer> 9|14r22 17r22 21r56 10|12r23 50r22 66r22
+X 15 switches.ads
+3K9*Switches 9|2w6 10r39 11r41 19r23 20r24 10|2w6 2r20 55r39 71r41 15|43e13
+4I10*BiSwitch<short_short_integer> 9|19r32 10|20r19
+7E10*TriSwitch 9|20r33 10|27r20 15|7e51
+11R10*GenericSwitch 9|10r48 11r50 10|55r48 71r50 15|20e19
+11b25*IsTri{boolean} 10|57r18 73r18
+15e21*Tri{7E10} 10|58r30 74r30
+18i21*Bi{4I10} 10|60r29 76r29
+

@@ -1,0 +1,109 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U sdl.font%s		sdl-font.ads		6f719019 NE OO PK IU
+W sdl%s			sdl.adb			sdl.ali
+W sdl.image%s		sdl-image.adb		sdl-image.ali
+
+D ada.ads		20170630112710 76789da1 ada%s
+D a-charac.ads		20170630112710 2d3ec45b ada.characters%s
+D a-chlat1.ads		20170630112710 66457d31 ada.characters.latin_1%s
+D a-unccon.ads		20170630112710 31484697 ada.unchecked_conversion%s
+D interfac.ads		20170630112710 5ab55268 interfaces%s
+D i-c.ads		20170630112710 5421119b interfaces.c%s
+D i-cstrin.ads		20170630112710 341d0ddf interfaces.c.strings%s
+D sdl.ads		20170713054412 5a456819 sdl%s
+D sdl-font.ads		20170703010015 f82ce24a sdl.font%s
+D sdl-image.ads		20170713054412 cd181a4a sdl.image%s
+D sdl_keys.ads		20170713054412 b3e2f5b5 sdl_keys%s
+D system.ads		20170630112710 4635ec04 system%s
+D s-exctab.ads		20170630112710 54135002 system.exception_table%s
+D s-parame.ads		20170630112710 7e2a0d7f system.parameters%s
+D s-stalib.ads		20170630112710 09bd3940 system.standard_library%s
+D s-unstyp.ads		20170630112710 34867c83 system.unsigned_types%s
+X 5 interfac.ads
+38K9*Interfaces 184e15 9|7r20 8r19 17r19 26r19 38r19
+X 6 i-c.ads
+18K20*C 230e17 9|7r31 8r30 17r30 26r30 38r30
+35I9*int<integer> 9|8r32
+X 7 i-cstrin.ads
+36K22*Strings 106e25 9|7r33 17r32 26r32 38r32
+47P9*chars_ptr 9|7r41 17r40 26r40 38r40
+X 8 sdl.ads
+7K9*SDL 120e8 9|1r6 3r9 21r19 33r19 42r19 45r5
+8M10*Uint8 9|18r18 19r20 20r19 27r29 28r31 29r30 30r29 31r31 32r30 39r18
+. 40r20 41r19
+X 9 sdl-font.ads
+3K13*Font 8|7k9 9|45l9 45e13
+4M13*SDL_Font{12|67M9} 9r16 12r30 16r18 25r18 37r18
+6V14*Open{4M13} 7>9 8>9 10b<c,open_font_sdl>23
+7p9 fname{7|47P9}
+8i9 size{6|35I9}
+12U15*Free 12>21 13b<c,free_font_sdl>23
+12m21 fnt{4M13}
+15U15*RenderFast 16>9 17>9 18>9 19>9 20>9 21<9 22b<c,render_text_aliased_sdl>23
+16m9 fnt{4M13}
+17p9 text{7|47P9}
+18m9 red{8|8M10}
+19m9 green{8|8M10}
+20m9 blue{8|8M10}
+21r9 img{10|3R10}
+24U15*RenderAntialiased 25>9 26>9 27>9 28>9 29>9 30>9 31>9 32>9 33<9 34b<c,render_text_background_sdl>23
+25m9 fnt{4M13}
+26p9 text{7|47P9}
+27m9 foreground_red{8|8M10}
+28m9 foreground_green{8|8M10}
+29m9 foreground_blue{8|8M10}
+30m9 background_red{8|8M10}
+31m9 background_green{8|8M10}
+32m9 background_blue{8|8M10}
+33r9 img{10|3R10}
+36U15*RenderNice 37>9 38>9 39>9 40>9 41>9 42<9 43b<c,render_text_nice_sdl>23
+37m9 fnt{4M13}
+38p9 text{7|47P9}
+39m9 red{8|8M10}
+40m9 green{8|8M10}
+41m9 blue{8|8M10}
+42r9 img{10|3R10}
+X 10 sdl-image.ads
+1K13*Image 9|1w10 21r23 33r23 42r23 10|37e14
+3R10*Image 9|21r29 33r29 42r29 10|8e19
+X 12 system.ads
+37K9*System 9|4r25 12|156e11
+67M9*Address 9|4r32
+

@@ -1,0 +1,70 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+
+U sdl.dialog%s		sdl-dialog.ads		8157ebb4 NE OO PK IU
+W sdl%s			sdl.adb			sdl.ali
+
+D ada.ads		20170621060310 76789da1 ada%s
+D a-charac.ads		20170621060310 2d3ec45b ada.characters%s
+D a-chlat1.ads		20170621060310 66457d31 ada.characters.latin_1%s
+D a-unccon.ads		20170621060310 31484697 ada.unchecked_conversion%s
+D interfac.ads		20170621060311 5ab55268 interfaces%s
+D i-c.ads		20170621060311 5421119b interfaces.c%s
+D i-cstrin.ads		20170621060311 341d0ddf interfaces.c.strings%s
+D sdl.ads		20170703210649 9eaf1e7f sdl%s
+D sdl-dialog.ads	20170703213416 1ff8f5cb sdl.dialog%s
+D sdl_keys.ads		20170703010015 278de161 sdl_keys%s
+D system.ads		20170621060311 4635ec04 system%s
+D s-exctab.ads		20170621060311 54135002 system.exception_table%s
+D s-parame.ads		20170621060311 7e2a0d7f system.parameters%s
+D s-stalib.ads		20170621060311 09bd3940 system.standard_library%s
+D s-unstyp.ads		20170621060311 34867c83 system.unsigned_types%s
+X 8 sdl.ads
+7K9*SDL 114e8 9|1r9 11r5
+X 9 sdl-dialog.ads
+1K13*Dialog 8|7k9 9|11l9 11e15
+2E10*Default_Button 2e59 6r23
+2n29*DEFAULT_ESCAPE{2E10}
+2n45*DEFAULT_ENTER{2E10}
+4R10*MessageBoxButton 4d28 9e19
+4i28*Text_Length{natural} 8r33
+6e13*Default{2E10}
+7i13*Id{integer}
+8a13*Text{string}
+

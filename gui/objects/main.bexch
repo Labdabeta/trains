@@ -1,0 +1,29 @@
+[GENERATED OBJECT FILE]
+b__main.o
+[PROJECT FILES]
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/debug.gpr
+20170703010015
+[BOUND OBJECT FILES]
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/com.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/sdl_keys.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/sdl.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/sdl-image.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/sdl-font.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/constants.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/sensors.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/switches.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/reservations.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/trains.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/input_processor.o
+/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/main.o
+[GENERATED SOURCE FILES]
+b__main.ads
+b__main.adb
+b__main.ali
+[RESULTING OPTIONS]
+-L/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/
+-L/home/louis/csassignments/cs452/kernel/cs452_kernel/gui/objects/
+-L/usr/lib/gcc/x86_64-pc-linux-gnu/7.1.1/adalib/
+-static
+-static-libgcc
+/usr/lib/gcc/x86_64-pc-linux-gnu/7.1.1/adalib/libgnat.a

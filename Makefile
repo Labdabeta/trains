@@ -22,8 +22,8 @@ CFLAGS=-c -fPIC -Wall $(CPU) -msoft-float -DEXIT_SUCCESS=0 -DEXIT_FAILURE=1 -Dsi
 ASFLAGS=-mcpu=arm920t -mapcs-32 -march=armv4t
 LDFLAGS=-init main -N -T $(LDSCRIPT) $(LIBS)
 
-TARGETS=kernel.elf
-SOURCES=$(shell find src -name '*.c')
+TARGETS=kernel.elf src/test.o
+SOURCES=$(shell find src -name '*.c' -not -name 'test.c')
 MODULES=$(filder-out main.c,$(SOURCES))
 OBJECTS=$(patsubst %.c,%.o,$(SOURCES)) src/kernel/context_switch.o
 HEADERS=$(patsubst %.c,%.h,$(MODULES))
@@ -54,7 +54,7 @@ log: log.c
 push:
 	./push_kernel.sh
 
-report: reports/k1.pdf reports/k2.pdf reports/k3.pdf reports/k4.pdf reports/ai.pdf reports/tc1.pdf
+report: reports/k1.pdf reports/k2.pdf reports/k3.pdf reports/ai.pdf reports/tc1.pdf reports/tc2.pdf reports/final.pdf
 
 reports/%.pdf: reports/%.tex
 	cd reports && sed "s/{{{commit hash}}}/$(shell git rev-parse HEAD)/g" < $*.tex > real.tex && lualatex --jobname=$* real.tex && rm real.tex

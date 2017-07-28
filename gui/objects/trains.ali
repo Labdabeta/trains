@@ -1,0 +1,58 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+
+U trains%b		trains.adb		890767db NE OO PK
+
+U trains%s		trains.ads		d5c7e58c EE NE OO PK
+
+D system.ads		20170630112710 4635ec04 system%s
+D trains.ads		20170713054412 d5c7e58c trains%s
+D trains.adb		20170713054412 5cc08257 trains%b
+X 2 trains.ads
+1K9*Trains 5l5 5e11 3|1b14 44l5 44t11
+2I10*Train_Id<short_short_integer> 4r49 3|2r49 3r24
+4V14*Parse_Id{2I10} 4>24 4>27 3|2b14 43l9 43t17
+4e24 A{character} 3|2b24 5r12 9r14
+4e27 B{character} 3|2b27 5r23 18r14
+X 3 trains.adb
+3i9 Return_Value{2|2I10} 10m25 11m25 12m25 13m25 14m25 19r32 20r32 21r32
+. 22r32 23r32 24r32 25r32 26r32 27r32 28r32 29r32 30r32 31r32 32r32 33r32
+. 34r32 35r32 36r32 37r32 38r32 39r32 40r32
+

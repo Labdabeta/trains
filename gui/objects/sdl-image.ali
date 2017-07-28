@@ -1,0 +1,143 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_FIXED_POINT
+RV NO_FLOATING_POINT
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+
+U sdl.image%b		sdl-image.adb		adb6025c NE OO PK IU
+W interfaces%s		interfac.ads		interfac.ali
+W sdl%s			sdl.adb			sdl.ali
+W system.fat_flt%s	s-fatflt.ads		s-fatflt.ali
+W system.fat_lflt%s	s-fatlfl.ads		s-fatlfl.ali
+
+U sdl.image%s		sdl-image.ads		975d7253 EE NE OO PK IU
+W sdl%s			sdl.adb			sdl.ali
+
+D ada.ads		20170630112710 76789da1 ada%s
+D a-charac.ads		20170630112710 2d3ec45b ada.characters%s
+D a-chlat1.ads		20170630112710 66457d31 ada.characters.latin_1%s
+D a-unccon.ads		20170630112710 31484697 ada.unchecked_conversion%s
+D interfac.ads		20170630112710 5ab55268 interfaces%s
+D i-c.ads		20170630112710 5421119b interfaces.c%s
+D i-cstrin.ads		20170630112710 341d0ddf interfaces.c.strings%s
+D sdl.ads		20170713054412 5a456819 sdl%s
+D sdl-image.ads		20170713054412 cd181a4a sdl.image%s
+D sdl-image.adb		20170713054412 60ae1816 sdl.image%b
+D sdl_keys.ads		20170713054412 b3e2f5b5 sdl_keys%s
+D system.ads		20170630112710 4635ec04 system%s
+D s-exctab.ads		20170630112710 54135002 system.exception_table%s
+D s-fatflt.ads		20170630112710 11beb392 system.fat_flt%s
+D s-fatgen.ads		20170630112710 49cbaf86 system.fat_gen%s
+D s-fatlfl.ads		20170630112710 378cba9f system.fat_lflt%s
+D s-parame.ads		20170630112710 7e2a0d7f system.parameters%s
+D s-stalib.ads		20170630112710 09bd3940 system.standard_library%s
+D s-unstyp.ads		20170630112710 34867c83 system.unsigned_types%s
+X 5 interfac.ads
+38K9*Interfaces 184e15 9|14r20 28r23 10|12r20 25r23
+X 6 i-c.ads
+18K20*C 230e17 9|14r31 28r34 10|12r31 25r34
+65F9*double<long_float> 9|28r36 10|12r33 25r36
+X 7 i-cstrin.ads
+36K22*Strings 106e25 9|14r33
+47P9*chars_ptr 9|14r41
+X 8 sdl.ads
+7K9*SDL 120e8 9|1r9 35r23 37r5 10|1r14 51r24 53r24 55r18 57r18 67r23 74r24
+. 76r24 80r5
+12I10*Sint32<integer> 9|5r17 6r17 10|4r25 5r26 6r28 7r27 8r18 9r19 10r21
+. 11r20 13r23 14r23 15r20 16r20 29r23 30r23 46r27 47r28 48r30 49r29 50r20
+. 52r21 54r23 56r22 59r25 60r25 73r20 75r21
+22O10*Dimension
+23R10*Coordinate 26e19 9|29r21 35r27 10|26r21 67r27
+25o13*X{22O10} 9|29m36 10|26m36 59r47 60r47 75r45
+25o16*Y{22O10} 9|29m46 10|26m46 73r44
+28R10*Rectangle 31e19 9|24r21 26r26 10|21r21 23r26
+30o13*Top{22O10} 9|25m13 27m13 10|22m13 24m13 46r49 50r47
+30o18*Left{22O10} 9|25m25 27m25 10|22m25 24m25 47r50 52r48
+30o24*Width{22O10} 9|25m38 27m38 10|22m38 24m38 49r51 56r49
+30o31*Height{22O10} 9|25m52 27m52 10|22m52 24m52 48r52 54r50
+61i13*Window_Width{12I10} 10|53r35 57r29 76r35
+61i27*Window_Height{12I10} 10|51r35 55r29 74r35
+66r5*Status{57R10} 10|51r28 53r28 55r22 57r22 74r28 76r28
+X 9 sdl-image.ads
+1K13*Image 8|7k9 9|37l9 37e14 10|1b18 80l9 80t14
+2M13*SDL_Image{12|67M9} 7r19
+3R10*Image 8e19 9r27 11r27 15r19 19r18 23r18 34r18 10|3r18 20r18 66r18
+5i13*W{8|12I10} 11m37 10|47r69 49r71 59r63 72r57 77r26
+6i13*H{8|12I10} 11m45 10|46r67 48r73 60r63 72r34 77r43
+7m13*Img{2M13} 11m53
+11r5*Null_Image{3R10}
+13U15*Open 14>9 15<9 16b<c,open_image_sdl>23
+14p9 Fname{7|47P9}
+15r9 Img{3R10}
+18U15*Free 19>9 20b<c,free_image_sdl>23
+19r9 Img{3R10}
+22U15*Draw 23>9 24>9 26>9 28>9 29>9 30>9 31>9 10|19b15 63l9 63t13
+23r9 Img{3R10} 10|20b9 45r20 46r63 47r65 48r69 49r67 59r59 60r59
+24r9 Source{8|28R10} 10|21b9 46r42 47r43 48r45 49r44
+26r9 Destination{8|28R10} 10|23b9 50r35 52r36 54r38 56r37
+28f9 Rotation{6|65F9} 10|25b9 58r22
+29r9 Center{8|23R10} 10|26b9 59r40 60r40
+30b9 VFlip{boolean} 10|27b9 32r12
+31b9 HFlip{boolean} 10|28b9 38r12
+33U15*Draw_Raw 34>9 35>9 10|65b15 79l9 79t17
+34r9 Img{3R10} 10|66b9 70r20 72r30 72r53 77r22 77r39
+35r9 Top_Left{8|23R10} 10|67b9 73r35 75r36
+X 10 sdl-image.adb
+2U15 CDraw 3>9 4>9 5>9 6>9 7>9 8>9 9>9 10>9 11>9 12>9 13>9 14>9 15>9 16>9
+. 17b<c,draw_image_sdl>23 44s9 69s9
+3r9 Img{9|3R10} 45r13 70r13
+4i9 Source_Top{8|12I10} 46r13 71r13
+5i9 Source_Left{8|12I10} 47r13 71r30
+6i9 Source_Height{8|12I10} 48r13 72r13
+7i9 Source_Width{8|12I10} 49r13 72r37
+8i9 Top{8|12I10} 50r13 73r13
+9i9 Left{8|12I10} 52r13 75r13
+10i9 Height{8|12I10} 54r13 77r29
+11i9 Width{8|12I10} 56r13 77r13
+12f9 Angle{6|65F9} 58r13 78r13
+13i9 Center_X{8|12I10} 59r13 78r27
+14i9 Center_Y{8|12I10} 60r13 78r42
+15i9 VFlip{8|12I10} 61r13 78r57
+16i9 HFlip{8|12I10} 62r13 78r69
+29i9 VFlip_Value{8|12I10} 33m13 35m13 61r22
+30i9 HFlip_Value{8|12I10} 39m13 41m13 62r22
+X 12 system.ads
+37K9*System 9|2r26 11r60 12|156e11
+67M9*Address 9|2r33
+69m4*Null_Address{67M9} 9|11r67
+

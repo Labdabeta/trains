@@ -1,0 +1,90 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+RV SPARK_05
+
+U switch_collisions%s	switch_collisions.ads	44bcb572 EE OO PK
+
+D switch_collisions.ads	20170629194355 44bcb572 switch_collisions%s
+D system.ads		20170621060311 4635ec04 system%s
+X 1 switch_collisions.ads
+2K9*Switch_Collisions 45l5 45e22
+3a5*SW_SL(boolean)
+4a5*SW_18C(boolean)
+5a5*SW_4S(boolean)
+6a5*SW_1C(boolean)
+7a5*SW_16S(boolean)
+8a5*SW_5C(boolean)
+9a5*SW_12C(boolean)
+10a5*SW_SR(boolean)
+11a5*SW_SS(boolean)
+12a5*SW_2S(boolean)
+13a5*SW_18S(boolean)
+14a5*SW_7S(boolean)
+15a5*SW_11C(boolean)
+16a5*SW_10S(boolean)
+17a5*SW_6S(boolean)
+18a5*SW_8S(boolean)
+19a5*SW_14C(boolean)
+20a5*SW_3C(boolean)
+21a5*SW_3S(boolean)
+22a5*SW_11S(boolean)
+23a5*SW_13S(boolean)
+24a5*SW_14S(boolean)
+25a5*SW_17C(boolean)
+26a5*SW_15C(boolean)
+27a5*SW_NL(boolean)
+28a5*SW_16C(boolean)
+29a5*SW_12S(boolean)
+30a5*SW_7C(boolean)
+31a5*SW_5S(boolean)
+32a5*SW_2C(boolean)
+33a5*SW_9S(boolean)
+34a5*SW_15S(boolean)
+35a5*SW_6C(boolean)
+36a5*SW_17S(boolean)
+37a5*SW_4C(boolean)
+38a5*SW_13C(boolean)
+39a5*SW_1S(boolean)
+40a5*SW_8C(boolean)
+41a5*SW_NS(boolean)
+42a5*SW_NR(boolean)
+43a5*SW_10C(boolean)
+44a5*SW_9C(boolean)
+

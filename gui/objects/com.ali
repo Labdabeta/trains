@@ -1,0 +1,69 @@
+V "GNAT Lib v7"
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U com%s			com.ads			597e3f92 NE OO PK
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W interfaces.c.strings%s  i-cstrin.adb		i-cstrin.ali
+
+D ada.ads		20170630112710 76789da1 ada%s
+D a-unccon.ads		20170630112710 31484697 ada.unchecked_conversion%s
+D com.ads		20170703010015 394223d6 com%s
+D interfac.ads		20170630112710 5ab55268 interfaces%s
+D i-c.ads		20170630112710 5421119b interfaces.c%s
+D i-cstrin.ads		20170630112710 341d0ddf interfaces.c.strings%s
+D system.ads		20170630112710 4635ec04 system%s
+D s-exctab.ads		20170630112710 54135002 system.exception_table%s
+D s-parame.ads		20170630112710 7e2a0d7f system.parameters%s
+D s-stalib.ads		20170630112710 09bd3940 system.standard_library%s
+X 3 com.ads
+4K9*Com 16l5 16e8
+5V14*Initialize{6|47P9} 6>9 12b<c,initCom2>23
+6p9 Port{6|47P9}
+8V14*Finalize{6|47P9} 13b<c,quitTerminals>23
+9V14*Getc{integer} 14b<c,com2_getc>23
+10U15*Putc 10>21 15b<c,com2_putc>23
+10e21 C{character}
+X 4 interfac.ads
+38K9*Interfaces 3|1r6 2r6 6r19 7r16 8r30 4|184e15
+X 5 i-c.ads
+18K20*C 3|1w17 2r17 6r30 7r27 8r41 5|230e17
+X 6 i-cstrin.ads
+36K22*Strings 3|2w19 6r32 7r29 8r43 6|106e25
+47P9*chars_ptr 3|6r40 7r37 8r51
+

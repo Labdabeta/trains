@@ -1,0 +1,227 @@
+V "GNAT Lib v7"
+M P W=b
+A -gnatA
+A -g
+A -g
+A -gnatVa
+A -gnatwe
+A -gnaty4
+A -gnatya
+A -gnatyA
+A -gnatyb
+A -gnatyC
+A -gnatyd
+A -gnatye
+A -gnatyf
+A -gnatyh
+A -gnatyi
+A -gnatyk
+A -gnatyl
+A -gnatyL
+A -gnaty1
+A -gnaty2
+A -gnatym
+A -gnatyM80
+A -gnatyn
+A -gnatyo
+A -gnatyp
+A -gnatyr
+A -gnatyS
+A -gnatyt
+A -gnatyu
+A -gnatyx
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLEMENTATION_PRAGMAS
+RV SPARK_05
+
+U main%b		main.adb		ee264441 NE OO SU
+W ada%s			ada.ads			ada.ali
+W ada.command_line%s	a-comlin.adb		a-comlin.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W com%s			com.ads			com.ali
+W constants%s		constants.ads		constants.ali
+W gnat%s		gnat.ads		gnat.ali
+W gnat.serial_communications%s  g-sercom.adb	g-sercom.ali
+W input_processor%s	input_processor.adb	input_processor.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W interfaces.c.strings%s  i-cstrin.adb		i-cstrin.ali
+W reservations%s	reservations.adb	reservations.ali
+W sdl%s			sdl.adb			sdl.ali
+W sdl.image%s		sdl-image.adb		sdl-image.ali
+W sdl_keys%s		sdl_keys.ads		sdl_keys.ali
+W sensors%s		sensors.adb		sensors.ali
+W switches%s		switches.adb		switches.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+D ada.ads		20170630112710 76789da1 ada%s
+D a-charac.ads		20170630112710 2d3ec45b ada.characters%s
+D a-chlat1.ads		20170630112710 66457d31 ada.characters.latin_1%s
+D a-comlin.ads		20170630112710 ea62afbc ada.command_line%s
+D a-except.ads		20170630112714 291912d5 ada.exceptions%s
+D a-finali.ads		20170630112710 bf4f806b ada.finalization%s
+D a-ioexce.ads		20170630112710 e4a01f64 ada.io_exceptions%s
+D a-stream.ads		20170630112714 119b8fb3 ada.streams%s
+D a-tags.ads		20170630112714 01f5e3ef ada.tags%s
+D a-textio.ads		20170630112710 386df5d4 ada.text_io%s
+D a-unccon.ads		20170630112710 31484697 ada.unchecked_conversion%s
+D com.ads		20170703010015 394223d6 com%s
+D constants.ads		20170720193222 e2a6dc3a constants%s
+D gnat.ads		20170630112710 fd2ad2f1 gnat%s
+D g-sercom.ads		20170630112714 28394732 gnat.serial_communications%s
+D input_processor.ads	20170720195230 626e4ed8 input_processor%s
+D interfac.ads		20170630112710 5ab55268 interfaces%s
+D i-c.ads		20170630112710 5421119b interfaces.c%s
+D i-cstrin.ads		20170630112710 341d0ddf interfaces.c.strings%s
+D i-cstrea.ads		20170630112710 e53d8b8e interfaces.c_streams%s
+D main.adb		20170727031735 e544b9e8 main%b
+D reservations.ads	20170727032135 b96ed546 reservations%s
+D sdl.ads		20170713054412 5a456819 sdl%s
+D sdl-font.ads		20170703010015 f82ce24a sdl.font%s
+D sdl-image.ads		20170713054412 cd181a4a sdl.image%s
+D sdl_keys.ads		20170713054412 b3e2f5b5 sdl_keys%s
+D sensors.ads		20170713054412 99ab7c4e sensors%s
+D switches.ads		20170713054412 78b972f6 switches%s
+D system.ads		20170630112710 4635ec04 system%s
+D s-crtl.ads		20170630112710 0ebbdb71 system.crtl%s
+D s-exctab.ads		20170630112710 54135002 system.exception_table%s
+D s-ficobl.ads		20170630112714 078245e4 system.file_control_block%s
+D s-finmas.ads		20170630112714 7811a767 system.finalization_masters%s
+D s-finroo.ads		20170630112710 4ff27390 system.finalization_root%s
+D s-parame.ads		20170630112710 7e2a0d7f system.parameters%s
+D s-pooglo.ads		20170630112710 ede33ef8 system.pool_global%s
+D s-secsta.ads		20170630112710 9751b57e system.secondary_stack%s
+D s-soflin.ads		20170630112710 14e1eb6c system.soft_links%s
+D s-stache.ads		20170630112710 a37c21ec system.stack_checking%s
+D s-stalib.ads		20170630112710 09bd3940 system.standard_library%s
+D s-stoele.ads		20170630112710 2dc34a04 system.storage_elements%s
+D s-stopoo.ads		20170630112710 b16154c2 system.storage_pools%s
+D s-traent.ads		20170630112710 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20170630112710 34867c83 system.unsigned_types%s
+D s-wchcon.ads		20170630112710 1b7d22d2 system.wch_con%s
+X 1 ada.ads
+16K9*Ada 20e8 21|6r6 7r6 7r23 29r8 45r47 56r30 62r18 63r19
+X 4 a-comlin.ads
+38K13*Command_Line 139e21 21|6w10 29r12 45r51 56r34 62r22 63r23
+41V13*Argument_Count{natural} 21|29s25
+48V13*Argument{string} 21|45s64 56s47 62s35 63s36
+X 10 a-textio.ads
+49K13*Text_IO 471e16 21|7w10 7r27
+X 12 com.ads
+4K9*Com 16e8 21|8w6 45r19 63r9 90r18 114r5 115r5 116r5 118r19
+5V14*Initialize{19|47P9} 21|45s23
+8V14*Finalize{19|47P9} 21|118s23
+9V14*Getc{integer} 21|90s22
+10U15*Putc 21|63s13 114s9 115s9 116s9
+X 13 constants.ads
+5K9*Constants 451e14 21|12w6 100r28
+13r5*Map_Area{23|28R10} 21|100r38
+X 14 gnat.ads
+34K9*GNAT 37e9 21|1r6 1r38
+X 15 g-sercom.ads
+37K14*Serial_Communications 140e31 21|1w11 1r43
+39X4*Serial_Error 21|133r14
+X 16 input_processor.ads
+7K9*Input_Processor 41e20 21|11w6 68r5 79r37 82r39 92r16 103r9 129r5
+8U15*Initialize 21|68s21
+9U15*Finalize 21|129s21
+10V14*Process{boolean} 21|92s32
+11U15*Process_Click 21|82s55
+12U15*Process_Keyboard 21|79s53
+13U15*Draw 21|103s25
+X 17 interfac.ads
+38K9*Interfaces 184e15 21|5r6 5r32
+X 18 i-c.ads
+18K20*C 230e17 21|5r17 5r43
+35I9*int<integer>
+X 19 i-cstrin.ads
+36K22*Strings 106e25 21|5w19 5r45
+47P9*chars_ptr 21|20r18
+52p4*Null_Ptr{47P9} 21|38r22 46r22 119r22
+60V13*New_String{47P9} 21|31s22 32s24 40s22 45s35 48s22 56s18 59s18 121s22
+. 135s26 137s21
+X 21 main.adb
+15U11*Main 15b11 139l5 139t9
+17N5 Window_Width 54r18
+18N5 Window_Height 55r19
+19N5 Ticks_Per_Frame 109r28 110r23
+20p5 Init_Error{19|47P9} 37m5 38r8 41r24 45m5 46r8 49r24 118m5 119r8 122r24
+21r5 Background{25|3R10} 60m16 99r20
+22b5 Quit{boolean} 73r15 78m34 93m17
+23m5 Last_Ticks{23|10M10} 71m5 107r42 108m9
+24m5 Current_Ticks{23|10M10} 107m9 109r12 110r41
+25r5 E{23|45R10} 75m34 76r18 79r71
+26i5 I{integer} 90m13 91r23 92r56
+27b5 Init{boolean}
+62i9 Index{integer} 63r49
+X 22 reservations.ads
+5K9*Reservations 21|13w6 69r5 104r9 130r5 22|24e17
+6U15*Initialize 21|69s18
+7U15*Finalize 21|130s18
+8U15*Draw 21|104s22
+X 23 sdl.ads
+7K9*SDL 21|2w6 2r15 4r6 21r18 23r18 24r21 25r9 30r9 37r19 39r9 47r9 53r5
+. 58r5 71r19 75r13 77r22 78r22 79r22 80r22 81r22 82r22 83r22 84r22 85r22
+. 97r9 98r9 105r9 107r26 108r23 110r13 120r9 128r5 134r13 23|120e8
+10M10*Uint32 21|23r22 24r25
+38n9*NONE{37E10} 21|77r26
+38n15*QUIT{37E10} 21|78r26
+38n21*KEYDOWN{37E10} 21|79r26
+38n30*KEYUP{37E10} 21|80r26
+38n37*MOUSEMOVE{37E10} 21|81r26
+38n48*MOUSEDOWN{37E10} 21|82r26
+38n59*MOUSEUP{37E10} 21|83r26
+38n68*WHEELMOVE{37E10} 21|84r26
+39n9*UNKNOWN{37E10} 21|85r26
+45R10*Event 21|25r13 23|52e19
+47e13*Kind{37E10} 21|76r20
+49i13*Key{26|2I10} 21|79r73
+72U15*Poll_Event 21|75s17
+72r27 E{45R10} 21|75r29
+75U15*Open_Window 21|53s9
+76i9 Width{18|35I9} 21|54r9
+77i9 Height{18|35I9} 21|55r9
+78p9 Title{19|47P9} 21|56r9
+85U15*Error_Popup 21|30s13 39s13 47s13 120s13 134s17
+86p9 Title{19|47P9} 21|31r13 40r13 48r13 121r13 135r17
+87p9 Message{19|47P9} 21|32r13 41r13 49r13 122r13 136r17
+100V14*Initialize{19|47P9} 21|37s23
+103U15*Finalize 21|128s9
+106U15*Render_Clear 21|97s13
+109U15*Render_Present 21|105s13
+112V14*Get_Ticks{10M10} 21|71s23 107s30 108s27
+115U15*Wait 21|110s17
+X 25 sdl-image.ads
+1K13*Image 21|4w10 21r22 58r9 98r13 25|37e14
+3R10*Image 21|21r28 25|8e19
+13U15*Open 21|58s15
+14p9 Fname{19|47P9} 21|59r9
+15r9 Img{3R10} 21|60r9
+22U15*Draw 21|98s19
+23r9 Img{3R10} 21|99r13
+26r9 Destination{23|28R10} 21|100r13
+X 26 sdl_keys.ads
+1K9*SDL_Keys 21|3w6 3r20 26|84e13
+2I10*Key<short_integer>
+X 27 sensors.ads
+3K9*Sensors 21|9w6 9r19 67r5 102r9 127r5 27|24e12
+10U15*Initialize 21|67s13
+12U15*Finalize 21|127s13
+19U15*Draw 21|102s17
+X 28 switches.ads
+3K9*Switches 21|10w6 66r5 101r9 126r5 28|43e13
+24U15*Initialize 21|66s14
+26U15*Finalize 21|126s14
+34U15*Draw 21|101s18
+
